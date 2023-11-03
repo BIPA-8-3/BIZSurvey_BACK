@@ -23,12 +23,18 @@ spring:
     activate:
       on-profile: common
 
+
 ---
 
 spring:
   config:
     activate:
       on-profile: development_database
+  datasource:
+    url: jdbc:mysql://localhost:3306/bizsurvey
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 ---
 
