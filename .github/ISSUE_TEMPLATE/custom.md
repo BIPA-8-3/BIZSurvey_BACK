@@ -1,3 +1,12 @@
+---
+
+name: Custom issue template
+about: Describe this issue template's purpose here.
+title: ''
+labels: ''
+assignees: ''
+
+---
 
 ### Issue 타입(하나 이상의 Issue 타입을 선택해주세요)
 - [ ] 새로운 기능 추가
