@@ -1,11 +1,3 @@
----
-name: Custom issue template
-about: Describe this issue template's purpose here.
-title: ''
-labels: ''
-assignees: ''
-
----
 
 ### Issue 타입(하나 이상의 Issue 타입을 선택해주세요)
 - [ ] 새로운 기능 추가
@@ -24,12 +16,12 @@ assignees: ''
 ex) Github 소셜 로그인 기능이 필요합니다.
 
 ### 예상 소요 시간
--[] `0.5h`
--[] `1h`
--[] `1.5h`
--[] `2h`
--[] `2.5h`
--[] `3h`
+- [ ] `0.5h`
+- [ ] `1h`
+- [ ] `1.5h`
+- [ ] `2h`
+- [ ] `2.5h`
+- [ ] `3h`
 
 ### 라벨
 - 예상 소요 시간: `E: 1h`
