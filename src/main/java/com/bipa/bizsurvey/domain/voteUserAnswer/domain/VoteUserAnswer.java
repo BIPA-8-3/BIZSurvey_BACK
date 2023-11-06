@@ -29,7 +29,7 @@ public class VoteUserAnswer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vote_id")
-    Vote vote;
+    private Vote vote;
 
 
 }
