@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.global.exceptionHandler;
 
-import com.bipa.bizsurvey.global.error.ErrorDto;
+
+import com.bipa.bizsurvey.global.exception.ExceptionDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,13 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex){
         BindingResult bindingResult = ex.getBindingResult();
-        List<ErrorDto> errorDtoList = new ArrayList<>();
+        List<ExceptionDto> errorDtoList = new ArrayList<>();
         for(FieldError fieldError : bindingResult.getFieldErrors()){
-            ErrorDto errorDto = new ErrorDto(HttpStatus.BAD_REQUEST, "VALIDATION_CHECK : " + fieldError.getField(), fieldError.getDefaultMessage(), "400");
+            ExceptionDto errorDto = new ExceptionDto(400, HttpStatus.BAD_REQUEST, fieldError.getField()+" : "+ fieldError.getDefaultMessage());
             errorDtoList.add(errorDto);
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDtoList);
+        return ResponseEntity.ok().body(errorDtoList);
     }
 
 }
