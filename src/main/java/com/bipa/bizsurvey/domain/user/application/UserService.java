@@ -22,6 +22,7 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(joinDto.getEmail());
 
         if(userOptional.isPresent()){
+            
         }
 
         User user = userRepository.save(joinDto.toEntity(passwordEncoder));
