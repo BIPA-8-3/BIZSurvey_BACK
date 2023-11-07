@@ -10,6 +10,7 @@ public enum ErrorCode {
 
     // 여기에 에러 코드 추가
     // ex) ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 ID입니다.", "405")
+    ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 존재하는 ID입니다.", "405")
     ;
 
     private final HttpStatus httpStatus;
