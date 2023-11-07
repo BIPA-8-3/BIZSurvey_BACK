@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.user.application;
 import com.bipa.bizsurvey.domain.user.dao.UserRepository;
 import com.bipa.bizsurvey.domain.user.dto.RequestJoinDto;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
+import com.bipa.bizsurvey.domain.user.exception.UserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,6 @@ public class UserServiceTest {
         user2.setBirthdate("20220908");
         user2.setPassword("qkrthdud6032!");
 
-        assertThrows(IllegalStateException.class, () -> userService.join(user2));
+        assertThrows(UserException.class, () -> userService.join(user2));
     }
 }
