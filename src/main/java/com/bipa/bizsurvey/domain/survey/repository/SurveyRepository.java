@@ -1,4 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.repository;
 
-public interface SurveyRepository {
+import com.bipa.bizsurvey.domain.survey.domain.Survey;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface SurveyRepository extends JpaRepository<Survey, Long> {
 }
