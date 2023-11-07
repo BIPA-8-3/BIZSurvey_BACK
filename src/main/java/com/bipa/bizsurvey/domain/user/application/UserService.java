@@ -20,7 +20,6 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(joinDto.getEmail());
 
         if(userOptional.isPresent()){
-            throw new IllegalStateException("이미 존재하는 회원입니다.");
         }
 
         User user = userRepository.save(joinDto.toEntity(passwordEncoder));
