@@ -46,6 +46,9 @@ dependencies {
 	// qdsl
 	implementation "com.querydsl:querydsl-jpa:5.0.0"
 	implementation "com.querydsl:querydsl-apt:5.0.0"
+
+	// security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 // Querydsl 설정부
