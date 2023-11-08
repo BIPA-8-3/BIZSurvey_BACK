@@ -25,7 +25,7 @@ public class Workspace extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private WorkspaceType type;
+    private WorkspaceType workspaceType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
