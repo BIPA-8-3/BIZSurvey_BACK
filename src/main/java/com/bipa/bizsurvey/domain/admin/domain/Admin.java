@@ -23,7 +23,7 @@ public class Admin extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AdminType adminType;
+    private AdminType type;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

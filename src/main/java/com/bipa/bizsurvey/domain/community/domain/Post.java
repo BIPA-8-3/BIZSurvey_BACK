@@ -29,7 +29,7 @@ public class Post extends BaseEntity {
     private int count;
 
     @Enumerated(EnumType.STRING)
-    private PostType postType;
+    private PostType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -30,7 +30,7 @@ public class Survey extends BaseEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private SurveyType surveyType;
+    private SurveyType type;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
