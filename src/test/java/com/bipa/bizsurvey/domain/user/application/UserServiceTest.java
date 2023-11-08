@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.user.application;
 
 import com.bipa.bizsurvey.domain.user.dao.UserRepository;
+import com.bipa.bizsurvey.domain.user.dto.MailAuthRequest;
 import com.bipa.bizsurvey.domain.user.dto.RequestJoinDto;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
@@ -62,5 +63,19 @@ public class UserServiceTest {
         user2.setPassword("qkrthdud6032!");
 
         assertThrows(UserException.class, () -> userService.join(user2));
+    }
+
+    @Test
+    public void emailSend() throws Exception{
+        String email = "404444@naver.com";
+        userService.authEmail(email);
+    }
+
+    @Test
+    public void numberAuth() throws  Exception{
+        MailAuthRequest request = new MailAuthRequest();
+        request.setAuthNumber("200476");
+        request.setMail("404444@naver.com");
+        assertTrue(userService.authCheck(request));
     }
 }

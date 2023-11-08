@@ -24,7 +24,6 @@ public class RequestJoinDto {
     @NotEmpty
     private String nickname;
 
-    @NotEmpty
     private Gender gender;
 
     @NotEmpty
@@ -35,7 +34,6 @@ public class RequestJoinDto {
 
     private String company;
 
-    @NotEmpty
     private Plan planSubscribe;
 
     public User toEntity(BCryptPasswordEncoder passwordEncoder){
@@ -47,7 +45,7 @@ public class RequestJoinDto {
                 .birthdate(birthdate)
                 .password(passwordEncoder.encode(password))
                 .company(company)
-                .planSubscribe(Plan.NORMAL_SUBSCRIBE)
+                .planSubscribe(Plan.COMMUNITY)
                 .build();
     }
 }
