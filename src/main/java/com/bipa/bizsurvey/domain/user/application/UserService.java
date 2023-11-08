@@ -8,6 +8,7 @@ import com.bipa.bizsurvey.domain.user.dto.ResponseJoinDto;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,7 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JavaMailSender javaMailSender;
-    private final StringRedisTemplate redisTemplate;
+    private final RedisTemplate redisTemplate;
     
     public ResponseJoinDto join(RequestJoinDto joinDto){
         Optional<User> userOptional = userRepository.findByEmail(joinDto.getEmail());
@@ -42,9 +43,8 @@ public class UserService {
 
     // 닉네임 중복 확인
     public boolean nickNameCheck(String nickname){
-       // Optional<User> nicknameUser = userRepository.findByNickname(nickname);
-        //return nicknameUser.isPresent();
-        return true;
+        Optional<User> nicknameUser = userRepository.findByNickname(nickname);
+        return nicknameUser.isPresent();
     }
 
     public void authEmail(String email){
@@ -65,7 +65,7 @@ public class UserService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
             helper.setTo(email);
             helper.setSubject(subject);
-            helper.setText(text, true);//포함된 텍스트가 HTML이라는 의미로 true.
+            helper.setText(text, true);
             javaMailSender.send(mimeMessage);
 
         } catch (MessagingException e) {

@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> singup(@Valid @RequestBody RequestJoinDto request){
         ResponseJoinDto joinRespDto = userService.join(request);
-        return new ResponseEntity<>(new Response<>(1, "회원가입 성공", joinRespDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(new Response<>("회원가입 성공", joinRespDto), HttpStatus.CREATED);
     }
 
 }

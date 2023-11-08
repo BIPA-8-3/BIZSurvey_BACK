@@ -74,7 +74,7 @@ public class UserServiceTest {
     @Test
     public void numberAuth() throws  Exception{
         MailAuthRequest request = new MailAuthRequest();
-        request.setAuthNumber("200476");
+        request.setAuthNumber("336435");
         request.setMail("404444@naver.com");
         assertTrue(userService.authCheck(request));
     }
