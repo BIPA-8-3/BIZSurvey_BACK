@@ -1,18 +1,16 @@
 package com.bipa.bizsurvey.domain.survey.dto;
 
-
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class QuestionInWorkspaceResponse {
-
-    private Long id;
+public class QuestionCreateRequest {
 
     private String surveyQuestion;
 
@@ -20,7 +18,5 @@ public class QuestionInWorkspaceResponse {
 
     private int score;
 
-    private List<AnswerInWorkspaceResponse> answers;
-
-
+    private List<?> answers;
 }

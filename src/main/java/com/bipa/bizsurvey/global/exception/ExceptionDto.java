@@ -11,4 +11,5 @@ public class ExceptionDto {
     private int errorCode;
     private HttpStatus httpStatus;
     private String errorMessage;
+
 }

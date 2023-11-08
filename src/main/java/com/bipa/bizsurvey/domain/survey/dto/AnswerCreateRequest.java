@@ -1,14 +1,15 @@
 package com.bipa.bizsurvey.domain.survey.dto;
 
+
 import com.bipa.bizsurvey.domain.survey.enums.Correct;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnswerInWorkspaceResponse {
-
-    private Long id;
+public class AnswerCreateRequest {
 
     private String surveyAnswer;
 

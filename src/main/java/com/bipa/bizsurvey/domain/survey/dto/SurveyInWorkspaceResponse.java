@@ -1,16 +1,15 @@
 package com.bipa.bizsurvey.domain.survey.dto;
 
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
+import lombok.*;
 
 import java.util.List;
 
-@Getter @Setter
+
 @NoArgsConstructor
-@ToString
+@AllArgsConstructor
+@Data
 public class SurveyInWorkspaceResponse {
 
     private Long id;
@@ -18,6 +17,8 @@ public class SurveyInWorkspaceResponse {
     private String title;
 
     private String content;
+
+    private SurveyType type;
 
     private List<QuestionInWorkspaceResponse> questions;
 
