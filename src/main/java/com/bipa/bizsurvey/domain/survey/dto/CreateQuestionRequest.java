@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
@@ -12,11 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateQuestionRequest {
 
+    @NotBlank
     private String surveyQuestion;
 
     private AnswerType answerType;
 
     private int score;
 
-    private List<?> answers;
+    private List<CreateAnswerRequest> answers;
 }

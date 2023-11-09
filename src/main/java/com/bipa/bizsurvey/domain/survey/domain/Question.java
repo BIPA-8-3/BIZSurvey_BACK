@@ -4,6 +4,7 @@ package com.bipa.bizsurvey.domain.survey.domain;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,15 @@ public class Question extends BaseEntity {
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
+    }
+
+    @Builder
+    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey) {
+        this.surveyQuestion = surveyQuestion;
+        this.answerType = answerType;
+        this.score = score;
+        this.survey = survey;
+    }
 }

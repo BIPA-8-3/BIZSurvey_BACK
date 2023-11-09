@@ -5,9 +5,7 @@ import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.global.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -15,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "survey")
+@ToString
 public class Survey extends BaseEntity {
 
 
@@ -41,5 +40,13 @@ public class Survey extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder
 
+    public Survey(String title, String content, SurveyType surveyType, Workspace workspace, User user) {
+        this.title = title;
+        this.content = content;
+        this.surveyType = surveyType;
+        this.workspace = workspace;
+        this.user = user;
+    }
 }

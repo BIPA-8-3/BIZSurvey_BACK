@@ -2,10 +2,13 @@ package com.bipa.bizsurvey.domain.survey.api;
 
 
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
+import com.bipa.bizsurvey.domain.survey.dto.CreateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.SurveyInWorkspaceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/survey")
@@ -22,8 +25,10 @@ public class SurveyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createSurvey() {
+    public ResponseEntity<String> createSurvey(@RequestBody @Valid CreateSurveyRequest createSurveyRequest) {
 
+
+        surveyService.createSurvey(createSurveyRequest);
 
 
         return null;
