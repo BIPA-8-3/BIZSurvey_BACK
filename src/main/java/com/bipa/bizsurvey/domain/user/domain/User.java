@@ -7,15 +7,13 @@ import lombok.*;
 
 import javax.persistence.*;
 
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 @Table(name = "user")
-@Builder
-@AllArgsConstructor
+@Getter
+@ToString
 public class User extends BaseEntity {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -43,5 +41,17 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Plan planSubscribe;
 
+
+    @Builder
+    public User(Long id, String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.birthdate = birthdate;
+        this.password = password;
+        this.company = company;
+        this.planSubscribe = planSubscribe;
 
 }

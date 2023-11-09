@@ -4,7 +4,10 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.*;
-
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
@@ -37,4 +40,5 @@ public class Workspace extends BaseEntity {
         this.workspaceType = workspaceType;
         this.user = user;
     }
+
 }

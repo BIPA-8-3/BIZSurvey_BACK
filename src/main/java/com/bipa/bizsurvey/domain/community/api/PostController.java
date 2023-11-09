@@ -3,12 +3,10 @@ package com.bipa.bizsurvey.domain.community.api;
 import com.bipa.bizsurvey.domain.community.dto.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -19,6 +17,9 @@ import javax.validation.Valid;
 public class PostController {
 
     private final PostService postService;
+
+    //READ
+
 
      //CREATE
     @PostMapping("/createPost")
@@ -31,5 +32,13 @@ public class PostController {
         return ResponseEntity.ok().body("게시물 등록이 완료되었습니다."); // 200 OK
     }
 
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getPostList(@RequestParam int page,
+                                         @RequestParam int size,
+                                         @RequestParam String sortBy
+                                         ){
+        return ResponseEntity.ok().body(postService.getPostList(page, size, sortBy));
+    }
 
 }
