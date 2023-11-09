@@ -1,6 +1,6 @@
 package com.bipa.bizsurvey.domain.user.application;
 
-import com.bipa.bizsurvey.domain.user.dao.UserRepository;
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.*;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
