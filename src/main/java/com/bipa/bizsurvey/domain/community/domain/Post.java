@@ -40,10 +40,10 @@ public class Post extends BaseEntity {
     private User user;
 
     @Builder
-    public Post(String title, String content, PostType type, User user) {
+    public Post(String title, String content, PostType postType, User user) {
         this.title = title;
         this.content = content;
-        this.type = type;
+        this.postType = postType;
         this.user = user;
     }
 
@@ -51,7 +51,7 @@ public class Post extends BaseEntity {
         return Post.builder()
                 .title(createPostRequest.getTitle())
                 .content(createPostRequest.getContent())
-                .type(postType)
+                .postType(postType)
                 .user(user)
                 .build();
     }
