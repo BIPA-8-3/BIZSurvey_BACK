@@ -49,6 +49,14 @@ dependencies {
 
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+
+	// mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	//jwt
+	implementation 'com.auth0:java-jwt:4.0.0'
+
 	testImplementation 'org.springframework.security:spring-security-test'
 
 
@@ -57,9 +65,6 @@ dependencies {
 	annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
 	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.4.2.Final'
-
-
-
 
 }
 
