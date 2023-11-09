@@ -54,4 +54,4 @@ public class User extends BaseEntity {
         this.company = company;
         this.planSubscribe = planSubscribe;
 
-}
+}}
