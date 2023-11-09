@@ -49,7 +49,17 @@ dependencies {
 
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+
+	//map struct
+	compileOnly "org.mapstruct:mapstruct:1.4.2.Final"
+	annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.4.2.Final'
+
+
 	testImplementation 'org.springframework.security:spring-security-test'
+
 }
 
 // Querydsl 설정부
