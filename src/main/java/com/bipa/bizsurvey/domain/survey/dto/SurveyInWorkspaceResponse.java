@@ -12,13 +12,13 @@ import java.util.List;
 @Data
 public class SurveyInWorkspaceResponse {
 
-    private Long id;
+    private Long surveyId;
 
     private String title;
 
     private String content;
 
-    private SurveyType type;
+    private SurveyType surveyType;
 
     private List<QuestionInWorkspaceResponse> questions;
 

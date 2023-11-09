@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class QuestionInWorkspaceResponse {
 
-    private Long id;
+    private Long questionId;
 
     private String surveyQuestion;
 

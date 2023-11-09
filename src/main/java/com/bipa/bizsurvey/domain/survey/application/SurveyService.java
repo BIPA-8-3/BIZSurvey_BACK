@@ -36,13 +36,13 @@ public class SurveyService {
 
 
         // get question
-        Long surveyKey = surveyDto.getId();
+        Long surveyKey = surveyDto.getSurveyId();
         List<QuestionInWorkspaceResponse> questionListDto = surveyMapper
                 .toQuestionInWorkspaceResponse(questionRepository.findAllBySurveyId(surveyKey));
 
         // get answer
         questionListDto.forEach(question -> {
-            Long questionKey = question.getId();
+            Long questionKey = question.getQuestionId();
             List<AnswerInWorkspaceResponse> answerListDto = surveyMapper
                     .toAnswerInWorkspaceResponse(answerRepository.findAllByQuestionId(questionKey));
             question.setAnswers(answerListDto);
