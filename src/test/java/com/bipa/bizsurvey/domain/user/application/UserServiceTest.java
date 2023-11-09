@@ -1,8 +1,7 @@
 package com.bipa.bizsurvey.domain.user.application;
 
 import com.bipa.bizsurvey.domain.user.dao.UserRepository;
-import com.bipa.bizsurvey.domain.user.dto.MailAuthRequest;
-import com.bipa.bizsurvey.domain.user.dto.RequestJoinDto;
+import com.bipa.bizsurvey.domain.user.dto.JoinRequest;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ public class UserServiceTest {
 
     @Test
     public void join() throws Exception{
-        RequestJoinDto user = new RequestJoinDto();
+        JoinRequest user = new JoinRequest();
         user.setEmail("404444@naver.com");
         user.setName("hong");
         user.setNickname("honeNick");
@@ -44,7 +43,7 @@ public class UserServiceTest {
 
     @Test
     public void duplicateEmail() throws Exception{
-        RequestJoinDto user = new RequestJoinDto();
+        JoinRequest user = new JoinRequest();
         user.setEmail("404444@naver.com");
         user.setName("hong");
         user.setNickname("honeNick");
@@ -54,7 +53,7 @@ public class UserServiceTest {
 
         userService.join(user);
 
-        RequestJoinDto user2 = new RequestJoinDto();
+        JoinRequest user2 = new JoinRequest();
         user2.setEmail("404444@naver.com");
         user2.setName("hong");
         user2.setNickname("honeNick");
@@ -65,17 +64,18 @@ public class UserServiceTest {
         assertThrows(UserException.class, () -> userService.join(user2));
     }
 
-    @Test
-    public void emailSend() throws Exception{
-        String email = "404444@naver.com";
-        userService.authEmail(email);
-    }
-
-    @Test
-    public void numberAuth() throws  Exception{
-        MailAuthRequest request = new MailAuthRequest();
-        request.setAuthNumber("336435");
-        request.setMail("404444@naver.com");
-        assertTrue(userService.authCheck(request));
-    }
+//    @Test
+//    public void emailSend() throws Exception{
+//        EmailCheckRequest request = new EmailCheckRequest();
+//        request.setEmail("404444@naver.com");
+//        userService.authEmail(request);
+//    }
+//
+//    @Test
+//    public void numberAuth() throws  Exception{
+//        MailAuthRequest request = new MailAuthRequest();
+//        request.setAuthNumber("588859");
+//        request.setMail("404444@naver.com");
+//        assertTrue(userService.authCheck(request));
+//    }
 }

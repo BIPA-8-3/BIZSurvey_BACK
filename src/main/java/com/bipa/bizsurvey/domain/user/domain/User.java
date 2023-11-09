@@ -3,20 +3,17 @@ package com.bipa.bizsurvey.domain.user.domain;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.global.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 @Table(name = "user")
+@Getter
+@ToString
 public class User extends BaseEntity {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -45,7 +42,8 @@ public class User extends BaseEntity {
     private Plan planSubscribe;
 
     @Builder
-    public User(String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe) {
+    public User(Long id, String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe) {
+        this.id = id;
         this.email = email;
         this.name = name;
         this.nickname = nickname;
