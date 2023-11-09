@@ -3,9 +3,7 @@ package com.bipa.bizsurvey.domain.workspace.domain;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +11,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "workspace")
+
 public class Workspace extends BaseEntity {
 
 
@@ -31,4 +30,11 @@ public class Workspace extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+
+    @Builder
+    public Workspace(String workspaceName, WorkspaceType workspaceType, User user) {
+        this.workspaceName = workspaceName;
+        this.workspaceType = workspaceType;
+        this.user = user;
+    }
 }
