@@ -20,6 +20,9 @@ public class PostController {
 
     private final PostService postService;
 
+    //READ
+
+
      //CREATE
     @PostMapping("/createPost")
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest createPostRequest,
@@ -30,6 +33,8 @@ public class PostController {
         postService.createPost(testId, createPostRequest);
         return ResponseEntity.ok().body("게시물 등록이 완료되었습니다."); // 200 OK
     }
+
+
 
 
 }
