@@ -3,12 +3,10 @@ package com.bipa.bizsurvey.domain.community.api;
 import com.bipa.bizsurvey.domain.community.dto.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -35,6 +33,12 @@ public class PostController {
     }
 
 
-
+    @GetMapping("/search")
+    public ResponseEntity<?> getPostList(@RequestParam int page,
+                                         @RequestParam int size,
+                                         @RequestParam String sortBy
+                                         ){
+        return ResponseEntity.ok().body(postService.getPostList(page, size, sortBy));
+    }
 
 }
