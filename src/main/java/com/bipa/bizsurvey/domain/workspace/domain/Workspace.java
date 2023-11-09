@@ -32,4 +32,11 @@ public class Workspace extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder
+    public Workspace(String workspaceName, WorkspaceType workspaceType, User user) {
+        this.workspaceName = workspaceName;
+        this.workspaceType = workspaceType;
+        this.user = user;
+    }
+
 }
