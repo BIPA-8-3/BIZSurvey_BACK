@@ -1,7 +1,7 @@
 package com.bipa.bizsurvey.domain.user.application;
 
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
-import com.bipa.bizsurvey.domain.user.dao.UserRepository;
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
