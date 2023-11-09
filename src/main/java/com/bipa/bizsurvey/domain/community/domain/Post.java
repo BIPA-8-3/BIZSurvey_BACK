@@ -1,9 +1,11 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
+import com.bipa.bizsurvey.domain.community.dto.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,7 +18,6 @@ import javax.persistence.*;
 @Table(name = "post")
 public class Post extends BaseEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -24,6 +25,9 @@ public class Post extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
+    private String content;
 
     @ColumnDefault("0")
     private int count;
@@ -34,6 +38,23 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder
+    public Post(String title, String content, PostType postType, User user) {
+        this.title = title;
+        this.content = content;
+        this.postType = postType;
+        this.user = user;
+    }
+
+    public static Post toEntity(User user, PostType postType, CreatePostRequest createPostRequest){
+        return Post.builder()
+                .title(createPostRequest.getTitle())
+                .content(createPostRequest.getContent())
+                .postType(postType)
+                .user(user)
+                .build();
+    }
 
     // 추 후 redis caching
     public int addCount(){

@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,5 +31,12 @@ public class Workspace extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder
+    public Workspace(String workspaceName, WorkspaceType workspaceType, User user) {
+        this.workspaceName = workspaceName;
+        this.workspaceType = workspaceType;
+        this.user = user;
+    }
 
 }
