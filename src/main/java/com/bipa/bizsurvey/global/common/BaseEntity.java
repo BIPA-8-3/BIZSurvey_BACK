@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.global.common;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -14,9 +15,8 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(value = {AuditingEntityListener.class})
 @Getter
+@ToString
 public abstract class BaseEntity {
-
-
     @CreatedDate
     @Column(name = "regdate", updatable = false)
     private LocalDateTime regDate;
@@ -26,5 +26,6 @@ public abstract class BaseEntity {
     private LocalDateTime modDate;
 
     @ColumnDefault("false")
+    @Column(insertable = false)
     private Boolean delFlag;
 }
