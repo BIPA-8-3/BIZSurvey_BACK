@@ -92,4 +92,24 @@ public class SurveyService {
     }
 
 
+    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest){
+
+        //findbyid survey
+        Survey survey = surveyRepository.findById(updateSurveyRequest.getSurveyId()).orElseThrow(
+                () -> new SurveyException(NOT_EXIST_SURVEY)
+        );
+
+        // save survey
+
+        //findbyid question
+
+        // save question
+
+        //findby answer
+
+        // save answer
+
+    }
+
+
 }

@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.enums;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
@@ -18,5 +19,15 @@ public enum AnswerType {
 
     AnswerType(String value) {
         this.value = value;
+    }
+
+    @JsonCreator
+    public static AnswerType from(String type){
+        for (AnswerType answerType : AnswerType.values()) {
+            if (answerType.getValue().equals(type)){
+                return answerType;
+            }
+        }
+        return null;
     }
 }

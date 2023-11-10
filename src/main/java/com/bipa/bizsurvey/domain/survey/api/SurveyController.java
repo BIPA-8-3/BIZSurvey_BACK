@@ -4,6 +4,7 @@ package com.bipa.bizsurvey.domain.survey.api;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.dto.CreateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.SurveyInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.UpdateSurveyRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,14 @@ public class SurveyController {
 
         return ResponseEntity.ok().body("등록이 완료되었습니다.");
 
+    }
+
+    @PutMapping("/{surveyId}")
+    public ResponseEntity<String> updateSurvey(@PathVariable Long surveyId, @RequestBody @Valid UpdateSurveyRequest updateSurveyRequest) {
+
+        surveyService.updateSurvey(updateSurveyRequest);
+
+        return ResponseEntity.ok().body("수정이 완료되었습니다.");
     }
 
 

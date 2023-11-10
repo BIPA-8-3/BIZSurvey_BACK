@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.survey.dto;
 
-
 import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,11 +10,13 @@ import javax.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateAnswerRequest {
+public class UpdateAnswerRequest {
 
     @NotBlank(message = "옵션을 입력해주세요.")
     private String surveyAnswer;
 
     private Correct correct;
+
+
 
 }
