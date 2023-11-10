@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.api;
 
 
+import com.bipa.bizsurvey.domain.survey.application.SurveyResultService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.dto.CreateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.SurveyInWorkspaceResponse;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 public class SurveyController {
 
     private final SurveyService surveyService;
+    private final SurveyResultService surveyResultService;
 
     @GetMapping("/{surveyId}")
     public ResponseEntity<SurveyInWorkspaceResponse> getSurvey(@PathVariable Long surveyId){
@@ -41,6 +43,18 @@ public class SurveyController {
 
         return ResponseEntity.ok().body("수정이 완료되었습니다.");
     }
+
+    //delete
+
+
+    @GetMapping("/result/{postId}")
+    public ResponseEntity<?> getSurveyResultInPost(@PathVariable Long postId){
+
+        return ResponseEntity.ok().body(surveyResultService.getSurveyResultInPost(postId));
+
+    }
+
+
 
 
 }

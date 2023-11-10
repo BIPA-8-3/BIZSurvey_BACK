@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.survey.dto;
 import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import lombok.*;
 
+import java.io.File;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,5 +20,6 @@ public class AnswerInWorkspaceResponse {
     private LocalDateTime regDate;
 
     private LocalDateTime modDate;
+
 
 }
