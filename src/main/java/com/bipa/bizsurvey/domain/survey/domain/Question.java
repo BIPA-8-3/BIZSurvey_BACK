@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
 
+import com.bipa.bizsurvey.domain.survey.dto.CreateQuestionRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -35,9 +36,7 @@ public class Question extends BaseEntity {
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
-    public void setSurvey(Survey survey) {
-        this.survey = survey;
-    }
+
 
     @Builder
     public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey) {
@@ -45,5 +44,14 @@ public class Question extends BaseEntity {
         this.answerType = answerType;
         this.score = score;
         this.survey = survey;
+    }
+
+    public static Question toEntity(CreateQuestionRequest createQuestionRequest, Survey survey) {
+        return Question.builder()
+                .surveyQuestion(createQuestionRequest.getSurveyQuestion())
+                .answerType(createQuestionRequest.getAnswerType())
+                .score(createQuestionRequest.getScore())
+                .survey(survey)
+                .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
 
+import com.bipa.bizsurvey.domain.survey.dto.CreateAnswerRequest;
 import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -31,14 +32,19 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "question_id")
     private Question question;
 
-    public void setQuestion(Question question) {
-        this.question = question;
-    }
 
     @Builder
     public Answer(String surveyAnswer, Correct correct, Question question) {
         this.surveyAnswer = surveyAnswer;
         this.correct = correct;
         this.question = question;
+    }
+
+    public static Answer toEntity(CreateAnswerRequest createAnswerRequest, Question question) {
+        return Answer.builder()
+                .surveyAnswer(createAnswerRequest.getSurveyAnswer())
+                .correct(createAnswerRequest.getCorrect())
+                .question(question)
+                .build();
     }
 }

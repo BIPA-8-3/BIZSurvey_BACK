@@ -27,16 +27,11 @@ public class SurveyController {
     @PostMapping
     public ResponseEntity<String> createSurvey(@RequestBody @Valid CreateSurveyRequest createSurveyRequest) {
 
-
         surveyService.createSurvey(createSurveyRequest);
 
-
-        return null;
-
+        return ResponseEntity.ok().body("등록이 완료되었습니다.");
 
     }
 
-    //test
-    //test2
 
 }

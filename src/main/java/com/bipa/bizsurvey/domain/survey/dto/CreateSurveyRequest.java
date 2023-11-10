@@ -17,12 +17,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateSurveyRequest {
 
-//    @NotBlank(message = "설문지 제목은 필수 입력값입니다.")
-//    @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
+    @NotBlank(message = "설문지 제목은 필수 입력값입니다.")
+    @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String title;
 
-//    @NotBlank
-//    @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
+    @NotBlank
+    @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String content;
 
     private SurveyType surveyType;

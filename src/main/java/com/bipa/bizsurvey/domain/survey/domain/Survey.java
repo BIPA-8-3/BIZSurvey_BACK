@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
 
+import com.bipa.bizsurvey.domain.survey.dto.CreateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
@@ -41,12 +42,22 @@ public class Survey extends BaseEntity {
     private User user;
 
     @Builder
-
     public Survey(String title, String content, SurveyType surveyType, Workspace workspace, User user) {
         this.title = title;
         this.content = content;
         this.surveyType = surveyType;
         this.workspace = workspace;
         this.user = user;
+    }
+
+    public static Survey toEntity(User user, Workspace workspace, CreateSurveyRequest createSurveyRequest){
+        return Survey.builder()
+                .title(createSurveyRequest.getTitle())
+                .content(createSurveyRequest.getContent())
+                .surveyType(createSurveyRequest.getSurveyType())
+                .user(user)
+                .workspace(workspace)
+                .build();
+
     }
 }

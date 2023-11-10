@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
-@Transactional
+//@Transactional
 class SurveyServiceTest {
 
     @Autowired

@@ -9,6 +9,7 @@ import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.AnswerRepository;
 import com.bipa.bizsurvey.domain.survey.repository.QuestionRepository;
 import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
+import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,45 +43,51 @@ public class SurveyService {
                         () -> new SurveyException(NOT_EXIST_SURVEY))
                 );
 
-
         // get question
         Long surveyKey = surveyDto.getSurveyId();
-        List<QuestionInWorkspaceResponse> questionListDto = surveyMapper
+        List<QuestionInWorkspaceResponse> questionDtoList = surveyMapper
                 .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyId(surveyKey));
 
         // get answer
-        questionListDto.forEach(question -> {
-            Long questionKey = question.getQuestionId();
-            List<AnswerInWorkspaceResponse> answerListDto = surveyMapper
+        questionDtoList.forEach(questionDto -> {
+            Long questionKey = questionDto.getQuestionId();
+            List<AnswerInWorkspaceResponse> answerDtoList = surveyMapper
                     .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionId(questionKey));
-            question.setAnswers(answerListDto);
+            questionDto.setAnswers(answerDtoList);
         });
 
-        surveyDto.setQuestions(questionListDto);
+        surveyDto.setQuestions(questionDtoList);
 
         return surveyDto;
     }
 
 
-    public int createSurvey(CreateSurveyRequest createSurveyRequest){
+    public void createSurvey(CreateSurveyRequest createSurveyRequest){
 
-        //워크스페이스, 유저 아이디 필요
-        Optional<Workspace> workspace = workspaceRepository.findById(1L);
+        // get workspace, user
+        // 사용자 정보 받아오는 부분 수정하기
+        Workspace workspace = workspaceRepository.findById(1L).orElseThrow();
+        User user = User.builder().id(1L).build();
 
+        // save survey
+        Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
+        surveyRepository.save(survey);
 
-        //설문 가져오기
+        // save question, answer
+        List<CreateQuestionRequest> questionDtoList = createSurveyRequest.getQuestions();
+        questionDtoList.forEach(questionDto ->{
 
+            Question question = Question.toEntity(questionDto, survey);
+            questionRepository.save(question);
 
+            List<CreateAnswerRequest> answerDtoList = questionDto.getAnswers();
+            answerDtoList.forEach(answerDto -> {
+                Answer answer = Answer.toEntity(answerDto, question);
+                answerRepository.save(answer);
+            });
 
+        });
 
-
-
-
-
-
-
-
-        return 1;
 
     }
 
