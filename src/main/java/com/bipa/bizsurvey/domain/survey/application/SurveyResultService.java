@@ -1,9 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
-import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
-import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
-import com.bipa.bizsurvey.domain.survey.dto.SurveyResultInPostResponse;
+import com.bipa.bizsurvey.domain.survey.dto.surveyresult.AnswerResponse;
+import com.bipa.bizsurvey.domain.survey.dto.surveyresult.SurveyResultResponse;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,15 +22,22 @@ public class SurveyResultService {
     private final SurveyMapper surveyMapper;
     private final SurveyPostRepository surveyPostRepository;
 
-    public List<SurveyResultInPostResponse> getSurveyResultInPost(Long postId){
+    public SurveyResultResponse getSurveyResultInPost(Long postId){
 
-        SurveyPost surveyPost = surveyPostRepository.findById(1L).orElseThrow();
+        // postId로 surveyPost찾아오기
+//        SurveyPost surveyPost = surveyPostRepository.findByPostId(postId).orElseThrow();
+        SurveyPost surveyPost = surveyPostRepository.findById(postId).orElseThrow();
 
-        // postId로 찾기
-        List<SurveyResultInPostResponse> surveyResultInPostResponses = surveyMapper
+        //참여자들
+        List<String> users = userSurveyResponseRepository.findDistinctNicknamesBySurveyPostId(surveyPost);
+
+        // 결과들
+        List<AnswerResponse> answerResponses = surveyMapper
                 .toSurveyResultInPostResponseList(userSurveyResponseRepository.findAllByPostId(surveyPost));
 
-        return surveyResultInPostResponses;
+        SurveyResultResponse surveyResultResponse = new SurveyResultResponse(users, answerResponses);
+
+        return surveyResultResponse;
     }
 
 

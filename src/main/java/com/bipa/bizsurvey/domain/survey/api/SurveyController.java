@@ -3,9 +3,10 @@ package com.bipa.bizsurvey.domain.survey.api;
 
 import com.bipa.bizsurvey.domain.survey.application.SurveyResultService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
-import com.bipa.bizsurvey.domain.survey.dto.CreateSurveyRequest;
-import com.bipa.bizsurvey.domain.survey.dto.SurveyInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.UpdateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.CreateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.SurveyInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.survey.UpdateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.surveyresult.SurveyResultResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +49,7 @@ public class SurveyController {
 
 
     @GetMapping("/result/{postId}")
-    public ResponseEntity<?> getSurveyResultInPost(@PathVariable Long postId){
+    public ResponseEntity<SurveyResultResponse> getSurveyResultInPost(@PathVariable Long postId){
 
         return ResponseEntity.ok().body(surveyResultService.getSurveyResultInPost(postId));
 

@@ -3,7 +3,7 @@ package com.bipa.bizsurvey.domain.survey.application;
 import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
-import com.bipa.bizsurvey.domain.survey.dto.*;
+import com.bipa.bizsurvey.domain.survey.dto.survey.*;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.AnswerRepository;
@@ -17,9 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Optional;
 
 import static com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType.NOT_EXIST_SURVEY;
 

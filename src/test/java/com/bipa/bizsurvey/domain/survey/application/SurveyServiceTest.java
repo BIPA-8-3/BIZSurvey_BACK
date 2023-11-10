@@ -1,8 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
-import com.bipa.bizsurvey.domain.survey.dto.CreateAnswerRequest;
-import com.bipa.bizsurvey.domain.survey.dto.CreateQuestionRequest;
-import com.bipa.bizsurvey.domain.survey.dto.CreateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.CreateAnswerRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.CreateQuestionRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.CreateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
@@ -10,13 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j

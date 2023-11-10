@@ -4,11 +4,11 @@ import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
-import com.bipa.bizsurvey.domain.survey.dto.*;
-import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
+import com.bipa.bizsurvey.domain.survey.dto.survey.AnswerInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.survey.QuestionInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.survey.SurveyInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.surveyresult.AnswerResponse;
 import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
@@ -36,8 +36,8 @@ public interface SurveyMapper {
             @Mapping(source = "question.answerType", target = "answerType"),
             @Mapping(source = "question.score", target = "score")
     })
-    SurveyResultInPostResponse toSurveyResultInPostResponse(UserSurveyResponse userSurveyResponse);
-    List<SurveyResultInPostResponse> toSurveyResultInPostResponseList(List<UserSurveyResponse> userSurveyResponses);
+    AnswerResponse toSurveyResultInPostResponse(UserSurveyResponse userSurveyResponse);
+    List<AnswerResponse> toSurveyResultInPostResponseList(List<UserSurveyResponse> userSurveyResponses);
 
 
 }

@@ -12,4 +12,9 @@ public interface UserSurveyResponseRepository extends JpaRepository<UserSurveyRe
 
     @Query(value = "SELECT u FROM UserSurveyResponse u JOIN FETCH u.question q WHERE u.surveyPost = :postId ORDER BY q.id ASC")
     List<UserSurveyResponse> findAllByPostId(@Param("postId") SurveyPost surveyPost);
+
+    @Query(value = "SELECT DISTINCT u.user.nickname FROM UserSurveyResponse u WHERE u.surveyPost = :surveyPostId")
+    List<String> findDistinctNicknamesBySurveyPostId(@Param("surveyPostId") SurveyPost surveyPost);
+
+
 }

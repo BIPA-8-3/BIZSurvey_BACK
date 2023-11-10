@@ -1,5 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.dto;
-
+package com.bipa.bizsurvey.domain.survey.dto.survey;
 
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateQuestionRequest {
+public class CreateQuestionRequest {
 
     @NotBlank(message = "질문을 입력해주세요.")
     private String surveyQuestion;
@@ -21,7 +20,5 @@ public class UpdateQuestionRequest {
 
     private int score;
 
-    private List<UpdateAnswerRequest> answers;
-
-
+    private List<CreateAnswerRequest> answers;
 }

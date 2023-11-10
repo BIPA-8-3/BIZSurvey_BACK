@@ -31,11 +31,11 @@ public class UserSurveyResponse {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
-    Question question;
+    private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_post_id")
-    SurveyPost surveyPost;
+    private SurveyPost surveyPost;
 
 
 

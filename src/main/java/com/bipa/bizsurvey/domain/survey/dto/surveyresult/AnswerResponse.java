@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.dto;
+package com.bipa.bizsurvey.domain.survey.dto.surveyresult;
 
 
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
@@ -11,8 +11,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SurveyResultInPostResponse {
-
+public class AnswerResponse {
 
     private Long questionId;
 
@@ -23,8 +22,5 @@ public class SurveyResultInPostResponse {
     private String answer;
 
     private int score;
-
-
-
 
 }

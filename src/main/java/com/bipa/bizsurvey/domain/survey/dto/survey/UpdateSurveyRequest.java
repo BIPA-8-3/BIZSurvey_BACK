@@ -1,9 +1,6 @@
-package com.bipa.bizsurvey.domain.survey.dto;
-
+package com.bipa.bizsurvey.domain.survey.dto.survey;
 
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
-import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +12,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateSurveyRequest {
+public class UpdateSurveyRequest {
+
+
+    private Long surveyId;
 
     @NotBlank(message = "설문지 제목은 필수 입력값입니다.")
     @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
@@ -27,8 +27,6 @@ public class CreateSurveyRequest {
 
     private SurveyType surveyType;
 
-    private Long workspaceId;
-
-    private List<CreateQuestionRequest> questions;
+    private List<UpdateQuestionRequest> questions;
 
 }
