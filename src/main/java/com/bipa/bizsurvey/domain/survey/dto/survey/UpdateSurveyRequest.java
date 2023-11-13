@@ -27,6 +27,6 @@ public class UpdateSurveyRequest {
 
     private SurveyType surveyType;
 
-    private List<UpdateQuestionRequest> questions;
+    private List<CreateQuestionRequest> questions;
 
 }

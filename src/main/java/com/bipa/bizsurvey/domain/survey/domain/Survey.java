@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.survey.domain;
 
 
 import com.bipa.bizsurvey.domain.survey.dto.survey.CreateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.UpdateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
@@ -60,4 +61,11 @@ public class Survey extends BaseEntity {
                 .build();
 
     }
+
+    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest){
+        this.title = updateSurveyRequest.getTitle();
+        this.content = updateSurveyRequest.getContent();
+        this.surveyType = updateSurveyRequest.getSurveyType();
+    }
+
 }

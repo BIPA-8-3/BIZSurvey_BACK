@@ -5,12 +5,16 @@ import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.survey.*;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
+import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.AnswerRepository;
 import com.bipa.bizsurvey.domain.survey.repository.QuestionRepository;
 import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
+import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType.NOT_EXIST_SURVEY;
 
@@ -32,14 +37,16 @@ public class SurveyService {
     private final AnswerRepository answerRepository;
     private final WorkspaceRepository workspaceRepository;
     private final SurveyMapper surveyMapper;
+    private final UserRepository userRepository;
 
-    public SurveyInWorkspaceResponse getSurvey(Long surveyId){
+    public SurveyInWorkspaceResponse getSurvey(Long surveyId, LoginUser loginUser){
 
         // get survey
         SurveyInWorkspaceResponse surveyDto = surveyMapper
-                .toSurveyInWorkspaceResponse(surveyRepository.findById(surveyId).orElseThrow(
-                        () -> new SurveyException(NOT_EXIST_SURVEY))
-                );
+                .toSurveyInWorkspaceResponse(
+                        checkPermission(
+                        checkAvailable(
+                                surveyRepository.findByIdAndDelFlagFalse(surveyId)), loginUser.getId()));
 
         // get question
         Long surveyKey = surveyDto.getSurveyId();
@@ -60,12 +67,11 @@ public class SurveyService {
     }
 
 
-    public void createSurvey(CreateSurveyRequest createSurveyRequest){
+    public void createSurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser){
 
         // get workspace, user
-        // 사용자 정보 받아오는 부분 수정하기
-        Workspace workspace = workspaceRepository.findById(1L).orElseThrow();
-        User user = User.builder().id(1L).build();
+        Workspace workspace = workspaceRepository.findByUserIdAndWorkspaceType(loginUser.getId(), WorkspaceType.PERSONAL);
+        User user = userRepository.findById(loginUser.getId()).orElseThrow();
 
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
@@ -73,41 +79,78 @@ public class SurveyService {
 
         // save question, answer
         List<CreateQuestionRequest> questionDtoList = createSurveyRequest.getQuestions();
-        questionDtoList.forEach(questionDto ->{
+        createQuestionAndAnswer(survey, questionDtoList);
 
+    }
+
+
+    public void updateSurvey(Long surveyId, UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser){
+
+        // check survey
+       Survey survey = checkPermission(
+                        checkAvailable(
+                                surveyRepository.findById(updateSurveyRequest.getSurveyId()).orElseThrow()
+                        ), loginUser.getId());
+
+        // update survey
+        survey.updateSurvey(updateSurveyRequest);
+        surveyRepository.save(survey);
+
+        // question, answer delete
+        questionRepository.deleteAllBySurveyId();
+
+        // save question, answer
+        List<CreateQuestionRequest> questionDtoList = updateSurveyRequest.getQuestions();
+        createQuestionAndAnswer(survey, questionDtoList);
+    }
+
+    public void deleteSurvey(Long surveyId, LoginUser loginUser){
+
+        Survey survey = checkPermission(surveyRepository.findById(surveyId).orElseThrow(),loginUser.getId());
+        survey.
+
+
+
+    }
+
+
+
+
+
+
+    private void createQuestionAndAnswer(Survey survey, List<CreateQuestionRequest> questionDtoList){
+        questionDtoList.forEach(questionDto -> {
+            //save question
             Question question = Question.toEntity(questionDto, survey);
             questionRepository.save(question);
-
+            //save answer
             List<CreateAnswerRequest> answerDtoList = questionDto.getAnswers();
-            answerDtoList.forEach(answerDto -> {
+            answerDtoList.forEach(answerDto->{
                 Answer answer = Answer.toEntity(answerDto, question);
                 answerRepository.save(answer);
             });
 
         });
-
-
     }
 
 
-    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest){
-
-        //findbyid survey
-        Survey survey = surveyRepository.findById(updateSurveyRequest.getSurveyId()).orElseThrow(
-                () -> new SurveyException(NOT_EXIST_SURVEY)
-        );
-
-        // save survey
-
-        //findbyid question
-
-        // save question
-
-        //findby answer
-
-        // save answer
-
+    private Survey checkAvailable(Survey survey){
+        if (survey.getDelFlag()){
+            throw new SurveyException(SurveyExceptionType.ALREADY_DELETED);
+        }
+        return survey;
     }
+
+    private Survey checkPermission(Survey survey, Long userId){
+        if (!Objects.equals(survey.getUser().getId(), userId)) {
+            throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
+        }
+        return survey;
+    }
+
+
+
+
 
 
 }

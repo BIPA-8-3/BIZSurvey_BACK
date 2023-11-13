@@ -56,7 +56,7 @@ class SurveyServiceTest {
 
         createSurveyRequest.setQuestions(qlist);
 
-        surveyService.createSurvey(createSurveyRequest);
+//        surveyService.createSurvey(createSurveyRequest);
 
 
     }

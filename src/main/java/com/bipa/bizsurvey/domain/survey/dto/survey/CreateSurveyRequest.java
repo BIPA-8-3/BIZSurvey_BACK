@@ -25,8 +25,6 @@ public class CreateSurveyRequest {
 
     private SurveyType surveyType;
 
-    private Long workspaceId;
-
     private List<CreateQuestionRequest> questions;
 
 }

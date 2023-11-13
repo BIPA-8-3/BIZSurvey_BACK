@@ -1,16 +1,21 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
+import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
 import com.bipa.bizsurvey.domain.survey.dto.surveyresult.AnswerResponse;
+import com.bipa.bizsurvey.domain.survey.dto.surveyresult.PersonalResultResponse;
 import com.bipa.bizsurvey.domain.survey.dto.surveyresult.SurveyResultResponse;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
+import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +26,7 @@ public class SurveyResultService {
     private final UserSurveyResponseRepository userSurveyResponseRepository;
     private final SurveyMapper surveyMapper;
     private final SurveyPostRepository surveyPostRepository;
+    private final UserRepository userRepository;
 
     public SurveyResultResponse getSurveyResultInPost(Long postId){
 
@@ -29,7 +35,7 @@ public class SurveyResultService {
         SurveyPost surveyPost = surveyPostRepository.findById(postId).orElseThrow();
 
         //참여자들
-        List<String> users = userSurveyResponseRepository.findDistinctNicknamesBySurveyPostId(surveyPost);
+        List<String> users = userSurveyResponseRepository.findNicknamesBySurveyPostId(surveyPost);
 
         // 결과들
         List<AnswerResponse> answerResponses = surveyMapper
@@ -38,6 +44,16 @@ public class SurveyResultService {
         SurveyResultResponse surveyResultResponse = new SurveyResultResponse(users, answerResponses);
 
         return surveyResultResponse;
+    }
+
+    public PersonalResultResponse getPersonalResultInPost(Long surveyPostId, String nickname){
+
+        Long userId = userRepository.findByNickname(nickname).orElseThrow().getId();
+
+        userSurveyResponseRepository.findBySurveyPostIdAndUserId(surveyPostId, userId);
+
+        return null;
+
     }
 
 
