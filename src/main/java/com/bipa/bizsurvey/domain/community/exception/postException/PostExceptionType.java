@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum PostExceptionType implements BaseExceptionType {
 
-    ALREADY_EXIST_POST(600, HttpStatus.BAD_REQUEST, "이미 존재하는 게시물입니다.")
+    NON_EXIST_POST(600, HttpStatus.BAD_REQUEST, "존재하지 않는 게시물입니다."),
+    ALREADY_DELETED(600, HttpStatus.BAD_REQUEST, "이미 삭제된 게시물입니다.")
     ;
+
 
 
     private final int errorCode;
