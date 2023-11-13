@@ -1,13 +1,12 @@
 package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.domain.Post;
-import com.bipa.bizsurvey.domain.community.dto.CreatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
-import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
