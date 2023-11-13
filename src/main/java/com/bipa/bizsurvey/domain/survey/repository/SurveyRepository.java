@@ -7,9 +7,5 @@ import java.util.Optional;
 
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
 
-    //삭제 여부 체크
-    Survey findByIdAndDelFlagFalse(Long surveyId);
-
-
 
 }

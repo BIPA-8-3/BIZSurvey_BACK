@@ -46,7 +46,7 @@ public class SurveyService {
                 .toSurveyInWorkspaceResponse(
                         checkPermission(
                         checkAvailable(
-                                surveyRepository.findByIdAndDelFlagFalse(surveyId)), loginUser.getId()));
+                                surveyRepository.findById(surveyId).orElseThrow()), loginUser.getId()));
 
         // get question
         Long surveyKey = surveyDto.getSurveyId();
@@ -107,9 +107,7 @@ public class SurveyService {
     public void deleteSurvey(Long surveyId, LoginUser loginUser){
 
         Survey survey = checkPermission(surveyRepository.findById(surveyId).orElseThrow(),loginUser.getId());
-
-        
-
+        survey.setDelFlag(true);
 
 
     }
