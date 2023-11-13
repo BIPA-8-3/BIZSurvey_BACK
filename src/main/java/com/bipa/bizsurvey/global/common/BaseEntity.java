@@ -1,6 +1,8 @@
 package com.bipa.bizsurvey.global.common;
 
 import lombok.Getter;
+
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,6 +27,7 @@ public abstract class BaseEntity {
     @Column(name = "moddate")
     private LocalDateTime modDate;
 
+    @Setter
     @ColumnDefault("false")
     @Column(insertable = false)
     private Boolean delFlag;

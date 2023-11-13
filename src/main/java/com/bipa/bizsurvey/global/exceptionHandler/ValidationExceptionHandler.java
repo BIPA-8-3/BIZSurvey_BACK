@@ -28,7 +28,7 @@ public class ValidationExceptionHandler {
             errorDtoList.add(errorDto);
         }
 
-        return ResponseEntity.ok().body(errorDtoList);
+        return ResponseEntity.badRequest().body(errorDtoList);
     }
 
 }
