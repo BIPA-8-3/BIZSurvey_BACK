@@ -42,12 +42,11 @@ public class SurveyController {
 
     }
 
-    @PutMapping("/{surveyId}")
-    public ResponseEntity<String> updateSurvey(@PathVariable Long surveyId,
-                                               @RequestBody @Valid UpdateSurveyRequest updateSurveyRequest,
+    @PutMapping
+    public ResponseEntity<String> updateSurvey(@RequestBody @Valid UpdateSurveyRequest updateSurveyRequest,
                                                @AuthenticationPrincipal LoginUser loginUser) {
 
-        surveyService.updateSurvey(surveyId, updateSurveyRequest, loginUser);
+        surveyService.updateSurvey( updateSurveyRequest, loginUser);
 
         return ResponseEntity.ok().body("수정이 완료되었습니다.");
     }

@@ -84,7 +84,7 @@ public class SurveyService {
     }
 
 
-    public void updateSurvey(Long surveyId, UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser){
+    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser){
 
         // check survey
        Survey survey = checkPermission(
@@ -97,7 +97,7 @@ public class SurveyService {
         surveyRepository.save(survey);
 
         // question, answer delete
-        questionRepository.deleteAllBySurveyId();
+        questionRepository.deleteAllBySurveyId(survey.getId());
 
         // save question, answer
         List<CreateQuestionRequest> questionDtoList = updateSurveyRequest.getQuestions();
@@ -107,7 +107,8 @@ public class SurveyService {
     public void deleteSurvey(Long surveyId, LoginUser loginUser){
 
         Survey survey = checkPermission(surveyRepository.findById(surveyId).orElseThrow(),loginUser.getId());
-        survey.
+
+        
 
 
 
