@@ -21,6 +21,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,24 +66,32 @@ public class PostService {
     public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
         QPost p = new QPost("p");
 
-        List<PostResponse> result = jpaQueryFactory
-                .select(Projections.bean(PostResponse.class,
-                        p.id,
-                        p.title,
-                        p.content,
-                        p.count,
-                        p.user.nickname
-
-                ))
+        List<Post> postList = jpaQueryFactory
+                .select(p)
                 .from(p)
                 .where(p.delFlag.eq(false))
                 .where(p.postType.eq(PostType.COMMUNITY))
-                .where(p.content.eq(searchPostRequest.getKeyword())
-                        .or(p.title.eq(searchPostRequest.getKeyword())))
+                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
+                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(p.count.desc())
                 .fetch();
+
+        List<PostResponse> result = new ArrayList<>();
+
+        for(Post post: postList){
+            PostResponse postResponse = PostResponse.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .count(post.getCount())
+                    .nickname(post.getUser().getNickname())
+                    .build();
+            result.add(postResponse);
+        }
+
+
 
         return new PageImpl<>(result, pageable, result.size());
     }
