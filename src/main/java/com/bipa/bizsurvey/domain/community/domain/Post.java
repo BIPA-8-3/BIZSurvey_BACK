@@ -1,7 +1,7 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
-import com.bipa.bizsurvey.domain.community.dto.request.CreatePostRequest;
-import com.bipa.bizsurvey.domain.community.dto.request.UpdatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;

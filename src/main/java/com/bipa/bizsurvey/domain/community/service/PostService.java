@@ -2,25 +2,25 @@ package com.bipa.bizsurvey.domain.community.service;
 
 import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.domain.QPost;
-import com.bipa.bizsurvey.domain.community.dto.request.CreatePostRequest;
-import com.bipa.bizsurvey.domain.community.dto.request.SearchPostRequest;
-import com.bipa.bizsurvey.domain.community.dto.request.UpdatePostRequest;
-import com.bipa.bizsurvey.domain.community.dto.response.PostResponse;
+import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.response.post.PostResponse;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.criterion.Projection;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,10 +33,12 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final CommentService commentService;
+
 
     // 커뮤니티 게시물 제작
     public void createPost(Long userId, CreatePostRequest createPostRequest){
-        User user = userRepository.findById(userId).get(); // TODO : Exception Handling
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.toEntity(user, PostType.COMMUNITY, createPostRequest);
         postRepository.save(post);
     }
@@ -48,7 +50,7 @@ public class PostService {
     public Page<?> getPostList(int page, int size, String sortBy){
         Sort sort = Sort.by(Sort.Order.desc(sortBy));
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Post> postPages = postRepository.findByDelFlagIsFalse(pageable); // TODO : 기능 잘 구현되는지 확인
+        Page<Post> postPages = postRepository.findByDelFlagIsFalse(pageable);
 
         return postPages.map(
                 p -> PostResponse.builder()
@@ -57,12 +59,11 @@ public class PostService {
                         .content(p.getContent())
                         .count(p.getCount())
                         .nickname(p.getUser().getNickname())
+                        .createTime(p.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
                         .build()
         );
 
     }
-     // 게시물 검색
-    // TODO : 기능 잘 구현되는지 확인
     public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
         QPost p = new QPost("p");
 
@@ -87,6 +88,7 @@ public class PostService {
                     .content(post.getContent())
                     .count(post.getCount())
                     .nickname(post.getUser().getNickname())
+                    .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
                     .build();
             result.add(postResponse);
         }
@@ -102,13 +104,17 @@ public class PostService {
     // /community/updatePost/{post_id}
     public PostResponse getPost(Long postId){
         Post post = findPost(postId);
+
         checkAvailable(post);
+        post.addCount(); // 조회수 증가
         return PostResponse.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .count(post.getCount())
                 .nickname(post.getUser().getNickname())
+                .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm"))) // TODO : 이 양식으로 전부 추가
+                .commentList(commentService.getCommentList(postId))
                 .build();
     }
 
