@@ -19,7 +19,6 @@ public class ChildComment extends BaseEntity {
     @Column(name = "child_comment_id")
     private Long id;
 
-
     @Column(nullable = false)
     private String content;
 
