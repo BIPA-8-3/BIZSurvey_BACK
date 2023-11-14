@@ -1,9 +1,11 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
+import com.bipa.bizsurvey.domain.admin.domain.Admin;
 import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.survey.*;
+import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
@@ -38,6 +40,7 @@ public class SurveyService {
     private final WorkspaceRepository workspaceRepository;
     private final SurveyMapper surveyMapper;
     private final UserRepository userRepository;
+    private final
 
     public SurveyInWorkspaceResponse getSurvey(Long surveyId, LoginUser loginUser){
 
@@ -67,11 +70,15 @@ public class SurveyService {
     }
 
 
-    public void createSurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser){
+    public void createSurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser, Long workspaceId){
 
         // get workspace, user
-        Workspace workspace = workspaceRepository.findByUserIdAndWorkspaceType(loginUser.getId(), WorkspaceType.PERSONAL);
+        // 로그인 유저가 해당 워크스페이스에 설문지를 등록할 수 있는 권한이 있는가?
         User user = userRepository.findById(loginUser.getId()).orElseThrow();
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
+        if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
+
+        }
 
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
@@ -96,19 +103,60 @@ public class SurveyService {
         survey.updateSurvey(updateSurveyRequest);
         surveyRepository.save(survey);
 
-        // question, answer delete
-        questionRepository.deleteAllBySurveyId(survey.getId());
+        // question이 dto에 있으면 수정, 없으면 delflag변경
+        List<UpdateQuestionRequest> questionDtoList = updateSurveyRequest.getQuestions();
+        questionDtoList.forEach(questionDto -> {
+            if (questionDto.getQuestionId() == null){
+                //새로 생성
+                Question question = Question.builder()
+                        .surveyQuestion(questionDto.getSurveyQuestion())
+                        .answerType(questionDto.getAnswerType())
+                        .score(questionDto.getScore())
+                        .step(questionDto.getStep())
+                        .build();
 
-        // save question, answer
-        List<CreateQuestionRequest> questionDtoList = updateSurveyRequest.getQuestions();
-        createQuestionAndAnswer(survey, questionDtoList);
+                questionRepository.save(question);
+
+                List<UpdateAnswerRequest> answerDtoList = questionDto.getAnswers();
+                answerDtoList.forEach(answerDto ->{
+                    Answer answer = Answer.builder()
+                            .surveyAnswer(answerDto.getSurveyAnswer())
+                            .correct(answerDto.getCorrect())
+                            .question(question)
+                            .build();
+                    answerRepository.save(answer);
+                });
+
+            }else {
+                // 수정
+                Question question = questionRepository.findById(questionDto.getQuestionId()).orElseThrow();
+                question.updateQuestion(questionDto);
+                questionRepository.save(question);
+
+                AnswerType answerType = questionDto.getAnswerType();
+                if(answerType.equals(AnswerType.SINGLE_CHOICE) || answerType.equals(AnswerType.MULTIPLE_CHOICE)){
+                    List<UpdateAnswerRequest> answerDtoList = questionDto.getAnswers();
+                    answerRepository.deleteAllByQuestionId(question.getId());
+                    answerDtoList.forEach(answerDto -> {
+                        Answer answer = Answer.builder()
+                                .surveyAnswer(answerDto.getSurveyAnswer())
+                                .correct(answerDto.getCorrect())
+                                .step(answerDto.getStep())
+                                .question(question)
+                                .build();
+                        answerRepository.save(answer);
+                    });
+                }
+            }
+        });
+
+
     }
 
     public void deleteSurvey(Long surveyId, LoginUser loginUser){
 
         Survey survey = checkPermission(surveyRepository.findById(surveyId).orElseThrow(),loginUser.getId());
         survey.setDelFlag(true);
-
 
     }
 

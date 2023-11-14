@@ -30,6 +30,8 @@ public class Answer extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Correct correct;
 
+    private int step;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -37,10 +39,11 @@ public class Answer extends BaseEntity {
 
 
     @Builder
-    public Answer(String surveyAnswer, Correct correct, Question question) {
+    public Answer(String surveyAnswer, Correct correct, Question question, int step) {
         this.surveyAnswer = surveyAnswer;
         this.correct = correct;
         this.question = question;
+        this.step = step;
     }
 
     public static Answer toEntity(CreateAnswerRequest createAnswerRequest, Question question) {
@@ -48,6 +51,7 @@ public class Answer extends BaseEntity {
                 .surveyAnswer(createAnswerRequest.getSurveyAnswer())
                 .correct(createAnswerRequest.getCorrect())
                 .question(question)
+                .step(createAnswerRequest.getStep())
                 .build();
     }
 }

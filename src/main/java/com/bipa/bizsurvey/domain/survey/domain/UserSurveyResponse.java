@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.survey.domain;
 
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
+import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public class UserSurveyResponse {
 
     @Column(nullable = false)
     private String answer;
+
+    @Column(nullable = false)
+    private AnswerType answerType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

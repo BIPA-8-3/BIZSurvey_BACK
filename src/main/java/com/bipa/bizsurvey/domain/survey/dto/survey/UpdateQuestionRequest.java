@@ -11,7 +11,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateQuestionRequest {
+public class UpdateQuestionRequest {
+
+
+    private Long questionId;
 
     @NotBlank(message = "질문을 입력해주세요.")
     private String surveyQuestion;
@@ -20,7 +23,9 @@ public class CreateQuestionRequest {
 
     private int score;
 
-    private List<CreateAnswerRequest> answers;
-
     private int step;
+
+    private List<UpdateAnswerRequest> answers;
+
+
 }

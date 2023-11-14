@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.survey.domain;
 
 
 import com.bipa.bizsurvey.domain.survey.dto.survey.CreateQuestionRequest;
+import com.bipa.bizsurvey.domain.survey.dto.survey.UpdateQuestionRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -34,6 +35,9 @@ public class Question extends BaseEntity {
 
     private int score;
 
+    @Column(nullable = false)
+    private int step;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -41,12 +45,14 @@ public class Question extends BaseEntity {
 
 
 
+
     @Builder
-    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey) {
+    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey, int step) {
         this.surveyQuestion = surveyQuestion;
         this.answerType = answerType;
         this.score = score;
         this.survey = survey;
+        this.step = step;
     }
 
     public static Question toEntity(CreateQuestionRequest createQuestionRequest, Survey survey) {
@@ -55,6 +61,15 @@ public class Question extends BaseEntity {
                 .answerType(createQuestionRequest.getAnswerType())
                 .score(createQuestionRequest.getScore())
                 .survey(survey)
+                .step(createQuestionRequest.getStep())
                 .build();
+    }
+
+    public void updateQuestion(UpdateQuestionRequest updateQuestionRequest){
+        this.surveyQuestion = updateQuestionRequest.getSurveyQuestion();
+        this.answerType = updateQuestionRequest.getAnswerType();
+        this.score = updateQuestionRequest.getScore();
+        this.step = updateQuestionRequest.getStep();
+
     }
 }
