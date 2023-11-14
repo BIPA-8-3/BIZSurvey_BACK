@@ -23,6 +23,18 @@ spring:
     activate:
       on-profile: common
 
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET_NAME}
+    credentials:
+      accessKey: ${BUCKET_ACCESSKEY}
+      secretKey: ${BUCKET_SECRETKEY}
+    region:
+      static: ${BUCKET_REGION}
+      auto: ${BUCKET_REGION_AUTO}
+    stack:
+      auto: ${BUCKET_STACK}
 
 ---
 
