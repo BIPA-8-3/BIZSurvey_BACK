@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.admin.domain;
+package com.bipa.bizsurvey.domain.user.domain;
 
 
 import com.bipa.bizsurvey.domain.admin.enums.ClaimList;
