@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
-import com.bipa.bizsurvey.domain.admin.domain.Admin;
 import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
@@ -16,7 +15,9 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
+import com.bipa.bizsurvey.domain.workspace.domain.WorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
+import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class SurveyService {
     private final WorkspaceRepository workspaceRepository;
     private final SurveyMapper surveyMapper;
     private final UserRepository userRepository;
-    private final
+    private final WorkspaceAdminRepository workspaceAdminRepository;
 
     public SurveyInWorkspaceResponse getSurvey(Long surveyId, LoginUser loginUser){
 
@@ -58,14 +59,13 @@ public class SurveyService {
 
         // get answer
         questionDtoList.forEach(questionDto -> {
-            Long questionKey = questionDto.getQuestionId();
-            List<AnswerInWorkspaceResponse> answerDtoList = surveyMapper
-                    .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionId(questionKey));
-            questionDto.setAnswers(answerDtoList);
+                Long questionKey = questionDto.getQuestionId();
+                List<AnswerInWorkspaceResponse> answerDtoList = surveyMapper
+                        .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionId(questionKey));
+                questionDto.setAnswers(answerDtoList);
         });
 
         surveyDto.setQuestions(questionDtoList);
-
         return surveyDto;
     }
 
@@ -73,12 +73,10 @@ public class SurveyService {
     public void createSurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser, Long workspaceId){
 
         // get workspace, user
-        // 로그인 유저가 해당 워크스페이스에 설문지를 등록할 수 있는 권한이 있는가?
         User user = userRepository.findById(loginUser.getId()).orElseThrow();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
-        if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
-
-        }
+        // 로그인 유저가 해당 워크스페이스에 설문지를 등록할 수 있는 권한이 있는가?
+        checkCreatePermission(user, workspace);
 
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
@@ -171,12 +169,13 @@ public class SurveyService {
             Question question = Question.toEntity(questionDto, survey);
             questionRepository.save(question);
             //save answer
-            List<CreateAnswerRequest> answerDtoList = questionDto.getAnswers();
-            answerDtoList.forEach(answerDto->{
-                Answer answer = Answer.toEntity(answerDto, question);
-                answerRepository.save(answer);
-            });
-
+            if (question.getAnswerType().equals(AnswerType.SINGLE_CHOICE) || question.getAnswerType().equals(AnswerType.MULTIPLE_CHOICE)) {
+                List<CreateAnswerRequest> answerDtoList = questionDto.getAnswers();
+                answerDtoList.forEach(answerDto -> {
+                    Answer answer = Answer.toEntity(answerDto, question);
+                    answerRepository.save(answer);
+                });
+            }
         });
     }
 
@@ -196,7 +195,17 @@ public class SurveyService {
     }
 
 
-
+    private void checkCreatePermission(User user, Workspace workspace){
+        if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
+            if (workspaceAdminRepository.findByWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
+                throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
+            }
+        }else {
+            if(workspaceRepository.findByUserIdAndWorkspaceType(user.getId(), WorkspaceType.PERSONAL) == null){
+                throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
+            }
+        }
+    }
 
 
 
