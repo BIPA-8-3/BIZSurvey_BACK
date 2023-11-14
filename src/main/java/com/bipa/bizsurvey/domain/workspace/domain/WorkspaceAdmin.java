@@ -1,8 +1,7 @@
-package com.bipa.bizsurvey.domain.admin.domain;
+package com.bipa.bizsurvey.domain.workspace.domain;
 
 import com.bipa.bizsurvey.domain.admin.enums.AdminType;
 import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "admin")
-public class Admin extends BaseEntity {
+public class WorkspaceAdmin extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
