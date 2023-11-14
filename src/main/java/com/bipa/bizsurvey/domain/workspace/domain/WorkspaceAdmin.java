@@ -1,6 +1,6 @@
 package com.bipa.bizsurvey.domain.workspace.domain;
 
-import com.bipa.bizsurvey.domain.admin.enums.AdminType;
+import com.bipa.bizsurvey.domain.workspace.enums.AdminType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;

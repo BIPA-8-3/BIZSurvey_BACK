@@ -1,9 +1,8 @@
 package com.bipa.bizsurvey.domain.user.domain;
 
 
-import com.bipa.bizsurvey.domain.admin.enums.ClaimList;
-import com.bipa.bizsurvey.domain.admin.enums.ClaimType;
-import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.enums.ClaimList;
+import com.bipa.bizsurvey.domain.user.enums.ClaimType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
