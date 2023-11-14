@@ -12,12 +12,12 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "admin")
+@Table(name = "workspace_admin")
 public class WorkspaceAdmin extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "admin_id")
+    @Column(name = "workspace_admin_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
