@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType.NOT_EXIST_SURVEY;
 
@@ -55,7 +56,7 @@ public class SurveyService {
         // get question
         Long surveyKey = surveyDto.getSurveyId();
         List<QuestionInWorkspaceResponse> questionDtoList = surveyMapper
-                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyId(surveyKey));
+                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalse(surveyKey));
 
         // get answer
         questionDtoList.forEach(questionDto -> {
@@ -101,8 +102,41 @@ public class SurveyService {
         survey.updateSurvey(updateSurveyRequest);
         surveyRepository.save(survey);
 
-        // question이 dto에 있으면 수정, 없으면 delflag변경
-        List<UpdateQuestionRequest> questionDtoList = updateSurveyRequest.getQuestions();
+        // question이 dto에 없으면 delflag변경
+        // 포함되는 entity update
+        // 나머지 남은 dto는 create
+
+        List<Question> existingQuestions = questionRepository.findAllBySurveyId(survey.getId());
+
+        List<UpdateQuestionRequest> questionDtoListForUpdate = updateSurveyRequest.getQuestions().stream()
+                .filter(dto -> dto.getQuestionId() != null)
+                .collect(Collectors.toList());
+
+        questionDtoListForUpdate.forEach(dto -> {
+            questionRepository.findById(dto.getQuestionId());
+        });
+
+        for (Question existingQuestion : existingQuestions){
+            if (questionDtoListForUpdate.contains(existingQuestion.getId())){
+                existingQuestion.setDelFlag(true);
+                questionRepository.save(existingQuestion);
+            }else {
+                // 포함되는 entity update
+                UpdateQuestionRequest targetQuestionDto = questionDtoList.stream()
+                                .filter(dto -> existingQuestion.getId().equals(dto.getQuestionId()))
+                                .findFirst()
+                                .orElse(null);
+
+                existingQuestion.updateQuestion(targetQuestionDto);
+                questionRepository.save(existingQuestion);
+            }
+        }
+
+
+
+
+
+
         questionDtoList.forEach(questionDto -> {
             if (questionDto.getQuestionId() == null){
                 //새로 생성
