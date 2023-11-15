@@ -1,6 +1,6 @@
 package com.bipa.bizsurvey.domain.community.service;
 
-import com.bipa.bizsurvey.domain.community.dto.request.CreatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
