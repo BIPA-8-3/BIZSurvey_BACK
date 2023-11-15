@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.exception.postException;
+package com.bipa.bizsurvey.domain.community.exception.commentException;
 
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.global.exception.ExceptionDto;
@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
-public class PostExceptionHandler {
-    @ExceptionHandler(PostException.class)
+public class CommentExceptionHandler {
+
+    @ExceptionHandler(CommentException.class)
     public ResponseEntity<?> handleBaseEx(PostException exception){
         ExceptionDto exceptionDto = new ExceptionDto(
                 exception.getExceptionType().getErrorCode(),
