@@ -19,6 +19,7 @@ import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ChildCommentService {
 
@@ -96,19 +98,19 @@ public class ChildCommentService {
     public void deleteChildComment(Long userId, Long commentId, Long childCommentId){
         Comment comment = findComment(commentId);
         checkAvailable(comment);
-        ChildComment childComment = findChildComment(childCommentId
-        );
+        ChildComment childComment = findChildComment(childCommentId);
         checkPermission(userId, childComment);
+        childComment.updateDelFlag();
         childCommentRepository.save(childComment);
     }
 
-    private ChildComment findChildComment(Long childCommentId){
+    public ChildComment findChildComment(Long childCommentId){
         return childCommentRepository.findById(childCommentId).orElseThrow(
                 () -> new ChildCommentException(ChildCommentExceptionType.NON_EXIST_CHILD_COMMENT)
         );
     }
 
-    private void checkPermission(Long userId, ChildComment childComment){
+    public void checkPermission(Long userId, ChildComment childComment){
         if(!Objects.equals(userId, childComment.getUser().getId())){
             throw new UserException(UserExceptionType.NO_PERMISSION);
         }
@@ -116,13 +118,13 @@ public class ChildCommentService {
 
 
 
-    private Comment findComment(Long commentId){
+    public Comment findComment(Long commentId){
         return commentRepository.findById(commentId).orElseThrow(
                 () -> new CommentException(CommentExceptionType.NON_EXIST_COMMENT)
         );
     }
 
-    private void checkAvailable(Comment comment){
+    public void checkAvailable(Comment comment){
         if(comment.getDelFlag()){
             throw new CommentException(CommentExceptionType.ALREADY_DELETED);
         }

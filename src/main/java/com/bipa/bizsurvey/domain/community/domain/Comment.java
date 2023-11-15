@@ -4,10 +4,8 @@ import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.dto.request.comment.UpdateCommentRequest;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -33,6 +31,12 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Setter
+    @ColumnDefault("false")
+    @Column(insertable = false)
+    private Boolean reported;
+    // 신고 당했는지 여부
+
     @Builder
     public Comment(String content, Post post, User user) {
         this.content = content;
@@ -46,5 +50,10 @@ public class Comment extends BaseEntity {
 
     public void updateDelFlag(){
         setDelFlag(true);
+    }
+
+    public void updateReported(){
+        this.reported = true;
+        this.content = "신고된 댓글입니다.";
     }
 }

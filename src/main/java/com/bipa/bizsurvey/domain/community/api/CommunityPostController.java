@@ -5,6 +5,7 @@ import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.service.PostService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.global.common.sorting.SortingRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -31,14 +32,15 @@ public class CommunityPostController {
         return ResponseEntity.ok().body("게시물 등록이 완료되었습니다."); // 200 OK
     }
 
-    // 게시물 전체 조회
+     //게시물 전체 조회
     @GetMapping("")
-    public ResponseEntity<?> getPostList(@RequestParam int page,
-                                         @RequestParam int size,
-                                         @RequestParam String sortBy
+    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable,
+                                         @RequestParam(required = false) String fieldName
                                          ){
-        return ResponseEntity.ok().body(postService.getPostList(page, size, sortBy));
+
+        return ResponseEntity.ok().body(postService.getPostList(pageable, fieldName)); // 200 OK
     }
+
     // 게시물 상세 조회
     // /community/showPost/{postId}
     @GetMapping("/showPost/{postId}")

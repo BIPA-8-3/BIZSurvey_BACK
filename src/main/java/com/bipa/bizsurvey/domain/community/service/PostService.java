@@ -14,6 +14,12 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
+import com.bipa.bizsurvey.global.common.sorting.SortingRequest;
+import com.bipa.bizsurvey.global.common.sorting.SortingStandard;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -34,7 +40,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final CommentService commentService;
-
+    public QPost p = new QPost("p");
 
     // 커뮤니티 게시물 제작
     public void createPost(Long userId, CreatePostRequest createPostRequest){
@@ -47,23 +53,47 @@ public class PostService {
     // page -> 시작 페이지(0)
     // size -> 한 페이지에 표시해야 할 게시물의 개수
     // sortBy -> 소팅 컬럼 기준
-    public Page<?> getPostList(int page, int size, String sortBy){
-        Sort sort = Sort.by(Sort.Order.desc(sortBy));
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Post> postPages = postRepository.findByDelFlagIsFalse(pageable);
 
-        return postPages.map(
-                p -> PostResponse.builder()
-                        .postId(p.getId())
-                        .title(p.getTitle())
-                        .content(p.getContent())
-                        .count(p.getCount())
-                        .nickname(p.getUser().getNickname())
-                        .createTime(p.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
-                        .build()
-        );
+    // TODO : 신고된 게시물 띄우지 않기로(추가해야함)
+    // TODO : QueryDSL 로 업데이트
+    public Page<?> getPostList(Pageable pageable, String fieldName){
 
+
+        List<Post> postList = jpaQueryFactory
+                .select(p)
+                .from(p)
+                .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
+                .where(p.postType.eq(PostType.COMMUNITY))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(sortByField(fieldName))
+                .fetch();
+
+        List<PostResponse> result = new ArrayList<>();
+
+        for(Post post: postList){
+            PostResponse postResponse = PostResponse.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .count(post.getCount())
+                    .nickname(post.getUser().getNickname())
+                    .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
+                    .build();
+            result.add(postResponse);
+        }
+
+
+
+        return new PageImpl<>(result, pageable, result.size());
     }
+
+
+
+
+
+    // TODO : 신고된 게시물 띄우지 않기로(추가됨)
     public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
         QPost p = new QPost("p");
 
@@ -71,6 +101,7 @@ public class PostService {
                 .select(p)
                 .from(p)
                 .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false)) 
                 .where(p.postType.eq(PostType.COMMUNITY))
                 .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
                         .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
@@ -138,24 +169,42 @@ public class PostService {
     }
 
 
-    private Post findPost(Long postId){
+    public Post findPost(Long postId){
         return postRepository.findById(postId).orElseThrow(
                 () -> new PostException(PostExceptionType.NON_EXIST_POST)
         );
     }
 
-    private void checkPermission(Long userId, Post post) {
+    public void checkPermission(Long userId, Post post) {
             if(!Objects.equals(userId, post.getUser().getId())){
                 throw new PostException(UserExceptionType.NO_PERMISSION);
             }
     }
 
-    private void checkAvailable(Post post){
+    public void checkAvailable(Post post){
         if(post.getDelFlag()){
             throw new PostException(PostExceptionType.ALREADY_DELETED);
         }
     }
 
+    private OrderSpecifier<?> sortByField(String filedName){
+
+        Order order = Order.DESC;
+
+        if(Objects.isNull(filedName)){
+            return new OrderSpecifier<>(order, p.id);
+        }
+
+        if(filedName.equals("count")){
+            return new OrderSpecifier<>(order, p.count);
+        }
+
+        if(filedName.equals("regDate")){
+            return new OrderSpecifier<>(order, p.regDate);
+        }
+
+        return OrderByNull.getDefault();
+    }
 
 
 
