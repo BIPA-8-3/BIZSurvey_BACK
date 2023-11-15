@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.dto.survey;
+package com.bipa.bizsurvey.domain.survey.dto.request;
 
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
 import lombok.AllArgsConstructor;
@@ -27,6 +27,7 @@ public class UpdateSurveyRequest {
 
     private SurveyType surveyType;
 
-    private List<UpdateQuestionRequest> questions;
+    private List<UpdateQuestionRequest> updateQuestions;
+    private List<CreateQuestionRequest> createQuestions;
 
 }

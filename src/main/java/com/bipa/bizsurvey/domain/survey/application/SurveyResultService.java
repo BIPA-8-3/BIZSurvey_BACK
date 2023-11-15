@@ -2,9 +2,9 @@ package com.bipa.bizsurvey.domain.survey.application;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
-import com.bipa.bizsurvey.domain.survey.dto.surveyresult.AnswerResponse;
-import com.bipa.bizsurvey.domain.survey.dto.surveyresult.PersonalResultResponse;
-import com.bipa.bizsurvey.domain.survey.dto.surveyresult.SurveyResultResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.AnswerResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.PersonalResultResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResultResponse;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;

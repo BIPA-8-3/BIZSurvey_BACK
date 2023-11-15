@@ -3,7 +3,10 @@ package com.bipa.bizsurvey.domain.survey.application;
 import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
-import com.bipa.bizsurvey.domain.survey.dto.survey.*;
+import com.bipa.bizsurvey.domain.survey.dto.request.*;
+import com.bipa.bizsurvey.domain.survey.dto.response.AnswerInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.QuestionInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyInWorkspaceResponse;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
@@ -15,7 +18,6 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
-import com.bipa.bizsurvey.domain.workspace.domain.WorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
@@ -26,14 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType.NOT_EXIST_SURVEY;
-
 @Service
-@RequiredArgsConstructor
-@Transactional
 @Slf4j
+@Transactional
+@RequiredArgsConstructor
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
@@ -45,13 +46,10 @@ public class SurveyService {
     private final WorkspaceAdminRepository workspaceAdminRepository;
 
     public SurveyInWorkspaceResponse getSurvey(Long surveyId, LoginUser loginUser){
-
         // get survey
-        SurveyInWorkspaceResponse surveyDto = surveyMapper
-                .toSurveyInWorkspaceResponse(
-                        checkPermission(
-                        checkAvailable(
-                                surveyRepository.findById(surveyId).orElseThrow()), loginUser.getId()));
+        Survey survey = findSurvey(surveyId);
+        checkAvailable(survey);
+        SurveyInWorkspaceResponse surveyDto = surveyMapper.toSurveyInWorkspaceResponse(survey);
 
         // get question
         Long surveyKey = surveyDto.getSurveyId();
@@ -85,147 +83,163 @@ public class SurveyService {
 
         // save question, answer
         List<CreateQuestionRequest> questionDtoList = createSurveyRequest.getQuestions();
-        createQuestionAndAnswer(survey, questionDtoList);
-
+        questionDtoList.forEach(questionDto -> {
+            //save question
+            Question question = createQuestion(questionDto, survey);
+            //save answer
+            List<CreateAnswerRequest> answerDtoList = questionDto.getAnswers();
+            answerDtoList.forEach(answerDto -> {
+                createAnswer(answerDto, question);
+            });
+        });
     }
 
 
     public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser){
-
         // check survey
-       Survey survey = checkPermission(
-                        checkAvailable(
-                                surveyRepository.findById(updateSurveyRequest.getSurveyId()).orElseThrow()
-                        ), loginUser.getId());
-
+        Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
+        checkPermission(survey, loginUser.getId());
         // update survey
         survey.updateSurvey(updateSurveyRequest);
         surveyRepository.save(survey);
 
-        // question이 dto에 없으면 delflag변경
-        // 포함되는 entity update
-        // 나머지 남은 dto는 create
+        List<UpdateQuestionRequest> updateQuestionRequests = updateSurveyRequest.getUpdateQuestions();
 
-        List<Question> existingQuestions = questionRepository.findAllBySurveyId(survey.getId());
+        // update question
+        updateQuestionRequests.forEach(dto -> {
+            Question question = questionRepository.findById(dto.getQuestionId()).orElseThrow();
+            AnswerType answerType = question.getAnswerType();
 
-        List<UpdateQuestionRequest> questionDtoListForUpdate = updateSurveyRequest.getQuestions().stream()
-                .filter(dto -> dto.getQuestionId() != null)
-                .collect(Collectors.toList());
-
-        questionDtoListForUpdate.forEach(dto -> {
-            questionRepository.findById(dto.getQuestionId());
-        });
-
-        for (Question existingQuestion : existingQuestions){
-            if (questionDtoListForUpdate.contains(existingQuestion.getId())){
-                existingQuestion.setDelFlag(true);
-                questionRepository.save(existingQuestion);
-            }else {
-                // 포함되는 entity update
-                UpdateQuestionRequest targetQuestionDto = questionDtoList.stream()
-                                .filter(dto -> existingQuestion.getId().equals(dto.getQuestionId()))
-                                .findFirst()
-                                .orElse(null);
-
-                existingQuestion.updateQuestion(targetQuestionDto);
-                questionRepository.save(existingQuestion);
-            }
-        }
-
-
-
-
-
-
-        questionDtoList.forEach(questionDto -> {
-            if (questionDto.getQuestionId() == null){
-                //새로 생성
-                Question question = Question.builder()
-                        .surveyQuestion(questionDto.getSurveyQuestion())
-                        .answerType(questionDto.getAnswerType())
-                        .score(questionDto.getScore())
-                        .step(questionDto.getStep())
-                        .build();
-
-                questionRepository.save(question);
-
-                List<UpdateAnswerRequest> answerDtoList = questionDto.getAnswers();
-                answerDtoList.forEach(answerDto ->{
-                    Answer answer = Answer.builder()
-                            .surveyAnswer(answerDto.getSurveyAnswer())
-                            .correct(answerDto.getCorrect())
-                            .question(question)
-                            .build();
-                    answerRepository.save(answer);
+            // delete answers
+            if (answerType.equals(AnswerType.SINGLE_CHOICE) || answerType.equals(AnswerType.MULTIPLE_CHOICE)){
+                List<Answer> answers = answerRepository.findAllByQuestionIdAndDelFlagFalse(question.getId());
+                answers.forEach(answer -> {
+                    answer.setDelFlag(true);
                 });
+            }
+            // create answers
+            dto.getAnswers().forEach(answerDto -> {createAnswer(answerDto, question);});
+            question.updateQuestion(dto);
+            questionRepository.save(question);
+         }
+        );
 
-            }else {
-                // 수정
-                Question question = questionRepository.findById(questionDto.getQuestionId()).orElseThrow();
-                question.updateQuestion(questionDto);
+
+        // delete question
+        Set<Long> updateQuestionIds = updateQuestionRequests.stream()
+                .map(UpdateQuestionRequest::getQuestionId)
+                .collect(Collectors.toSet());
+
+        List<Question> questions = questionRepository.findAllBySurveyId(survey.getId());
+        questions.forEach(question -> {
+            if (!updateQuestionIds.contains(question.getId())){
+                question.setDelFlag(true);
                 questionRepository.save(question);
-
-                AnswerType answerType = questionDto.getAnswerType();
-                if(answerType.equals(AnswerType.SINGLE_CHOICE) || answerType.equals(AnswerType.MULTIPLE_CHOICE)){
-                    List<UpdateAnswerRequest> answerDtoList = questionDto.getAnswers();
-                    answerRepository.deleteAllByQuestionId(question.getId());
-                    answerDtoList.forEach(answerDto -> {
-                        Answer answer = Answer.builder()
-                                .surveyAnswer(answerDto.getSurveyAnswer())
-                                .correct(answerDto.getCorrect())
-                                .step(answerDto.getStep())
-                                .question(question)
-                                .build();
-                        answerRepository.save(answer);
-                    });
-                }
             }
         });
 
+        // create question
+        updateSurveyRequest.getCreateQuestions().forEach(dto -> {
+            Question question = Question.toEntity(dto, survey);
+            questionRepository.save(question);
+
+            //create answers
+            dto.getAnswers().forEach(answerDto -> {
+                createAnswer(answerDto, question);
+            });
+        });
 
     }
 
-    public void deleteSurvey(Long surveyId, LoginUser loginUser){
 
-        Survey survey = checkPermission(surveyRepository.findById(surveyId).orElseThrow(),loginUser.getId());
-        survey.setDelFlag(true);
-
-    }
-
-
-
-
-
-
-    private void createQuestionAndAnswer(Survey survey, List<CreateQuestionRequest> questionDtoList){
-        questionDtoList.forEach(questionDto -> {
-            //save question
+    // create questions
+    private void createQuestion(List<CreateQuestionRequest> createQuestionRequests, Survey survey){
+        createQuestionRequests.forEach(questionDto -> {
             Question question = Question.toEntity(questionDto, survey);
             questionRepository.save(question);
-            //save answer
-            if (question.getAnswerType().equals(AnswerType.SINGLE_CHOICE) || question.getAnswerType().equals(AnswerType.MULTIPLE_CHOICE)) {
-                List<CreateAnswerRequest> answerDtoList = questionDto.getAnswers();
-                answerDtoList.forEach(answerDto -> {
-                    Answer answer = Answer.toEntity(answerDto, question);
-                    answerRepository.save(answer);
-                });
-            }
         });
     }
 
 
-    private Survey checkAvailable(Survey survey){
+
+    // update questions
+    private void updateQuestion(List<UpdateQuestionRequest> updateQuestionRequests){
+        updateQuestionRequests.forEach(questionDto -> {
+            Question question = questionRepository.findById(questionDto.getQuestionId()).orElseThrow();
+            question.updateQuestion(questionDto);
+            questionRepository.save(question);
+        });
+    }
+
+    // delete question
+    private void deleteQuestion(){
+
+    }
+
+    // create answers
+    private void createAnswer(List<CreateAnswerRequest> createAnswerRequests, Question question){
+        createAnswerRequests.forEach(answerDto -> {
+            Answer answer = Answer.toEntity(answerDto, question);
+            answerRepository.save(answer);
+        });
+    }
+
+
+    // delete answers
+    private void deleteAnswer(){
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    public void deleteSurvey(Long surveyId, LoginUser loginUser){
+        Survey survey = findSurvey(surveyId);
+        checkAvailable(survey);
+        checkPermission(survey, loginUser.getId());
+        survey.setDelFlag(true);
+    }
+
+
+
+
+
+    private Question createQuestion(CreateQuestionRequest questionDto, Survey survey){
+            Question question = Question.toEntity(questionDto, survey);
+            questionRepository.save(question);
+        return question;
+    }
+
+    private void createAnswer(CreateAnswerRequest createAnswerRequest, Question question){
+
+    }
+
+
+    private Survey findSurvey(Long surveyId){
+        return surveyRepository.findById(surveyId).orElseThrow(
+                () -> new SurveyException(SurveyExceptionType.NOT_EXIST_SURVEY)
+        );
+    }
+
+
+    private void checkAvailable(Survey survey){
         if (survey.getDelFlag()){
             throw new SurveyException(SurveyExceptionType.ALREADY_DELETED);
         }
-        return survey;
     }
 
-    private Survey checkPermission(Survey survey, Long userId){
+    private void checkPermission(Survey survey, Long userId){
         if (!Objects.equals(survey.getUser().getId(), userId)) {
             throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
         }
-        return survey;
     }
 
 

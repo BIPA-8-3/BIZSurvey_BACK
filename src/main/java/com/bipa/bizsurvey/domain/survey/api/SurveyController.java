@@ -3,13 +3,12 @@ package com.bipa.bizsurvey.domain.survey.api;
 
 import com.bipa.bizsurvey.domain.survey.application.SurveyResultService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
-import com.bipa.bizsurvey.domain.survey.dto.survey.CreateSurveyRequest;
-import com.bipa.bizsurvey.domain.survey.dto.survey.SurveyInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.survey.UpdateSurveyRequest;
-import com.bipa.bizsurvey.domain.survey.dto.surveyresult.PersonalResultResponse;
-import com.bipa.bizsurvey.domain.survey.dto.surveyresult.SurveyResultResponse;
+import com.bipa.bizsurvey.domain.survey.dto.request.CreateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.response.PersonalResultResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResultResponse;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

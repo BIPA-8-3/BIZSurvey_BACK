@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.dto.surveyresult;
+package com.bipa.bizsurvey.domain.survey.dto.response;
 
 
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;

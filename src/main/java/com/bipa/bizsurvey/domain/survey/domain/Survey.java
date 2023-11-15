@@ -1,8 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
 
-import com.bipa.bizsurvey.domain.survey.dto.survey.CreateSurveyRequest;
-import com.bipa.bizsurvey.domain.survey.dto.survey.UpdateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.request.CreateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;

@@ -4,10 +4,10 @@ import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
-import com.bipa.bizsurvey.domain.survey.dto.survey.AnswerInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.survey.QuestionInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.survey.SurveyInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.surveyresult.AnswerResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.AnswerInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.QuestionInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.AnswerResponse;
 import org.mapstruct.*;
 
 import java.util.List;

@@ -1,8 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
 
-import com.bipa.bizsurvey.domain.survey.dto.survey.CreateQuestionRequest;
-import com.bipa.bizsurvey.domain.survey.dto.survey.UpdateQuestionRequest;
+import com.bipa.bizsurvey.domain.survey.dto.request.CreateQuestionRequest;
+import com.bipa.bizsurvey.domain.survey.dto.request.UpdateQuestionRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;

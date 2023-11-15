@@ -9,4 +9,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findAllByQuestionId(Long questionId);
 
     void deleteAllByQuestionId(Long questionId);
+
+    List<Answer> findAllByQuestionIdAndDelFlagFalse(Long questionId);
 }
