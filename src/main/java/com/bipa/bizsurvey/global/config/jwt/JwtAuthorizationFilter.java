@@ -1,6 +1,11 @@
 package com.bipa.bizsurvey.global.config.jwt;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.global.util.CustomResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +24,6 @@ import java.io.IOException;
  */
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
@@ -28,17 +32,26 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        isHeaderVerify(request, response);
         if (isHeaderVerify(request, response)) {
-            // 토큰이 존재함
-            log.debug("디버그 : 토큰이 존재함");
-            String token = request.getHeader(JwtVO.HEADER).replace(JwtVO.TOKEN_PREFIX, "");
-            LoginUser loginUser = JwtProcess.verify(token);
-            log.debug("디버그 : 토큰이 검증이 완료됨");
-            // 임시 세션 (UserDetails 타입 or username)
-            Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null,
-                    loginUser.getAuthorities()); // id, role 만 존재
-            SecurityContextHolder.getContext().setAuthentication(authentication); //Authentication 객체 저장
-            log.debug("디버그 : 임시 세션이 생성됨");
+            try {
+                log.debug("디버그 : 토큰이 존재함");
+                String token = request.getHeader(JwtVO.HEADER).replace(JwtVO.TOKEN_PREFIX, "");
+                LoginUser loginUser = JwtProcess.verify(token);
+                log.debug("디버그 : 토큰이 검증이 완료됨");
+                // 임시 세션 (UserDetails 타입 or username)
+                Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null,
+                        loginUser.getAuthorities()); // id, role 만 존재
+                SecurityContextHolder.getContext().setAuthentication(authentication); //Authentication 객체 저장
+                log.debug("디버그 : 임시 세션이 생성됨");
+            }catch (TokenExpiredException e){
+//                String token = request.getHeader(JwtVO.REFRESH_HEADER).replace(JwtVO.TOKEN_PREFIX, "");
+//                DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(JwtVO.SECRET)).build().verify(token);
+//                Long id = decodedJWT.getClaim("id").asLong();
+                CustomResponseUtil.noLogin(response, "토큰이 만료됨");
+            }
+
+
         }
         chain.doFilter(request, response);
     }

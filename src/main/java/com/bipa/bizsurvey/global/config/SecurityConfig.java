@@ -1,8 +1,12 @@
 package com.bipa.bizsurvey.global.config;
 
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.config.jwt.JwtAuthenticationFilter;
 import com.bipa.bizsurvey.global.config.jwt.JwtAuthorizationFilter;
+import com.bipa.bizsurvey.global.config.oauth.CustomOAuth2UserService;
+import com.bipa.bizsurvey.global.config.oauth.OAuth2AuthenticationSuccessHandler;
 import com.bipa.bizsurvey.global.util.CustomResponseUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +22,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -55,8 +63,15 @@ public class SecurityConfig {
         });
         http.authorizeRequests()
 //                .antMatchers("/api/user/**").authenticated()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/test2").authenticated()
+                .antMatchers("/admin/**").hasRole("COMPANY_SUBSCRIBE")
                 .anyRequest().permitAll();
+
+        http.oauth2Login()
+                .userInfoEndpoint().userService(customOAuth2UserService)
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler); // 인증 성공 시 Handler
+                //.failureHandler(oAuth2AuthenticationFailureHandler);
         return http.build();
     }
 

@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.admin.enums;
+package com.bipa.bizsurvey.domain.user.enums;
 
 import lombok.Getter;
 

@@ -37,6 +37,6 @@ public class UserExceptionHandler {
             errorDtoList.add(errorDto);
         }
 
-        return ResponseEntity.ok().body(errorDtoList);
+        return ResponseEntity.badRequest().body(errorDtoList);
     }
 }

@@ -49,4 +49,6 @@ public class JoinRequest {
                 .planSubscribe(Plan.COMMUNITY)
                 .build();
     }
+
+
 }

@@ -1,9 +1,8 @@
-package com.bipa.bizsurvey.domain.admin.domain;
+package com.bipa.bizsurvey.domain.user.domain;
 
 
-import com.bipa.bizsurvey.domain.admin.enums.ClaimList;
-import com.bipa.bizsurvey.domain.admin.enums.ClaimType;
-import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.enums.ClaimList;
+import com.bipa.bizsurvey.domain.user.enums.ClaimType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,7 +37,5 @@ public class Claim extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-
 
 }
