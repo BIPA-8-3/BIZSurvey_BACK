@@ -1,8 +1,6 @@
-package com.bipa.bizsurvey.domain.admin.domain;
+package com.bipa.bizsurvey.domain.workspace.domain;
 
-
-import com.bipa.bizsurvey.domain.admin.enums.ClaimList;
-import com.bipa.bizsurvey.domain.admin.enums.ClaimType;
+import com.bipa.bizsurvey.domain.workspace.enums.AdminType;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -14,31 +12,24 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "claim")
-public class Claim extends BaseEntity {
+@Table(name = "workspace_admin")
+public class WorkspaceAdmin extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "claim_id")
+    @Column(name = "workspace_admin_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ClaimType claimType;
+    private AdminType adminType;
 
-
-    @Column(nullable = false)
-    private Long logicalKey;
-    // 논리적 키
-
-    @Enumerated(EnumType.STRING)
-    private ClaimList claimReason;
-    // 신고 사유 Enum 처리해야함
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workspace_id")
+    private Workspace workspace;
 }
