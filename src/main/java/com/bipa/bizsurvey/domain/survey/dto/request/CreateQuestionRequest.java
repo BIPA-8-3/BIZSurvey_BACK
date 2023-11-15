@@ -20,7 +20,7 @@ public class CreateQuestionRequest {
 
     private int score;
 
-    private List<CreateAnswerRequest> answers;
-
     private int step;
+
+    private List<CreateAnswerRequest> answers;
 }

@@ -26,7 +26,7 @@ public class UserSurveyResponse {
     @Column(nullable = false)
     private String answer;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AnswerType answerType;
 
