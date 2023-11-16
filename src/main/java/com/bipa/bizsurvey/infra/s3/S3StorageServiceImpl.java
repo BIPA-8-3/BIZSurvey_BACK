@@ -30,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 @Service
 @Log4j2
-public class S3StorageService implements StorageService {
+public class S3StorageServiceImpl implements StorageService {
     private final AmazonS3Client amazonS3Client;
     private final TransferManager transferManager;
     private final String REGEX = ".com/";
