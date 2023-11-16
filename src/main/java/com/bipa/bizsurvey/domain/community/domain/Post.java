@@ -37,6 +37,12 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Setter
+    @ColumnDefault("false")
+    @Column(insertable = false)
+    private Boolean reported;
+    // 신고 당했는지 여부
+
     @Builder
     public Post(String title, String content, PostType postType, User user) {
         this.title = title;
@@ -65,9 +71,8 @@ public class Post extends BaseEntity {
 
 
     // 추 후 redis caching
-    public int addCount(){
+    public void addCount(){
         this.count += 1;
-        return this.count;
     }
 
 }
