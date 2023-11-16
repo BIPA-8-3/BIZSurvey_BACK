@@ -7,7 +7,6 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.cache.annotation.CacheEvict;
 
 import javax.persistence.*;
 
@@ -29,7 +28,7 @@ public class Post extends BaseEntity {
     private String content;
 
     @ColumnDefault("0")
-    private int count;
+    private String count;
 
     @Enumerated(EnumType.STRING)
     private PostType postType;
@@ -48,8 +47,6 @@ public class Post extends BaseEntity {
     @Column(nullable = true)
     private Long voteId;
 
-
-
     @Builder
     public Post(String title, String content, PostType postType, User user) {
         this.title = title;
@@ -58,7 +55,7 @@ public class Post extends BaseEntity {
         this.user = user;
     }
 
-    public static Post toEntity(User user, PostType postType, CreatePostRequest createPostRequest){
+    public static Post toEntity(User user, PostType postType, CreatePostRequest createPostRequest) {
         return Post.builder()
                 .title(createPostRequest.getTitle())
                 .content(createPostRequest.getContent())
@@ -68,22 +65,18 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public void updatePost(UpdatePostRequest updatePostRequest){
+    public void updatePost(UpdatePostRequest updatePostRequest) {
         this.title = updatePostRequest.getTitle();
         this.content = updatePostRequest.getContent();
     }
 
-    public void updatePost(String title, String content){
+    public void updatePost(String title, String content) {
         this.title = title;
         this.content = content;
     }
 
-
-
-
-
     // 추 후 redis caching
-    public void addCount(){
+    public void addCount() {
         this.count += 1;
     }
 

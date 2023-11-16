@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
-import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.dto.request.comment.UpdateCommentRequest;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
@@ -44,19 +43,19 @@ public class Comment extends BaseEntity {
         this.user = user;
     }
 
-    public void updateContent(UpdateCommentRequest updateCommentRequest){
+    public void updateContent(UpdateCommentRequest updateCommentRequest) {
         this.content = updateCommentRequest.getContent();
     }
 
-    public void updateDelFlag(){
+    public void updateDelFlag() {
         setDelFlag(true);
     }
 
-    public void updateReported(){
+    public void updateReported() {
         this.reported = true;
     }
 
-    public void updateReportedFalse(){
+    public void updateReportedFalse() {
         this.reported = false;
     }
 }

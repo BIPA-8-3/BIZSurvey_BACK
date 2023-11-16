@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
-import com.bipa.bizsurvey.domain.community.domain.Comment;
 import com.bipa.bizsurvey.domain.community.dto.request.childComment.UpdateChildCommentRequest;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
@@ -36,10 +35,9 @@ public class ChildComment extends BaseEntity {
     private Boolean reported;
     // 신고 당했는지 여부
 
-    public void updateDelFlag(){
+    public void updateDelFlag() {
         setDelFlag(true);
     }
-
 
     @Builder
     public ChildComment(String content, Comment comment, User user) {
@@ -48,17 +46,16 @@ public class ChildComment extends BaseEntity {
         this.user = user;
     }
 
-    public void updateChildComment(UpdateChildCommentRequest updateChildCommentRequest){
+    public void updateChildComment(UpdateChildCommentRequest updateChildCommentRequest) {
         this.content = updateChildCommentRequest.getContent();
     }
 
-    public void updateReported(){
+    public void updateReported() {
         this.reported = true;
     }
 
-    public void updateReportedFalse(){
+    public void updateReportedFalse() {
         this.reported = false;
     }
-
 
 }

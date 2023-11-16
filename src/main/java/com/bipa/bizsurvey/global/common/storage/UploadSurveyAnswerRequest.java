@@ -17,6 +17,6 @@ public class UploadSurveyAnswerRequest {
     private Domain domain;
 
     public String getPath() {
-        return String.format("%d/%s-%d/%d/", surveyId, shareType.getType(),shareId, questionId);
+        return String.format("%d/%s-%d/%d/", surveyId, shareType.getType(), shareId, questionId);
     }
 }

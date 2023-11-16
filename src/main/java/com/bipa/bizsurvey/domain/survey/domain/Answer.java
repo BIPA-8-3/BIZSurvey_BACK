@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
-
 import com.bipa.bizsurvey.domain.survey.dto.request.CreateAnswerRequest;
 import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import com.bipa.bizsurvey.global.common.BaseEntity;
@@ -8,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -37,7 +35,6 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "question_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Question question;
-
 
     @Builder
     public Answer(String surveyAnswer, Correct correct, Question question, int step) {

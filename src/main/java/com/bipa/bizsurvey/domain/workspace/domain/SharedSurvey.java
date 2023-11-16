@@ -32,6 +32,7 @@ public class SharedSurvey extends BaseEntity {
         this.survey = survey;
         this.deadline = deadline;
     }
+
     public void plusDeadline() {
         this.deadline += 7;
     }

@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.global.common.storage;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -57,7 +56,8 @@ public class StorageController {
             String originName = service.getOriginName(fileFullName);
 
             httpHeaders.setContentType(type);
-            httpHeaders.setContentDispositionFormData("attachment", new String(originName.getBytes("UTF-8"), "ISO-8859-1"));
+            httpHeaders.setContentDispositionFormData("attachment",
+                    new String(originName.getBytes("UTF-8"), "ISO-8859-1"));
 
             String encodedFileName = UriUtils.encode(originName, "UTF-8");
             httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
@@ -72,7 +72,8 @@ public class StorageController {
     public void downloadZip(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_OK);
         try {
-            response.addHeader("Content-Disposition", "attachment; filename=" + new String((RandomStringUtils.randomAlphanumeric(6) + "-download.zip").getBytes("UTF-8"), "ISO-8859-1"));
+            response.addHeader("Content-Disposition", "attachment; filename=" + new String(
+                    (RandomStringUtils.randomAlphanumeric(6) + "-download.zip").getBytes("UTF-8"), "ISO-8859-1"));
             String fileUrl = service.extractFileName(request.getRequestURI(), "/storage/folder/");
             service.downloadZip(new ZipOutputStream(response.getOutputStream()), fileUrl);
         } catch (IOException e) {
@@ -80,5 +81,3 @@ public class StorageController {
         }
     }
 }
-
-

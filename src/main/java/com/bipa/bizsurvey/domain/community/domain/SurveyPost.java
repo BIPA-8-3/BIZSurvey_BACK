@@ -1,8 +1,6 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
-import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
-import com.bipa.bizsurvey.domain.community.enums.AccessType;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -51,7 +49,8 @@ public class SurveyPost extends BaseEntity {
     private String thumbImgUrl;
 
     @Builder
-    public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, int maxMember, Post post, Survey survey, String thumbImgUrl) {
+    public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, int maxMember, Post post, Survey survey,
+            String thumbImgUrl) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.maxMember = maxMember;
@@ -60,13 +59,11 @@ public class SurveyPost extends BaseEntity {
         this.thumbImgUrl = thumbImgUrl;
     }
 
-
-    public void addScore(int score){
+    public void addScore(int score) {
         this.score = score;
     }
 
-
-    public void updateSurveyPost(UpdateSurveyPostRequest updateSurveyPostRequest, Survey survey){
+    public void updateSurveyPost(UpdateSurveyPostRequest updateSurveyPostRequest, Survey survey) {
         this.post.updatePost(updateSurveyPostRequest.getTitle(), updateSurveyPostRequest.getContent());
         this.startDateTime = updateSurveyPostRequest.getStartDateTime();
         this.endDateTime = updateSurveyPostRequest.getEndDateTime();
@@ -75,12 +72,8 @@ public class SurveyPost extends BaseEntity {
         this.thumbImgUrl = updateSurveyPostRequest.getThumbImgUrl();
     }
 
-
-    public void addCount(){
+    public void addCount() {
         this.memberCount += 1;
     }
-
-
-
 
 }

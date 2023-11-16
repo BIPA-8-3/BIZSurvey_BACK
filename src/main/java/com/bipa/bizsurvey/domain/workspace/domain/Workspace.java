@@ -1,7 +1,5 @@
 package com.bipa.bizsurvey.domain.workspace.domain;
 
-import com.bipa.bizsurvey.domain.community.domain.Post;
-import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.BaseEntity;

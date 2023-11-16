@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
-import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;

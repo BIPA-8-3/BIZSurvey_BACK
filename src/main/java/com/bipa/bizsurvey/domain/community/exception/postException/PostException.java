@@ -3,7 +3,6 @@ package com.bipa.bizsurvey.domain.community.exception.postException;
 import com.bipa.bizsurvey.global.exception.BaseException;
 import com.bipa.bizsurvey.global.exception.BaseExceptionType;
 
-
 public class PostException extends BaseException {
 
     private final BaseExceptionType baseExceptionType;

@@ -15,9 +15,13 @@ public interface StorageService {
     Domain[] resizingexclusiondomains = { Domain.SURVEY };
 
     String uploadFile(MultipartFile file, Domain domain, String path);
+
     byte[] downloadFile(String fileName) throws IOException;
-    void downloadZip(ZipOutputStream zipOut , String fileUrl) throws IOException;
+
+    void downloadZip(ZipOutputStream zipOut, String fileUrl) throws IOException;
+
     void deleteFile(String filePath);
+
     void deleteFolder(String folderPath);
 
     default String getOriginName(String saveName) {
@@ -32,9 +36,10 @@ public interface StorageService {
                 .concat("_" + baseName)
                 .concat(getFileExtension(fileName));
     }
+
     default boolean isImageFile(String fileName) {
         String fileExtension = getFileExtension(fileName);
-        String[] imageExtensions = {".jpeg", ".png", ".gif"};
+        String[] imageExtensions = { ".jpeg", ".png", ".gif" };
 
         for (String extension : imageExtensions) {
             if (extension.equalsIgnoreCase(fileExtension)) {

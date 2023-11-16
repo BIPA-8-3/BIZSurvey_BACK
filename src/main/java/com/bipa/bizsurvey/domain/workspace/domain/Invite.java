@@ -13,7 +13,6 @@ import javax.persistence.*;
 @Table(name = "invite")
 public class Invite extends BaseEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "invite_id")
@@ -33,8 +32,5 @@ public class Invite extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
-
-
-
 
 }

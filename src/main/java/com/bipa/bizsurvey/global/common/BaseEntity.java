@@ -17,7 +17,7 @@ import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-@EntityListeners(value = {AuditingEntityListener.class})
+@EntityListeners(value = { AuditingEntityListener.class })
 @Getter
 @ToString
 public abstract class BaseEntity {

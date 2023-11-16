@@ -33,7 +33,7 @@ public class FileUtil {
     }
 
     public static void rename(File file) {
-        if(file.isDirectory()) {
+        if (file.isDirectory()) {
             renameDirectory(file);
         } else {
             renameFile(file);
@@ -61,8 +61,8 @@ public class FileUtil {
         int counter = 1;
         File renamedFile = new File(path, changedName);
 
-        while(true) {
-            if(renamedFile.exists()) {
+        while (true) {
+            if (renamedFile.exists()) {
                 String tempName = baseName + "_" + counter++;
                 renamedFile = new File(path, tempName.concat(extension));
             } else {
@@ -86,4 +86,3 @@ public class FileUtil {
         }
     }
 }
-

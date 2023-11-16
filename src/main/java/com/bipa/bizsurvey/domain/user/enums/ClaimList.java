@@ -10,16 +10,12 @@ public enum ClaimList {
     ABUSIVE("욕설/혐오/차별적/불쾌한 표현"),
     DISCLOSURE("개인정보 노출"),
     COPYRIGHT("명예훼손/저작권 침해"),
-    FALSE_REPORTER("허위 신고자")
-    ;
-
+    FALSE_REPORTER("허위 신고자");
 
     private final String value;
 
-
-    ClaimList(String value){
+    ClaimList(String value) {
         this.value = value;
     }
-
 
 }

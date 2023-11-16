@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.user.domain;
 
-
 import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
 import com.bipa.bizsurvey.domain.user.enums.ClaimType;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
@@ -25,7 +24,6 @@ public class Claim extends BaseEntity {
     @Column(nullable = false)
     private ClaimType claimType;
 
-
     @Column(nullable = false)
     private Long logicalKey;
     // 논리적 키
@@ -42,10 +40,8 @@ public class Claim extends BaseEntity {
     @Column(insertable = false)
     private int processing;
 
-
     @Column(nullable = false)
-    private Long penalized;//신고대상자
-
+    private Long penalized;// 신고대상자
 
     @Builder
     public Claim(ClaimType claimType, Long logicalKey, ClaimReason claimReason, User user, Long penalized) {
@@ -56,11 +52,11 @@ public class Claim extends BaseEntity {
         this.penalized = penalized;
     }
 
-    public void claimProcessing(){
+    public void claimProcessing() {
         this.processing = 1;
     }
 
-    public void claimUnProcessing(){
+    public void claimUnProcessing() {
         this.processing = 2;
     }
 }

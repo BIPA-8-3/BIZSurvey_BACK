@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.workspace.domain;
 
-
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
@@ -41,11 +40,10 @@ public class SharedSurveyResponse extends BaseEntity {
 
     @Builder
     public SharedSurveyResponse(String surveyAnswer,
-                                AnswerType answerType,
-                                Question question,
-                                SharedList sharedList,
-                                String url
-                                ) {
+            AnswerType answerType,
+            Question question,
+            SharedList sharedList,
+            String url) {
         this.surveyAnswer = surveyAnswer;
         this.answerType = answerType;
         this.question = question;

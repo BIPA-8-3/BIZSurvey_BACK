@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
-
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.survey.dto.request.ParticipateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
@@ -18,7 +17,6 @@ import javax.persistence.*;
 @Getter
 @Table(name = "user_survey_response")
 public class UserSurveyResponse extends BaseEntity {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +45,8 @@ public class UserSurveyResponse extends BaseEntity {
     private SurveyPost surveyPost;
 
     @Builder
-    public UserSurveyResponse(String answer, AnswerType answerType, User user, Question question, SurveyPost surveyPost, String url) {
+    public UserSurveyResponse(String answer, AnswerType answerType, User user, Question question, SurveyPost surveyPost,
+            String url) {
         this.answer = answer;
         this.url = url;
         this.answerType = answerType;
@@ -56,7 +55,8 @@ public class UserSurveyResponse extends BaseEntity {
         this.surveyPost = surveyPost;
     }
 
-    public static UserSurveyResponse toEntity(ParticipateSurveyRequest participateSurvey, User user, Question question, SurveyPost surveyPost, String answer){
+    public static UserSurveyResponse toEntity(ParticipateSurveyRequest participateSurvey, User user, Question question,
+            SurveyPost surveyPost, String answer) {
         return UserSurveyResponse.builder()
                 .answer(answer)
                 .answerType(participateSurvey.getAnswerType())

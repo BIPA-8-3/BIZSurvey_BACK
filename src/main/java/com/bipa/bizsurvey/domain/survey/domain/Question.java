@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.survey.domain;
 
-
 import com.bipa.bizsurvey.domain.survey.dto.request.CreateQuestionRequest;
 import com.bipa.bizsurvey.domain.survey.dto.request.UpdateQuestionRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
@@ -9,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -21,7 +19,6 @@ import javax.persistence.*;
 @Table(name = "question")
 public class Question extends BaseEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
@@ -31,7 +28,7 @@ public class Question extends BaseEntity {
     private String surveyQuestion;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
+    // @Column(nullable = false)
     private AnswerType answerType;
 
     @Column(nullable = false)
@@ -47,11 +44,9 @@ public class Question extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Survey survey;
 
-
-
-
     @Builder
-    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey, int step, Boolean isRequired) {
+    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey, int step,
+            Boolean isRequired) {
         this.surveyQuestion = surveyQuestion;
         this.answerType = answerType;
         this.score = score;
@@ -71,7 +66,7 @@ public class Question extends BaseEntity {
                 .build();
     }
 
-    public void updateQuestion(UpdateQuestionRequest updateQuestionRequest){
+    public void updateQuestion(UpdateQuestionRequest updateQuestionRequest) {
         this.surveyQuestion = updateQuestionRequest.getSurveyQuestion();
         this.answerType = updateQuestionRequest.getAnswerType();
         this.isRequired = updateQuestionRequest.getIsRequired();
