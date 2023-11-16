@@ -1,34 +1,24 @@
 package com.bipa.bizsurvey.domain.user.api;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.bipa.bizsurvey.domain.user.application.ClaimService;
 import com.bipa.bizsurvey.domain.user.application.EmailSendService;
 import com.bipa.bizsurvey.domain.user.application.UserService;
-import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.dto.*;
 import com.bipa.bizsurvey.domain.user.dto.mypage.ClaimResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoUpdateRequest;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
-import com.bipa.bizsurvey.domain.user.exception.UserException;
-import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
-import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.global.config.jwt.JwtVO;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.List;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 @RequiredArgsConstructor
@@ -101,7 +91,6 @@ public class UserController {
     @GetMapping("/refresh")
     public void accessTokenRefresh(HttpServletRequest request, HttpServletResponse response){
         String authorizationHeader = request.getHeader("refreshAuthorization");
-
         String token = userService.accessTokenRefresh(authorizationHeader);
         response.addHeader(JwtVO.HEADER, JwtVO.TOKEN_PREFIX + token);
     }
