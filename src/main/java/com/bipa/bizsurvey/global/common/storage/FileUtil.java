@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.infra.s3;
+package com.bipa.bizsurvey.global.common.storage;
 
 import lombok.extern.log4j.Log4j2;
 
