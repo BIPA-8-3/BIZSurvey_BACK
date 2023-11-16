@@ -1,11 +1,10 @@
 package com.bipa.bizsurvey.domain.user.application;
 
+import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,14 +25,14 @@ public class LoginService implements UserDetailsService {
         User userPS = userRepository.findByEmail(username).orElseThrow(
                 () -> new InternalAuthenticationServiceException("인증 실패"));
 
-        LoginRequest loginRequestDTO = LoginRequest.builder()
+        LoginInfoRequest loginInfoRequestDTO = LoginInfoRequest.builder()
                 .id(userPS.getId())
                 .email(userPS.getEmail())
                 .nickname(userPS.getNickname())
                 .password(userPS.getPassword())
                 .planSubscribe(userPS.getPlanSubscribe())
                 .build();
-        return new LoginUser(loginRequestDTO);
+        return new LoginUser(loginInfoRequestDTO);
     }
 
 }

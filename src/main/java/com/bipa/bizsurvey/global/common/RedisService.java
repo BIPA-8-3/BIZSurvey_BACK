@@ -3,10 +3,16 @@ package com.bipa.bizsurvey.global.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -15,11 +21,12 @@ public class RedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public <T> void saveData(String key, T data){
+    public <T> void saveData(String key, T data, Long duration){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
             String value = objectMapper.writeValueAsString(data);
-            redisTemplate.opsForValue().set(key, value);
+            Duration expireDuration = Duration.ofSeconds(duration);
+            redisTemplate.opsForValue().set(key, value, expireDuration);
         }catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -40,5 +47,22 @@ public class RedisService {
             log.error(e.getMessage());
             return Optional.empty();
         }
+    }
+
+    public String getData(String key) {
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        return (String) valueOperations.get(key);
+    }
+
+    public Set<String> scanKeys(String pattern) {
+        ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
+        Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(options);
+
+        Set<String> keys = new HashSet<>();
+        while (cursor.hasNext()) {
+            keys.add(new String(cursor.next()));
+        }
+
+        return keys;
     }
 }

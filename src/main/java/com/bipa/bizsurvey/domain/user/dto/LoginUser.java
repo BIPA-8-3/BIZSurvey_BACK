@@ -8,19 +8,18 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 
 @Getter
 public class LoginUser implements UserDetails, OAuth2User {
 
-    private LoginRequest loginRequest;
+    private LoginInfoRequest loginInfoRequest;
     private Map<String, Object> attributes;
-    public LoginUser(LoginRequest loginRequest){
-        this.loginRequest = loginRequest;
+    public LoginUser(LoginInfoRequest loginInfoRequest){
+        this.loginInfoRequest = loginInfoRequest;
     }
 
-    public LoginUser(LoginRequest loginRequest, Map<String, Object> attributes){
-        this.loginRequest = loginRequest;
+    public LoginUser(LoginInfoRequest loginInfoRequest, Map<String, Object> attributes){
+        this.loginInfoRequest = loginInfoRequest;
         this.attributes = attributes;
     }
 
@@ -32,18 +31,18 @@ public class LoginUser implements UserDetails, OAuth2User {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "ROLE_" + loginRequest.getPlanSubscribe());
+        authorities.add(() -> "ROLE_" + loginInfoRequest.getPlanSubscribe());
         return authorities;
     }
 
     @Override
     public String getPassword() {
-        return loginRequest.getPassword();
+        return loginInfoRequest.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return loginRequest.getEmail();
+        return loginInfoRequest.getEmail();
     }
 
     @Override
@@ -67,11 +66,11 @@ public class LoginUser implements UserDetails, OAuth2User {
     }
 
     public Long getId() {
-        return loginRequest.getId();
+        return loginInfoRequest.getId();
     }
 
     public String getNickname(){
-        return loginRequest.getNickname();
+        return loginInfoRequest.getNickname();
     }
 
     @Override

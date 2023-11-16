@@ -1,7 +1,7 @@
 package com.bipa.bizsurvey.global.config.oauth;
 
 import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
+import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
@@ -25,41 +25,37 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService{
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-
         OAuth2User oAuth2User = super.loadUser(userRequest);
-
         return processOAuth2User(userRequest, oAuth2User);
     }
 
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
-
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.ofKakao(oAuth2User.getAttributes());
-
         Optional<User> userOp =  userRepository.findByEmail(oAuth2UserInfo.getEmail());
 
         if(userOp.isPresent()){
-            LoginRequest loginRequest = LoginRequest.builder()
+            LoginInfoRequest loginInfoRequest = LoginInfoRequest.builder()
                     .id(userOp.get().getId())
                     .email(oAuth2UserInfo.getEmail())
-                    .nickname(oAuth2UserInfo.getEmail())
+                    .nickname("")
                     .name(oAuth2UserInfo.getName())
                     .gender(Gender.valueOf((oAuth2UserInfo.getGender()).toUpperCase()))
                     .planSubscribe(Plan.COMMUNITY)
                     .build();
-            loginRequest.setId(userOp.get().getId());
-            return new LoginUser(loginRequest, oAuth2User.getAttributes());
+            loginInfoRequest.setId(userOp.get().getId());
+            return new LoginUser(loginInfoRequest, oAuth2User.getAttributes());
         }else{
-            LoginRequest loginRequest = LoginRequest.builder()
+            LoginInfoRequest loginInfoRequest = LoginInfoRequest.builder()
                     .id(0L)
                     .email(oAuth2UserInfo.getEmail())
-                    .nickname(oAuth2UserInfo.getEmail())
+                    .nickname("")
                     .name(oAuth2UserInfo.getName())
                     .gender(Gender.valueOf((oAuth2UserInfo.getGender()).toUpperCase()))
                     .planSubscribe(Plan.COMMUNITY)
                     .build();
-            User user = loginRequest.toEntity();
+            User user = loginInfoRequest.toEntity();
             User saveUser = userRepository.save(user);
-            return new LoginUser(new LoginRequest(saveUser), oAuth2User.getAttributes());
+            return new LoginUser(new LoginInfoRequest(saveUser), oAuth2User.getAttributes());
         }
 
 

@@ -1,12 +1,11 @@
 package com.bipa.bizsurvey.global.config.jwt;
 
-import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
-import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.util.CustomResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,10 +26,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final Logger log = LoggerFactory.getLogger(getClass());
     private AuthenticationManager authenticationManager;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private RedisService redisService;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, RedisService redisService) {
         super(authenticationManager);
         setFilterProcessesUrl("/login");
         this.authenticationManager = authenticationManager;
+        this.redisService = redisService;
     }
 
     // Post : /api/login
@@ -40,10 +42,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.debug("디버그 : attemptAuthentication 호출됨");
         try {
             ObjectMapper om = new ObjectMapper();
-            LoginRequest loginRequestReqDto = om.readValue(request.getInputStream(), LoginRequest.class);
-
+            LoginRequest loginInfoRequestReqDto = om.readValue(request.getInputStream(), LoginRequest.class);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginRequestReqDto.getEmail(), loginRequestReqDto.getPassword());
+                    loginInfoRequestReqDto.getEmail(), loginInfoRequestReqDto.getPassword());
 
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
             return authentication;
@@ -65,10 +66,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) throws IOException, ServletException {
 
         LoginUser loginUser = (LoginUser) authResult.getPrincipal();
+        System.out.println(loginUser.getUsername());
         String jwtToken = JwtProcess.create(loginUser);
         response.addHeader(JwtVO.HEADER, jwtToken);
 
-        String refreshToken = JwtProcess.refreshCreate(loginUser);
+        String refreshToken = JwtProcess.refreshCreate(loginUser, redisService);
         response.addHeader(JwtVO.REFRESH_HEADER, refreshToken);
 
         CustomResponseUtil.success(response, "로그인 성공", jwtToken, refreshToken);

@@ -33,10 +33,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         isHeaderVerify(request, response);
+        System.out.println("작동하는가??");
+        System.out.println(isHeaderVerify(request, response));
         if (isHeaderVerify(request, response)) {
             try {
                 log.debug("디버그 : 토큰이 존재함");
                 String token = request.getHeader(JwtVO.HEADER).replace(JwtVO.TOKEN_PREFIX, "");
+                System.out.println(token);
                 LoginUser loginUser = JwtProcess.verify(token);
                 log.debug("디버그 : 토큰이 검증이 완료됨");
                 // 임시 세션 (UserDetails 타입 or username)
@@ -45,10 +48,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication); //Authentication 객체 저장
                 log.debug("디버그 : 임시 세션이 생성됨");
             }catch (TokenExpiredException e){
-//                String token = request.getHeader(JwtVO.REFRESH_HEADER).replace(JwtVO.TOKEN_PREFIX, "");
-//                DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(JwtVO.SECRET)).build().verify(token);
-//                Long id = decodedJWT.getClaim("id").asLong();
-                CustomResponseUtil.noLogin(response, "토큰이 만료됨");
+                CustomResponseUtil.noLogin(response, "Access 토큰이 만료되었습니다.");
             }
 
 
