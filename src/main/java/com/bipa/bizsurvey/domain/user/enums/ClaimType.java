@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.user.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
@@ -10,8 +11,18 @@ public enum ClaimType {
 
     private final String value;
 
-
     ClaimType(String value) {
         this.value = value;
     }
+
+    @JsonCreator
+    public static ClaimType from(String sub){
+        for(ClaimType claimType : ClaimType.values()){
+            if(claimType.getValue().equals(sub)){
+                return claimType;
+            }
+        }
+        return null;
+    }
+
 }

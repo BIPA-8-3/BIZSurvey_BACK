@@ -104,25 +104,25 @@ public class CommentService {
 
 
     
-    private Comment findComment(Long commentId){
+    public Comment findComment(Long commentId){
         return commentRepository.findById(commentId).orElseThrow(
                 () -> new CommentException(CommentExceptionType.NON_EXIST_COMMENT)
         );
     }
 
-    private void checkPermission(Long userId, Comment comment){
+    public void checkPermission(Long userId, Comment comment){
         if(!Objects.equals(userId, comment.getUser().getId())){
             throw new UserException(UserExceptionType.NO_PERMISSION);
         }
     }
 
-    private Post findPost(Long postId){
+    public Post findPost(Long postId){
         return postRepository.findById(postId).orElseThrow(
                 () -> new PostException(PostExceptionType.NON_EXIST_POST)
         );
     }
 
-    private void checkAvailable(Post post){
+    public void checkAvailable(Post post){
         if(post.getDelFlag()){
             throw new PostException(PostExceptionType.ALREADY_DELETED);
         }
