@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.infra.s3;
+package com.bipa.bizsurvey.global.common.storage;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,16 +8,15 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @Builder
 @AllArgsConstructor
-public class UploadSurveyFileDto {
+public class UploadSurveyAnswerRequest {
     private MultipartFile file;
     private Long surveyId;
     private Long shareId;
     private ShareType shareType;
     private Long questionId;
-
+    private Domain domain;
 
     public String getPath() {
-        return String.format("%s%d/%s%d/%d/", S3Domain.SURVEY.getDomainName(), surveyId, shareType.getType(),shareId, questionId);
+        return String.format("%d/%s-%d/%d/", surveyId, shareType.getType(),shareId, questionId);
     }
 }
-
