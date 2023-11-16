@@ -15,8 +15,6 @@ import javax.persistence.*;
 @Getter
 @Table(name = "workspace")
 public class Workspace extends BaseEntity {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "workspace_id")
@@ -38,5 +36,4 @@ public class Workspace extends BaseEntity {
         this.workspaceType = workspaceType;
         this.user = user;
     }
-
 }
