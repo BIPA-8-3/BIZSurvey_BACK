@@ -1,13 +1,16 @@
 package com.bipa.bizsurvey.infra.s3;
 
 
+import com.bipa.bizsurvey.global.common.storage.Domain;
+import com.bipa.bizsurvey.global.common.storage.StorageService;
+import com.bipa.bizsurvey.global.common.storage.ShareType;
+import com.bipa.bizsurvey.global.common.storage.UploadSurveyAnswerRequest;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -23,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AwsS3ServiceTest {
 
     @Autowired
-    private AwsS3Service awsS3Service;
+    private StorageService awsS3Service;
 
     @Test
     @DisplayName("AWS S3 Service - UploadFile Test")
@@ -35,7 +38,7 @@ public class AwsS3ServiceTest {
                 "text/plain",
                 ("한글한글").getBytes()
         );
-        String url = awsS3Service.uploadFile(file, S3Domain.USER);
+        String url = awsS3Service.uploadFile(file, Domain.USER, null);
 
         assertNotNull(url);
         log.info("url : " + url);
@@ -52,7 +55,7 @@ public class AwsS3ServiceTest {
                 ("한글한글").getBytes()
         );
 
-        UploadSurveyFileDto dto = UploadSurveyFileDto.builder()
+        UploadSurveyAnswerRequest dto = UploadSurveyAnswerRequest.builder()
                 .file(file)
                 .surveyId(1L)
                 .shareType(ShareType.EXTERNAL)
@@ -60,7 +63,7 @@ public class AwsS3ServiceTest {
                 .questionId(1L)
                 .build();
 
-        String url = awsS3Service.uploadSurveyFile(dto);
+        String url = awsS3Service.uploadFile(dto.getFile(), dto.getDomain(), dto.getPath());
 
         assertNotNull(url);
         log.info("url : " + url);
@@ -70,14 +73,11 @@ public class AwsS3ServiceTest {
     public void testDownloadFile() throws IOException {
         String fileUrl = "https://bizsurvey-bucket.s3.ap-northeast-2.amazonaws.com/files/user/b3373c47-ae22-41ee-891c-2376800c20fa.txt";
 
-        ResponseEntity<byte[]> responseEntity = awsS3Service.downloadFile(fileUrl);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-
-        byte[] responseBody = responseEntity.getBody();
-        assertNotNull(responseBody);
+        byte[] bytes = awsS3Service.downloadFile(fileUrl);
+        assertEquals(HttpStatus.OK, bytes);
 
         Path localFilePath = Path.of("downloaded-file.txt");
-        Files.write(localFilePath, responseBody);
+        Files.write(localFilePath, bytes);
 
         assertTrue(Files.exists(localFilePath));
     }

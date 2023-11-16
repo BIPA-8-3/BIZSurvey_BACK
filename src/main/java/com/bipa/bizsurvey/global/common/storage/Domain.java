@@ -1,12 +1,12 @@
-package com.bipa.bizsurvey.infra.s3;
+package com.bipa.bizsurvey.global.common.storage;
 
-public enum S3Domain {
+public enum Domain {
     SURVEY("survey/"),
     USER("user/"),
     COMMUNITY("community/");
     private final String domainName;
 
-    S3Domain(String domainName) {
+    Domain(String domainName) {
         this.domainName = domainName;
     }
 
