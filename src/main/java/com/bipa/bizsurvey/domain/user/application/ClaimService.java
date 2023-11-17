@@ -14,7 +14,6 @@ import com.bipa.bizsurvey.domain.user.enums.ClaimType;
 import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.actuate.endpoint.web.Link;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,20 +45,24 @@ public class ClaimService {
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
 
 
-        // 댓글이 신고된 경우
+            // 댓글이 신고된 경우
         }else if(claimRequest.getClaimType() == ClaimType.COMMENT){
             Comment comment = commentService.findComment(claimRequest.getId());
             comment.updateReported(); // 신고된 댓글
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
 
 
-        // 대댓글이 신고된 경우
+            // 대댓글이 신고된 경우
         } else if (claimRequest.getClaimType() == ClaimType.CHILD_COMMENT) {
             ChildComment childComment = childCommentService.findChildComment(claimRequest.getId());
             childComment.updateReported(); // 신고된 대댓글
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
         }
     }
+
+
+
+
 
     private void saveClaim(User user, Long id, ClaimType claimType, ClaimReason claimReason){
         Claim claim = Claim.builder()
@@ -70,4 +73,10 @@ public class ClaimService {
                 .build();
         claimRepository.save(claim);
     }
+
+
+
+
+
+
 }

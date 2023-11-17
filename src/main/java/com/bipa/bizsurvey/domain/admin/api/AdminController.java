@@ -16,12 +16,4 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
     private final PostService postService;
 
-    //게시물 전체 조회
-    @GetMapping("/community")
-    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable,
-                                         @RequestParam(required = false) String fieldName
-    ){
-
-        return ResponseEntity.ok().body(postService.getPostList(pageable, fieldName)); // 200 OK
-    }
 }
