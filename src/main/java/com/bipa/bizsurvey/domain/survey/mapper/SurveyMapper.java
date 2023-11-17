@@ -30,14 +30,14 @@ public interface SurveyMapper {
     AnswerResponse toAnswerInWorkspaceResponse(Answer answer);
     List<AnswerResponse> toAnswerInWorkspaceResponseList(List<Answer> answerListEntity);
 
-    @Mappings({
-            @Mapping(source = "question.id", target = "questionId"),
-            @Mapping(source = "question.surveyQuestion", target = "surveyQuestion"),
-            @Mapping(source = "question.answerType", target = "answerType"),
-            @Mapping(source = "question.score", target = "score")
-    })
-    ChartResultResponse toSurveyResultInPostResponse(UserSurveyResponse userSurveyResponse);
-    List<ChartResultResponse> toSurveyResultInPostResponseList(List<UserSurveyResponse> userSurveyResponses);
-
+//    @Mappings({
+//            @Mapping(source = "question.id", target = "questionId"),
+//            @Mapping(source = "question.surveyQuestion", target = "surveyQuestion"),
+//            @Mapping(source = "question.answerType", target = "answerType"),
+//            @Mapping(source = "question.score", target = "score")
+//    })
+//    ChartResultResponse toSurveyResultInPostResponse(UserSurveyResponse userSurveyResponse);
+//    List<ChartResultResponse> toSurveyResultInPostResponseList(List<UserSurveyResponse> userSurveyResponses);
+//
 
 }
