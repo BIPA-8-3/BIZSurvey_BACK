@@ -1,12 +1,11 @@
 package com.bipa.bizsurvey.domain.workspace.domain;
 
+import com.bipa.bizsurvey.domain.community.domain.Post;
+import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -14,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "workspace")
+@ToString(exclude = "user")
 public class Workspace extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,4 +36,9 @@ public class Workspace extends BaseEntity {
         this.workspaceType = workspaceType;
         this.user = user;
     }
+
+    public void updateWorkspace(String workspaceName){
+        this.workspaceName = workspaceName;
+    }
+
 }
