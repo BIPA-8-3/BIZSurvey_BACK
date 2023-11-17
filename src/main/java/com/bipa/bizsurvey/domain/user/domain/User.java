@@ -55,6 +55,7 @@ public class User extends BaseEntity {
         this.password = password;
         this.company = company;
         this.planSubscribe = planSubscribe;
+
     }
 
     public void userInfoUpdate(UserInfoUpdateRequest request){
@@ -75,3 +76,4 @@ public class User extends BaseEntity {
         this.password = password;
     }
 }
+}}

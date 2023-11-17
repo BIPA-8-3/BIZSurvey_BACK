@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.dto;
+package com.bipa.bizsurvey.domain.survey.dto.response;
 
 
 import com.bipa.bizsurvey.domain.survey.enums.SurveyType;
@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class SurveyInWorkspaceResponse {
+public class SurveyResponse {
 
     private Long surveyId;
 
@@ -20,7 +20,7 @@ public class SurveyInWorkspaceResponse {
 
     private SurveyType surveyType;
 
-    private List<QuestionInWorkspaceResponse> questions;
+    private List<QuestionResponse> questions;
 
 
 }

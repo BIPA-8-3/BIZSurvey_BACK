@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.survey.enums;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
@@ -17,4 +18,13 @@ public enum Correct {
         this.value = value;
     }
 
+    @JsonCreator
+    public static Correct from(String type){
+        for (Correct correct : Correct.values()) {
+            if (correct.getValue().equals(type)){
+                return correct;
+            }
+        }
+        return null;
+    }
 }
