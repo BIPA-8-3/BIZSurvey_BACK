@@ -6,7 +6,6 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.*;
-
 import javax.persistence.*;
 
 @Entity
@@ -37,7 +36,7 @@ public class Workspace extends BaseEntity {
         this.user = user;
     }
 
-    public void updateWorkspace(String workspaceName){
+    public void updateWorkspace(String workspaceName) {
         this.workspaceName = workspaceName;
     }
 

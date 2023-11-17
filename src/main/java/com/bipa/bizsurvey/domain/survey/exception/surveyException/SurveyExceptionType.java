@@ -7,7 +7,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum SurveyExceptionType implements BaseExceptionType {
 
-    NOT_EXIST_SURVEY(404, HttpStatus.NOT_FOUND, "존재하지 않는 설문지입니다.");
+    NON_EXIST_SURVEY(404, HttpStatus.NOT_FOUND, "존재하지 않는 설문지입니다."),
+    ALREADY_DELETED(404, HttpStatus.NOT_FOUND, "이미 삭제된 설문지입니다."),
+    NO_PERMISSION(404, HttpStatus.NOT_FOUND, "접근 권한이 없습니다.")
+    ;
 
     private final int errorCode;
     private final HttpStatus httpStatus;
