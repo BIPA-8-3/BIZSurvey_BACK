@@ -76,6 +76,14 @@ public class SurveyResultService {
 
                 case "file" :
 
+                    List<String> responses3 = jpaQueryFactory
+                            .select(u.answer)
+                            .from(u)
+                            .where(u.surveyPost.eq(surveyPost))
+                            .where(u.question.eq(question))
+                            .where(u.answerType.in(AnswerType.FILE))
+                            .fetch();
+
             }
         });
     }
