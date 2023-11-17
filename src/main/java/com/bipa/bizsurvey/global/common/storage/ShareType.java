@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.infra.s3;
+package com.bipa.bizsurvey.global.common.storage;
 
 public enum ShareType {
     INTERNAL("internal"),
@@ -10,6 +10,6 @@ public enum ShareType {
     }
 
     public String getType() {
-        return type + "-";
+        return type;
     }
 }

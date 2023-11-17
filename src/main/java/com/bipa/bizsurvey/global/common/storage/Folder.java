@@ -1,11 +1,11 @@
-package com.bipa.bizsurvey.infra.s3;
+package com.bipa.bizsurvey.global.common.storage;
 
-public enum S3Folder {
+public enum Folder {
     IMAGES("images/"),
     FILE("files/");
     private final String folderName;
 
-    S3Folder(String folderName) {
+    Folder(String folderName) {
         this.folderName = folderName;
     }
 

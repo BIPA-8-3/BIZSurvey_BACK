@@ -1,9 +1,10 @@
 package com.bipa.bizsurvey.domain.user.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
-public enum ClaimList {
+public enum ClaimReason {
 
     PROMOTION("스팸홍보/도배글"),
     ILLEGAL_INFO("음란물/불법정보/불법촬영물"),
@@ -17,9 +18,18 @@ public enum ClaimList {
     private final String value;
 
 
-    ClaimList(String value){
+    ClaimReason(String value){
         this.value = value;
     }
 
+    @JsonCreator
+    public static ClaimReason from(String sub){
+        for(ClaimReason claimList : ClaimReason.values()){
+            if(claimList.getValue().equals(sub)){
+                return claimList;
+            }
+        }
+        return null;
+    }
 
 }
