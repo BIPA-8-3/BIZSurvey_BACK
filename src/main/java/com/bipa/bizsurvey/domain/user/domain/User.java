@@ -41,6 +41,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Plan planSubscribe;
 
+
     @Builder
     public User(Long id, String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe) {
         this.id = id;
@@ -52,5 +53,5 @@ public class User extends BaseEntity {
         this.password = password;
         this.company = company;
         this.planSubscribe = planSubscribe;
-    }
-}
+
+}}
