@@ -82,7 +82,7 @@ public class SurveyController {
 
 
     //설문지 전체 통계
-    @GetMapping("/result/{postId}")
+    @GetMapping("/result/{surveyId}")
     public ResponseEntity<?> getSurveyResultInPost(@PathVariable Long postId){
         return ResponseEntity.ok().body("");
     }
