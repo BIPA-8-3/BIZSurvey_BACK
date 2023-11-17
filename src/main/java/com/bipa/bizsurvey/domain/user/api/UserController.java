@@ -4,9 +4,11 @@ import com.bipa.bizsurvey.domain.user.application.ClaimService;
 import com.bipa.bizsurvey.domain.user.application.EmailSendService;
 import com.bipa.bizsurvey.domain.user.application.UserService;
 import com.bipa.bizsurvey.domain.user.dto.*;
-import com.bipa.bizsurvey.domain.user.dto.mypage.ClaimResponse;
+import com.bipa.bizsurvey.domain.user.dto.claim.ClaimListResponse;
+import com.bipa.bizsurvey.domain.user.dto.mypage.UserClaimResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoUpdateRequest;
+import com.bipa.bizsurvey.domain.user.dto.mypage.UserPlanResponse;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.global.config.jwt.JwtVO;
 import lombok.RequiredArgsConstructor;
@@ -71,10 +73,17 @@ public class UserController {
         return ResponseEntity.ok().body("회원 정보가 수정되었습니다.");
     }
 
-    // 내가 신고한 내역
+    //플랜 조회
+    @GetMapping("/user/plan")
+    public ResponseEntity<?> userPlan(@AuthenticationPrincipal LoginUser loginUser){
+        UserPlanResponse planResponse = userService.userPlan(loginUser.getId());
+        return ResponseEntity.ok().body(planResponse);
+    }
+
+    //내가 신고한 내역
     @GetMapping("/user/claim")
     public ResponseEntity<?> claimList(@AuthenticationPrincipal LoginUser loginUser){
-        List<ClaimResponse> claimList = claimService.claimList(loginUser.getId());
+        List<UserClaimResponse> claimList = userService.userClaim(loginUser.getId());
         return ResponseEntity.ok().body(claimList);
     }
 
@@ -98,6 +107,7 @@ public class UserController {
     //비밀번호 변경 > 이메일 존재 확인
     @GetMapping("/check-email")
     public ResponseEntity<?> checkEmail(@Valid @RequestBody EmailCheckRequest request) throws Exception {
+        emailSendService.checkEmail(request.getEmail());
         emailSendService.sendPasswordEmail(request.getEmail());
         return ResponseEntity.ok().body("메일을 전송하였습니다.");
     }
@@ -115,5 +125,4 @@ public class UserController {
         userService.passwordUpdate(request);
         return ResponseEntity.ok().body("비밀번호를 재설정하였습니다.");
     }
-
 }

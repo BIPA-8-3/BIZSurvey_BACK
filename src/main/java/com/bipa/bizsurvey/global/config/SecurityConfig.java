@@ -66,7 +66,7 @@ public class SecurityConfig {
 
         http.authorizeRequests(
                 authorize -> authorize.antMatchers("/user/**").authenticated()
-                        .antMatchers("/admin/**").access("hasRole('ADMIN')")
+                        //.antMatchers("/admin/**").access("hasRole('ADMIN')")
                         .antMatchers("/signup/**", "/login/**", "/refresh/**").permitAll()
         );
 

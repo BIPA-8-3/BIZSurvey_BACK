@@ -3,9 +3,13 @@ package com.bipa.bizsurvey.domain.user.application;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.bipa.bizsurvey.domain.user.domain.Claim;
+import com.bipa.bizsurvey.domain.user.dto.mypage.UserClaimResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoUpdateRequest;
+import com.bipa.bizsurvey.domain.user.dto.mypage.UserPlanResponse;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
+import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.*;
@@ -20,11 +24,14 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final ClaimRepository claimRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     private final RedisService redisService;
@@ -64,6 +71,16 @@ public class UserService {
         );
         user.userInfoUpdate(request);
         userRepository.save(user);
+    }
+
+    //플랜 조회
+    public UserPlanResponse userPlan(Long id){
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new UserException(UserExceptionType.NON_EXIST_USER)
+        );
+        return UserPlanResponse.builder()
+                .planSubscribe(user.getPlanSubscribe())
+                .build();
     }
 
     //플랜 가입
@@ -116,6 +133,16 @@ public class UserService {
         );
         user.passowordUpdate(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
+    }
+
+    //신고한 내역
+    public List<UserClaimResponse> userClaim(Long userId){
+
+        List<Claim> claims = claimRepository.findByUserId(userId);
+
+        return claims.stream()
+                .map(UserClaimResponse::new)
+                .collect(toList());
     }
 
 
