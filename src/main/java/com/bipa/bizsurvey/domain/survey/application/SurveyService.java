@@ -92,7 +92,7 @@ public class SurveyService {
     public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser, Long workspaceId){
         Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
         checkAvailable(survey);
-        checkPermission(loginUser, workspaceId);
+//        checkPermission(loginUser, workspaceId);
         Long surveyId = modifySurvey(updateSurveyRequest, loginUser, workspaceId);
         deleteQuestionAndAnswer(surveyId);
         modifyQuestions(updateSurveyRequest.getUpdateQuestions());
