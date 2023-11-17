@@ -1,26 +1,26 @@
 package com.bipa.bizsurvey.domain.survey.dto.response;
 
+import com.bipa.bizsurvey.domain.survey.enums.Correct;
+import lombok.*;
 
-import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class AnswerResponse {
 
-    private Long questionId;
+    private Long answerId;
 
-    private String surveyQuestion;
+    private String surveyAnswer;
 
-    private AnswerType answerType;
+    private int step;
 
-    private String answer;
+    private Correct correct;
 
-    private int score;
+    private LocalDateTime regDate;
+
+    private LocalDateTime modDate;
+
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class QuestionInWorkspaceResponse {
+public class QuestionResponse {
 
     private Long questionId;
 
@@ -20,7 +20,9 @@ public class QuestionInWorkspaceResponse {
 
     private int score;
 
-    private List<AnswerInWorkspaceResponse> answers;
+    private int step;
+
+    private List<AnswerResponse> answers;
 
 
 }

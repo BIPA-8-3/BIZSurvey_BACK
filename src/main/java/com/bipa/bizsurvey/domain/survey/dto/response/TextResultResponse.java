@@ -9,10 +9,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SurveyResultResponse {
+public class TextResultResponse {
 
-    List<String> answerUsers;
+    private Long questionId;
 
-    List<AnswerResponse> answerResponses;
+    private List<String> answers;
+
 
 }

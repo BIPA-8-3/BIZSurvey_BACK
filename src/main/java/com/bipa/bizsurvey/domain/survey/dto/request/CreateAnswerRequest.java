@@ -20,6 +20,4 @@ public class CreateAnswerRequest {
 
     private int step;
 
-    private Long questionId;
-
 }

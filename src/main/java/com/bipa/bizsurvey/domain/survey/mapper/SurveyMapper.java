@@ -4,10 +4,10 @@ import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.AnswerInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.QuestionInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.SurveyInWorkspaceResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.AnswerResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.ChartResultResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.QuestionResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -20,15 +20,15 @@ public interface SurveyMapper {
 
     //get
     @Mapping(source = "id", target = "surveyId")
-    SurveyInWorkspaceResponse toSurveyInWorkspaceResponse(Survey surveyEntity);
+    SurveyResponse toSurveyInWorkspaceResponse(Survey surveyEntity);
 
     @Mapping(source = "id", target = "questionId")
-    QuestionInWorkspaceResponse toQuestionInWorkspaceResponse(Question questionEntity);
-    List<QuestionInWorkspaceResponse> toQuestionInWorkspaceResponseList(List<Question> questionListEntity);
+    QuestionResponse toQuestionInWorkspaceResponse(Question questionEntity);
+    List<QuestionResponse> toQuestionInWorkspaceResponseList(List<Question> questionListEntity);
 
     @Mapping(source = "id", target = "answerId")
-    AnswerInWorkspaceResponse toAnswerInWorkspaceResponse(Answer answer);
-    List<AnswerInWorkspaceResponse> toAnswerInWorkspaceResponseList(List<Answer> answerListEntity);
+    AnswerResponse toAnswerInWorkspaceResponse(Answer answer);
+    List<AnswerResponse> toAnswerInWorkspaceResponseList(List<Answer> answerListEntity);
 
     @Mappings({
             @Mapping(source = "question.id", target = "questionId"),
@@ -36,8 +36,8 @@ public interface SurveyMapper {
             @Mapping(source = "question.answerType", target = "answerType"),
             @Mapping(source = "question.score", target = "score")
     })
-    AnswerResponse toSurveyResultInPostResponse(UserSurveyResponse userSurveyResponse);
-    List<AnswerResponse> toSurveyResultInPostResponseList(List<UserSurveyResponse> userSurveyResponses);
+    ChartResultResponse toSurveyResultInPostResponse(UserSurveyResponse userSurveyResponse);
+    List<ChartResultResponse> toSurveyResultInPostResponseList(List<UserSurveyResponse> userSurveyResponses);
 
 
 }

@@ -4,10 +4,10 @@ import com.bipa.bizsurvey.domain.survey.domain.Answer;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.request.*;
-import com.bipa.bizsurvey.domain.survey.dto.response.AnswerInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.QuestionInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.SurveyInWorkspaceResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.AnswerResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.QuestionResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListResponse;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
 import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
@@ -22,7 +22,6 @@ import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class SurveyService {
@@ -44,12 +42,16 @@ public class SurveyService {
     private final WorkspaceAdminRepository workspaceAdminRepository;
 
 
-    public List<SurveyResponse> getSurveyList(Long workspaceId){
+    // TODO : 파일 첨부
+
+
+
+    public List<SurveyListResponse> getSurveyList(Long workspaceId){
         List<Survey> surveyList = surveyRepository.findAllByWorkspaceId(workspaceId);
-        List<SurveyResponse> result = new ArrayList<>();
+        List<SurveyListResponse> result = new ArrayList<>();
 
         for(Survey survey : surveyList){
-            SurveyResponse surveyResponse = SurveyResponse.builder()
+            SurveyListResponse surveyResponse = SurveyListResponse.builder()
                     .surveyId(survey.getId())
                     .title(survey.getTitle())
                     .build();
@@ -58,21 +60,21 @@ public class SurveyService {
         return result;
     }
 
-    public SurveyInWorkspaceResponse getSurvey(Long surveyId, LoginUser loginUser, Long workspaceId){
+    public SurveyResponse getSurvey(Long surveyId){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-        checkPermission(loginUser, workspaceId);
+//        checkPermission(loginUser, workspaceId);
         // get survey
-        SurveyInWorkspaceResponse surveyDto = surveyMapper.toSurveyInWorkspaceResponse(survey);
+        SurveyResponse surveyDto = surveyMapper.toSurveyInWorkspaceResponse(survey);
         // get question
         Long surveyKey = survey.getId();
-        List<QuestionInWorkspaceResponse> questionDtoList = surveyMapper
+        List<QuestionResponse> questionDtoList = surveyMapper
                 .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalse(surveyKey));
 
         // get answer
         questionDtoList.forEach(questionDto -> {
                 Long questionKey = questionDto.getQuestionId();
-                List<AnswerInWorkspaceResponse> answerDtoList = surveyMapper
+                List<AnswerResponse> answerDtoList = surveyMapper
                         .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalse(questionKey));
                 questionDto.setAnswers(answerDtoList);
         });
@@ -172,7 +174,7 @@ public class SurveyService {
 
     private Survey findSurvey(Long surveyId){
         return surveyRepository.findById(surveyId).orElseThrow(
-                () -> new SurveyException(SurveyExceptionType.NOT_EXIST_SURVEY)
+                () -> new SurveyException(SurveyExceptionType.NON_EXIST_SURVEY)
         );
     }
 

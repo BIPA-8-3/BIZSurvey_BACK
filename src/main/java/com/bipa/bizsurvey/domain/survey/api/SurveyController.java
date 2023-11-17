@@ -4,11 +4,9 @@ package com.bipa.bizsurvey.domain.survey.api;
 import com.bipa.bizsurvey.domain.survey.application.SurveyResultService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.dto.request.CreateSurveyRequest;
-import com.bipa.bizsurvey.domain.survey.dto.response.SurveyInWorkspaceResponse;
-import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
-import com.bipa.bizsurvey.domain.survey.dto.response.PersonalResultResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResultResponse;
+import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListResponse;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +26,16 @@ public class SurveyController {
 
     //설문지 목록 조회
     @GetMapping("/list/{workspaceId}")
-    public ResponseEntity<List<SurveyResponse>> getSurveyList(@PathVariable Long workspaceId){
+    public ResponseEntity<List<SurveyListResponse>> getSurveyList(@PathVariable Long workspaceId){
         return ResponseEntity.ok().body(surveyService.getSurveyList(workspaceId));
     }
 
     //설문지 상세 조회
     @GetMapping("/{surveyId}/{workspaceId}")
-    public ResponseEntity<SurveyInWorkspaceResponse> getSurvey(@PathVariable Long surveyId,
-                                                               @PathVariable Long workspaceId,
-                                                               @AuthenticationPrincipal LoginUser loginUser){
-        return ResponseEntity.ok().body(surveyService.getSurvey(surveyId, loginUser, workspaceId));
+    public ResponseEntity<SurveyResponse> getSurvey(@PathVariable Long surveyId,
+                                                    @PathVariable Long workspaceId,
+                                                    @AuthenticationPrincipal LoginUser loginUser){
+        return ResponseEntity.ok().body(surveyService.getSurvey(surveyId));
     }
 
     //설문지 등록
@@ -67,15 +65,33 @@ public class SurveyController {
         return ResponseEntity.ok().body("설문지 삭제가 완료되었습니다.");
     }
 
-    //설문지 통계
+
+
+
+
+
+
+    //설문지 게시물 통계
     @GetMapping("/result/{postId}")
-    public ResponseEntity<SurveyResultResponse> getSurveyResultInPost(@PathVariable Long postId){
-        return ResponseEntity.ok().body(surveyResultService.getSurveyResultInPost(postId));
+    public ResponseEntity<?> getSurveyResultOfPost(@PathVariable Long postId,
+                                                   @RequestParam String type){
+        surveyResultService.getSurveyResultOfPost(postId, type);
+        return ResponseEntity.ok().body("");
+
     }
 
-    //설문지 개별 통계
-    @GetMapping("/result/{surveyPostId}/{nickname}")
-    public ResponseEntity<PersonalResultResponse> getPersonalResultInPost(@PathVariable Long surveyPostId, @PathVariable String nickname){
-        return ResponseEntity.ok().body(surveyResultService.getPersonalResultInPost(surveyPostId, nickname));
+
+    //설문지 전체 통계
+    @GetMapping("/result/{postId}")
+    public ResponseEntity<?> getSurveyResultInPost(@PathVariable Long postId){
+        return ResponseEntity.ok().body("");
     }
+
+    //설문지 개별 결과
+    @GetMapping("/result/{surveyPostId}/{nickname}")
+    public ResponseEntity<?> getPersonalResultInPost(@PathVariable Long surveyPostId, @PathVariable String nickname){
+        return ResponseEntity.ok().body("");
+    }
+
+
 }
