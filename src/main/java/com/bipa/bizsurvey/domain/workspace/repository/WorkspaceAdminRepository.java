@@ -6,6 +6,8 @@ import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.domain.WorkspaceAdmin;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface WorkspaceAdminRepository extends JpaRepository<WorkspaceAdmin, Long> {
     WorkspaceAdmin findByWorkspaceIdAndUserId(Long userId, Long workspaceId);
 }

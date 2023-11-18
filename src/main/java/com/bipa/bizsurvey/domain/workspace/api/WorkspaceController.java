@@ -1,33 +1,60 @@
 package com.bipa.bizsurvey.domain.workspace.api;
 
-import com.bipa.bizsurvey.domain.user.repository.UserRepository;
-import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
+import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.workspace.application.WorkspaceService;
+import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Service
-@Transactional
+import java.net.URI;
+import java.util.List;
+
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/workspace")
 public class WorkspaceController {
-    private final WorkspaceRepository workspaceRepository;
 
-    public void register() {
+    private final WorkspaceService workspaceService;
 
+    @PostMapping
+    public ResponseEntity<?> register(@AuthenticationPrincipal LoginUser loginUser,
+                                      @RequestBody WorkspaceDto.CreateRequest request) {
+        WorkspaceDto.ListResponse response = workspaceService.create(loginUser.getId(), request);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
     }
 
-    public void remove() {
-
+    @GetMapping("/{id}")
+    public ResponseEntity<WorkspaceDto.ReadResponse> readOne(@PathVariable Long id) {
+        return ResponseEntity.ok().body(workspaceService.readOne(id));
     }
 
-    public void modify() {
-
-    }
-    public void readOne() {
-
+    @GetMapping("/list")
+    public ResponseEntity<List<WorkspaceDto.ListResponse>> list(@AuthenticationPrincipal LoginUser loginUser) {
+        return ResponseEntity.ok().body(workspaceService.listWorkspaces(loginUser.getId()));
     }
 
-    public void list() {
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> modify(@PathVariable Long id, @RequestBody WorkspaceDto.UpdateRequest request) {
+        workspaceService.update(id, request);
+        return ResponseEntity.noContent().build();
+    }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> remove(@PathVariable Long id) {
+        workspaceService.delete(id);
+        return ResponseEntity.ok().body("삭제가 완료되었습니다.");
     }
 }

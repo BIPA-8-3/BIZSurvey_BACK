@@ -23,7 +23,7 @@ public class WorkspaceRepositoryTests {
 
     @Test
     public void testGetList() {
-        log.info(repository.findWorkspacesByUserId(1L));
+        log.info(repository.findWorkspacesByUserIdAndDelFlagFalse(1L));
     }
 
     @Test
