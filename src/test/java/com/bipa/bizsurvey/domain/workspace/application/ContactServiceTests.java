@@ -41,8 +41,7 @@ public class ContactServiceTests {
     public void testList() {
         ContactDto.SearchRequest request = new ContactDto.SearchRequest();
         request.setWorkspaceId(1L);
-        request.setName("test");
-        request.setEmail("");
+        request.setKeyword("test");
         contactService.searchContacts(request).stream().forEach(log::info);
     }
 
