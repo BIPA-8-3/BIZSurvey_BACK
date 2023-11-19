@@ -39,4 +39,10 @@ public class Contact extends BaseEntity {
         this.remark = remark;
         this.workspace = workspace;
     }
+
+    public void update(String name, String email, String remark) {
+        this.name = name;
+        this.email = email;
+        this.remark = remark;
+    }
 }

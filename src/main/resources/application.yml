@@ -36,6 +36,12 @@ cloud:
     stack:
       auto: ${BUCKET_STACK}
 
+logging:
+  level:
+    org.hibernate:
+      type:
+        descriptor.sql: trace
+
 ---
 
 spring:
@@ -52,9 +58,15 @@ spring:
     hibernate.ddl-auto: update
     show-sql: true
     properties:
-      hibernate.format_sql: true
-      hibernate.default_batch_fetch_size: 100
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        use_sql_comments: true
+        show_sql: true
     sql.init.mode: alway
+
+
+
   redis:
     host: localhost
     port: 6379
