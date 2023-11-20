@@ -15,11 +15,8 @@ import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
-import com.bipa.bizsurvey.global.common.sorting.SortingRequest;
-import com.bipa.bizsurvey.global.common.sorting.SortingStandard;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -40,7 +37,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final CommentService commentService;
-    public QPost p = new QPost("p");
+    public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
     public void createPost(Long userId, CreatePostRequest createPostRequest){
@@ -95,7 +92,7 @@ public class PostService {
 
     // TODO : 신고된 게시물 띄우지 않기로(추가됨)
     public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
-        QPost p = new QPost("p");
+
 
         List<Post> postList = jpaQueryFactory
                 .select(p)
@@ -177,7 +174,7 @@ public class PostService {
 
     public void checkPermission(Long userId, Post post) {
             if(!Objects.equals(userId, post.getUser().getId())){
-                throw new PostException(UserExceptionType.NO_PERMISSION);
+                throw new UserException(UserExceptionType.NO_PERMISSION);
             }
     }
 
