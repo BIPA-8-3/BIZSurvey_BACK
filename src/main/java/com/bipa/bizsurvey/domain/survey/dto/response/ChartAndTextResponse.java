@@ -10,12 +10,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileResultResponse {
+public class ChartAndTextResponse {
 
     private Long questionId;
 
     private AnswerType questionType;
 
-    private List<FileInfo> fileInfos;
+    private List<ChartAndTextResult> answers;
+
 
 }

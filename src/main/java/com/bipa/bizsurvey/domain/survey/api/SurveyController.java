@@ -1,9 +1,10 @@
 package com.bipa.bizsurvey.domain.survey.api;
 
 
-import com.bipa.bizsurvey.domain.survey.application.SurveyResultService;
+import com.bipa.bizsurvey.domain.survey.application.statistics.StatisticsService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.dto.request.CreateSurveyRequest;
+import com.bipa.bizsurvey.domain.survey.dto.response.StatisticsResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
 import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListResponse;
@@ -22,13 +23,16 @@ import java.util.List;
 public class SurveyController {
 
     private final SurveyService surveyService;
-    private final SurveyResultService surveyResultService;
+    private final StatisticsService statisticsService;
 
     //설문지 목록 조회
     @GetMapping("/list/{workspaceId}")
-    public ResponseEntity<List<SurveyListResponse>> getSurveyList(@PathVariable Long workspaceId){
-        return ResponseEntity.ok().body(surveyService.getSurveyList(workspaceId));
+    public ResponseEntity<List<SurveyListResponse>> getSurveyList(@PathVariable Long workspaceId,
+                                                                  @RequestParam(required = false) String fieldName){
+        return ResponseEntity.ok().body(surveyService.getSurveyList(workspaceId, fieldName));
     }
+
+
 
     //설문지 상세 조회
     @GetMapping("/{surveyId}/{workspaceId}")
@@ -67,31 +71,13 @@ public class SurveyController {
 
 
 
-
-
-
-
     //설문지 게시물 통계
-    @GetMapping("/result/{postId}")
-    public ResponseEntity<?> getSurveyResultOfPost(@PathVariable Long postId,
+    @GetMapping("/result/{surveyId}/{postId}")
+    public ResponseEntity<StatisticsResponse> getSurveyResultOfPost(@PathVariable Long postId,
+                                                   @PathVariable Long surveyId,
                                                    @RequestParam String type){
-        surveyResultService.getSurveyResultOfPost(postId, type);
-        return ResponseEntity.ok().body("");
+        return ResponseEntity.ok().body(statisticsService.getPostResult(surveyId, postId, type));
 
     }
-
-
-    //설문지 전체 통계
-    @GetMapping("/result/{surveyId}")
-    public ResponseEntity<?> getSurveyResultInPost(@PathVariable Long postId){
-        return ResponseEntity.ok().body("");
-    }
-
-    //설문지 개별 결과
-    @GetMapping("/result/{surveyPostId}/{nickname}")
-    public ResponseEntity<?> getPersonalResultInPost(@PathVariable Long surveyPostId, @PathVariable String nickname){
-        return ResponseEntity.ok().body("");
-    }
-
 
 }

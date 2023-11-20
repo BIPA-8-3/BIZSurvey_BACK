@@ -1,6 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
+import com.bipa.bizsurvey.domain.community.domain.QPost;
 import com.bipa.bizsurvey.domain.survey.domain.Answer;
+import com.bipa.bizsurvey.domain.survey.domain.QSurvey;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.request.*;
@@ -21,12 +23,18 @@ import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
+import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -40,24 +48,19 @@ public class SurveyService {
     private final SurveyMapper surveyMapper;
     private final UserRepository userRepository;
     private final WorkspaceAdminRepository workspaceAdminRepository;
+    private final JPAQueryFactory jpaQueryFactory;
+    public QSurvey s = new QSurvey("s");
 
+    public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
 
-    // TODO : 파일 첨부
-
-
-
-    public List<SurveyListResponse> getSurveyList(Long workspaceId){
-        List<Survey> surveyList = surveyRepository.findAllByWorkspaceId(workspaceId);
-        List<SurveyListResponse> result = new ArrayList<>();
-
-        for(Survey survey : surveyList){
-            SurveyListResponse surveyResponse = SurveyListResponse.builder()
-                    .surveyId(survey.getId())
-                    .title(survey.getTitle())
-                    .build();
-            result.add(surveyResponse);
-        }
-        return result;
+        List<SurveyListResponse> results = jpaQueryFactory
+                .select(Projections.constructor(SurveyListResponse.class, s.id, s.title))
+                .from(s)
+                .where(s.workspace.id.eq(workspaceId)
+                        .and(s.delFlag.eq(false)))
+                .orderBy(sortByField(fieldName))
+                .fetch();
+        return results;
     }
 
     public SurveyResponse getSurvey(Long surveyId){
@@ -78,6 +81,7 @@ public class SurveyService {
                         .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalse(questionKey));
                 questionDto.setAnswers(answerDtoList);
         });
+
         surveyDto.setQuestions(questionDtoList);
         return surveyDto;
     }
@@ -86,6 +90,10 @@ public class SurveyService {
         checkPermission(loginUser, workspaceId);
         Long surveyId = addSurvey(createSurveyRequest, loginUser, workspaceId);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
+        // 질문 수 체크
+        if (questionRequests.size() > 40){
+            throw new SurveyException(SurveyExceptionType.QUESTION_LIMIT_EXCEEDED);
+        }
         addQuestions(questionRequests, surveyId);
     }
 
@@ -201,6 +209,24 @@ public class SurveyService {
         }
     }
 
+    private OrderSpecifier<?> sortByField(String fieldName){
+
+        Order order = Order.DESC;
+
+        if (Objects.isNull(fieldName)){
+            return new OrderSpecifier<>(order, s.id);
+        }
+
+        if (fieldName.equals("redDate")){
+            return new OrderSpecifier<>(order, s.regDate);
+        }
+
+        if (fieldName.equals("modDate")){
+            return new OrderSpecifier<>(order, s.modDate);
+        }
+
+        return OrderByNull.getDefault();
+    }
 
 
 }

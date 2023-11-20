@@ -4,16 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TextResultResponse {
+public class FileInfo {
 
-    private Long questionId;
+    private String filename;
 
-    private List<String> answers;
-
-
+    private String url;
 }
