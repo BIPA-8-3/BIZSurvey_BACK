@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.community.api;
 import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
+import com.bipa.bizsurvey.domain.community.service.PostImageService;
 import com.bipa.bizsurvey.domain.community.service.PostService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
