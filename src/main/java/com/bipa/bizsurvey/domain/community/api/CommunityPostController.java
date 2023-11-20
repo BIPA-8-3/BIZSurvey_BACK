@@ -5,7 +5,6 @@ import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.service.PostService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
-import com.bipa.bizsurvey.global.common.sorting.SortingRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;

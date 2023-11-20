@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -71,7 +71,7 @@ public class ChildCommentService {
         for(ChildComment childComment : childCommentList){
             ChildCommentResponse commentResponse = ChildCommentResponse.builder()
                     .childCommentId(childComment.getId())
-                    .content(childComment.getContent())
+                    .content(checkContent(childComment))
                     .nickName(childComment.getUser().getNickname())
                     .createTime(childComment.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
                     .build();
@@ -128,5 +128,13 @@ public class ChildCommentService {
         if(comment.getDelFlag()){
             throw new CommentException(CommentExceptionType.ALREADY_DELETED);
         }
+    }
+
+
+    private String checkContent(ChildComment childComment){
+        if(childComment.getReported()){
+            return "신고된 댓글입니다.";
+        }
+        return childComment.getContent();
     }
 }
