@@ -37,13 +37,18 @@ public class PostService {
     private final UserRepository userRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final CommentService commentService;
+    private final PostImageService postImageService;
     public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
     public void createPost(Long userId, CreatePostRequest createPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.toEntity(user, PostType.COMMUNITY, createPostRequest);
-        postRepository.save(post);
+        Post save = postRepository.save(post);
+
+        if(createPostRequest.getImageUrlList() != null){
+            postImageService.createPostImages(save.getId() , createPostRequest.getImageUrlList());
+        }
     }
 
     // 게시물 전체 조회
@@ -54,6 +59,12 @@ public class PostService {
     // TODO : 신고된 게시물 띄우지 않기로(추가해야함)
     // TODO : QueryDSL 로 업데이트
     public Page<?> getPostList(Pageable pageable, String fieldName){
+
+        long totalCount = jpaQueryFactory
+                .select(p)
+                .from(p)
+                .stream().count();
+
 
 
         List<Post> postList = jpaQueryFactory
@@ -81,9 +92,7 @@ public class PostService {
             result.add(postResponse);
         }
 
-
-
-        return new PageImpl<>(result, pageable, result.size());
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
 
@@ -93,6 +102,15 @@ public class PostService {
     // TODO : 신고된 게시물 띄우지 않기로(추가됨)
     public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
 
+        long totalCount = jpaQueryFactory
+                .select(p)
+                .from(p)
+                .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
+                .where(p.postType.eq(PostType.COMMUNITY))
+                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
+                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .stream().count();
 
         List<Post> postList = jpaQueryFactory
                 .select(p)
@@ -123,7 +141,7 @@ public class PostService {
 
 
 
-        return new PageImpl<>(result, pageable, result.size());
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
 
@@ -143,6 +161,7 @@ public class PostService {
                 .nickname(post.getUser().getNickname())
                 .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm"))) // TODO : 이 양식으로 전부 추가
                 .commentList(commentService.getCommentList(postId))
+                .imageResponseList(postImageService.getImageList(postId))
                 .build();
     }
 
@@ -151,6 +170,16 @@ public class PostService {
    // /community/updatePost/{post_id}
     public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
         Post post = findPost(postId);
+
+        if(updatePostRequest.getAddImgUrlList() != null){
+            postImageService.createPostImages(postId, updatePostRequest.getAddImgUrlList());
+        }
+
+        if(updatePostRequest.getDeleteImgUrlList() != null){
+            postImageService.deletePostImages(postId, updatePostRequest.getDeleteImgUrlList());
+        }
+
+
         checkPermission(userId, post);
         post.updatePost(updatePostRequest);
         postRepository.save(post);
