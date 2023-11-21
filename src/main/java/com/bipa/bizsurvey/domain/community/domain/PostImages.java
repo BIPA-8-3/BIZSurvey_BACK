@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.community.domain;
 import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,10 @@ public class PostImages extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @Builder
+    public PostImages(String imgName, Post post) {
+        this.imgName = imgName;
+        this.post = post;
+    }
 }

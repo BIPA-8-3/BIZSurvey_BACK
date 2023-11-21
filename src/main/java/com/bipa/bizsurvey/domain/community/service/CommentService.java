@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.AbstractDocument;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class CommentService {
         for(Comment comment : commentList){
             CommentResponse commentResponse = CommentResponse.builder()
                     .commentId(comment.getId())
-                    .content(comment.getContent())
+                    .content(checkContent(comment))
                     .nickName(comment.getUser().getNickname())
                     .createTime(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
                     .build();
@@ -126,6 +127,13 @@ public class CommentService {
         if(post.getDelFlag()){
             throw new PostException(PostExceptionType.ALREADY_DELETED);
         }
+    }
+
+    private String checkContent(Comment comment){
+        if(comment.getReported()){
+            return "신고된 댓글입니다.";
+        }
+        return comment.getContent();
     }
 
 
