@@ -33,8 +33,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         isHeaderVerify(request, response);
-        System.out.println("작동하는가??");
-        System.out.println(isHeaderVerify(request, response));
         if (isHeaderVerify(request, response)) {
             try {
                 log.debug("디버그 : 토큰이 존재함");

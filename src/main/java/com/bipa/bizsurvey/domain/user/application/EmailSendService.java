@@ -101,6 +101,8 @@ public class EmailSendService {
         if (value == null) {
             throw new UserException(UserExceptionType.NON_AUTH_PASSWORDEMAIL);
         }
+
+        //redis에서 삭제
         return value;
     }
 

@@ -29,6 +29,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final RedisService redisService;
+    private final UserRepository userRepository;
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -39,7 +40,7 @@ public class SecurityConfig {
         @Override
         public void configure(HttpSecurity builder) throws Exception {
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
-            builder.addFilter(new JwtAuthenticationFilter(authenticationManager, redisService));
+            builder.addFilter(new JwtAuthenticationFilter(authenticationManager, redisService, userRepository));
             builder.addFilter(new JwtAuthorizationFilter(authenticationManager));
             super.configure(builder);
         }

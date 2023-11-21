@@ -7,11 +7,12 @@ import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user")
+@Table(name = "users")
 @Getter
 @ToString
 public class User extends BaseEntity {
@@ -42,7 +43,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Plan planSubscribe;
 
-    private String refreshToken;
+    private String forbiddenDate;
 
     @Builder
     public User(Long id, String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe) {
@@ -68,12 +69,12 @@ public class User extends BaseEntity {
         this.planSubscribe = plan;
     }
 
-    public void userRefreshToken(String refreshToken){
-        this.refreshToken = refreshToken;
-    }
-
     public void passowordUpdate(String password){
         this.password = password;
+    }
+
+    public void forbiddenDateUpdate(String date){
+        this.forbiddenDate = date;
     }
 }
 

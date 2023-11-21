@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.user.dto;
 
+import com.bipa.bizsurvey.domain.user.enums.Plan;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -65,6 +66,11 @@ public class LoginUser implements UserDetails, OAuth2User {
         return true;
     }
 
+    @Override
+    public String getName() {
+        return null;
+    }
+
     public Long getId() {
         return loginInfoRequest.getId();
     }
@@ -73,8 +79,8 @@ public class LoginUser implements UserDetails, OAuth2User {
         return loginInfoRequest.getNickname();
     }
 
-    @Override
-    public String getName() {
-        return null;
+    public String getPlan(){
+        return String.valueOf(loginInfoRequest.getPlanSubscribe());
     }
+
 }

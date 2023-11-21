@@ -13,6 +13,8 @@ import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.global.config.jwt.JwtVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,6 @@ public class UserController {
 
     private final UserService userService;
     private final EmailSendService emailSendService;
-    private final ClaimService claimService;
 
     //회원가입
     @PostMapping("/signup")
@@ -63,13 +64,19 @@ public class UserController {
     @GetMapping("/user/info")
     public ResponseEntity<?> userInfo(@AuthenticationPrincipal LoginUser loginUser){
         UserInfoResponse infoResponse = userService.userInfo(loginUser.getId());
+        System.out.println(loginUser.getNickname());
         return ResponseEntity.ok().body(infoResponse);
     }
 
     //마이페이지 > 내정보수정
     @PatchMapping("/user/info")
-    public ResponseEntity<?> userInfoUpdate(@Valid @RequestBody UserInfoUpdateRequest request){
-        userService.userInfoUpdate(request);
+    public ResponseEntity<?> userInfoUpdate(@AuthenticationPrincipal LoginUser loginUser,
+                                            @Valid @RequestBody UserInfoUpdateRequest updateRequest,
+                                            HttpServletResponse response){
+
+        String token = userService.userInfoUpdate(loginUser, updateRequest);
+        response.addHeader(JwtVO.HEADER, JwtVO.TOKEN_PREFIX + token);
+
         return ResponseEntity.ok().body("회원 정보가 수정되었습니다.");
     }
 
@@ -125,4 +132,18 @@ public class UserController {
         userService.passwordUpdate(request);
         return ResponseEntity.ok().body("비밀번호를 재설정하였습니다.");
     }
+
+    //프로필 업로드
+
+    //마이페이지 > 설문 게시물 조회
+
+    //마이페이지 > 커뮤니티 게시물 조회
+    @GetMapping("/user/community/list")
+    public ResponseEntity<?> userCommunityList(@PageableDefault(size = 10) Pageable pageable,
+                                         @AuthenticationPrincipal LoginUser loginUser){
+
+        return ResponseEntity.ok().body(userService.getPostList(pageable, loginUser.getId())); // 200 OK
+    }
+
+    //마이페이지 > 설문 참여 내역 조회
 }

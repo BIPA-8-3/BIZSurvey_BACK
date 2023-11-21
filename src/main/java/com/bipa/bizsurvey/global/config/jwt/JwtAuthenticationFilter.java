@@ -1,8 +1,12 @@
 package com.bipa.bizsurvey.global.config.jwt;
 
+import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.exception.UserException;
+import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.util.CustomResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,19 +24,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private AuthenticationManager authenticationManager;
-
     private RedisService redisService;
+    private UserRepository userRepository;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, RedisService redisService) {
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, RedisService redisService, UserRepository userRepository) {
         super(authenticationManager);
         setFilterProcessesUrl("/login");
         this.authenticationManager = authenticationManager;
         this.redisService = redisService;
+        this.userRepository = userRepository;
     }
 
     // Post : /api/login
@@ -66,7 +75,31 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) throws IOException, ServletException {
 
         LoginUser loginUser = (LoginUser) authResult.getPrincipal();
-        System.out.println(loginUser.getUsername());
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
+
+        String dateTimeString = user.getForbiddenDate();
+
+        if ("forbidden".equals(dateTimeString)) {
+            CustomResponseUtil.fail(response, "영구 정지");
+            return;
+        }
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        if (dateTimeString != null && !dateTimeString.equals("")) {
+            LocalDateTime targetDateTime = LocalDateTime.parse(dateTimeString, formatter);
+
+            if (currentDateTime.isBefore(targetDateTime)) {
+                CustomResponseUtil.fail(response, "정지");
+                return;
+            }
+        }
+
+        user.forbiddenDateUpdate("");
+        userRepository.save(user);
+
         String jwtToken = JwtProcess.create(loginUser);
         response.addHeader(JwtVO.HEADER, jwtToken);
 
@@ -75,5 +108,4 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         CustomResponseUtil.success(response, "로그인 성공", jwtToken, refreshToken);
     }
-
 }
