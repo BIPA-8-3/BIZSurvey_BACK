@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface PostImagesRepository extends JpaRepository<PostImages, Long> {
 
-
     boolean existsByImgName(String imageName);
 }

@@ -1,6 +1,5 @@
-package com.bipa.bizsurvey.domain.community.dto.request.vote.response;
+package com.bipa.bizsurvey.domain.community.dto.response.vote;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 

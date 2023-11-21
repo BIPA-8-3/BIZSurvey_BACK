@@ -1,6 +1,6 @@
-package com.bipa.bizsurvey.domain.community.dto.request.vote.request;
+package com.bipa.bizsurvey.domain.community.dto.request.vote;
 
-import com.bipa.bizsurvey.domain.community.dto.request.vote.request.CreateVoteAnswerRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteAnswerRequest;
 import lombok.Data;
 
 
