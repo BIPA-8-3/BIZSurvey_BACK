@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.community.domain;
 
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
+import com.bipa.bizsurvey.domain.community.enums.AccessType;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -44,6 +45,9 @@ public class SurveyPost extends BaseEntity {
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
+    @ColumnDefault("0")
+    private int score;
+
     @Builder
     public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, int maxMember, Post post, Survey survey) {
         this.startDateTime = startDateTime;
@@ -52,6 +56,12 @@ public class SurveyPost extends BaseEntity {
         this.post = post;
         this.survey = survey;
     }
+
+
+    public void addScore(int score){
+        this.score = score;
+    }
+
 
     public void updateSurveyPost(UpdateSurveyPostRequest updateSurveyPostRequest, Survey survey){
         this.post.updatePost(updateSurveyPostRequest.getTitle(), updateSurveyPostRequest.getContent());
