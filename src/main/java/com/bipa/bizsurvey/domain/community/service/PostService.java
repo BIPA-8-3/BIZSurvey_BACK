@@ -63,6 +63,8 @@ public class PostService {
         long totalCount = jpaQueryFactory
                 .select(p)
                 .from(p)
+                .where(p.postType.eq(PostType.COMMUNITY))
+                .where(p.delFlag.eq(false))
                 .stream().count();
 
 
@@ -150,7 +152,6 @@ public class PostService {
     // /community/updatePost/{post_id}
     public PostResponse getPost(Long postId){
         Post post = findPost(postId);
-
         checkAvailable(post);
         post.addCount(); // 조회수 증가
         return PostResponse.builder()
@@ -169,7 +170,6 @@ public class PostService {
     // 게시물 수정
    // /community/updatePost/{post_id}
     public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
-        Post post = findPost(postId);
 
         if(updatePostRequest.getAddImgUrlList() != null){
             postImageService.createPostImages(postId, updatePostRequest.getAddImgUrlList());
@@ -180,7 +180,7 @@ public class PostService {
         }
 
 
-        checkPermission(userId, post);
+        Post post = checkPermission(userId, postId);
         post.updatePost(updatePostRequest);
         postRepository.save(post);
     }
@@ -188,9 +188,8 @@ public class PostService {
     // 게시물 삭제
     // /community/deletePost/{postId}
     public void deletePost(Long userId, Long postId){
-        Post post = findPost(postId);
+        Post post = checkPermission(userId, postId);
         checkAvailable(post);
-        checkPermission(userId, post);
         post.updateDelFlag();
     }
 
@@ -201,10 +200,15 @@ public class PostService {
         );
     }
 
-    public void checkPermission(Long userId, Post post) {
+    public Post checkPermission(Long userId, Long postId) {
+
+            Post post = findPost(postId);
+
             if(!Objects.equals(userId, post.getUser().getId())){
                 throw new UserException(UserExceptionType.NO_PERMISSION);
             }
+
+            return post;
     }
 
     public void checkAvailable(Post post){

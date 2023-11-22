@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.dto.request.vote.request;
+package com.bipa.bizsurvey.domain.community.dto.request.vote;
 
 import lombok.Data;
 
