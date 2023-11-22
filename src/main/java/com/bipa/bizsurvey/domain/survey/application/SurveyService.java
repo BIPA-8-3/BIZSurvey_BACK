@@ -53,20 +53,18 @@ public class SurveyService {
 
     public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
 
-        List<SurveyListResponse> results = jpaQueryFactory
+        return jpaQueryFactory
                 .select(Projections.constructor(SurveyListResponse.class, s.id, s.title))
                 .from(s)
                 .where(s.workspace.id.eq(workspaceId)
                         .and(s.delFlag.eq(false)))
                 .orderBy(sortByField(fieldName))
                 .fetch();
-        return results;
     }
 
     public SurveyResponse getSurvey(Long surveyId){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-//        checkPermission(loginUser, workspaceId);
         // get survey
         SurveyResponse surveyDto = surveyMapper.toSurveyInWorkspaceResponse(survey);
         // get question
@@ -97,10 +95,10 @@ public class SurveyService {
         addQuestions(questionRequests, surveyId);
     }
 
+
     public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser, Long workspaceId){
         Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
         checkAvailable(survey);
-//        checkPermission(loginUser, workspaceId);
         Long surveyId = modifySurvey(updateSurveyRequest, loginUser, workspaceId);
         deleteQuestionAndAnswer(surveyId);
         modifyQuestions(updateSurveyRequest.getUpdateQuestions());

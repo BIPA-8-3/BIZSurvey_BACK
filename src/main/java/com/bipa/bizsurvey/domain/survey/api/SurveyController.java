@@ -1,8 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.api;
 
 
-import com.bipa.bizsurvey.domain.survey.application.statistics.StatisticsService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
+import com.bipa.bizsurvey.domain.survey.application.statistics.StatisticsServiceImp;
 import com.bipa.bizsurvey.domain.survey.dto.request.CreateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.response.StatisticsResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
@@ -23,7 +23,7 @@ import java.util.List;
 public class SurveyController {
 
     private final SurveyService surveyService;
-    private final StatisticsService statisticsService;
+    private final StatisticsServiceImp statisticsService;
 
     //설문지 목록 조회
     @GetMapping("/list/{workspaceId}")
@@ -70,6 +70,14 @@ public class SurveyController {
     }
 
 
+    // 설문 통계 게시물 리스트
+    @GetMapping("/result/postList/{surveyId}")
+    public ResponseEntity<?> getSurveyPostList(@PathVariable Long surveyId){
+
+        return ResponseEntity.ok().body(statisticsService.getSurveyPostList(surveyId));
+    }
+
+
 
     //설문지 게시물 통계
     @GetMapping("/result/{surveyId}/{postId}")
@@ -77,7 +85,53 @@ public class SurveyController {
                                                    @PathVariable Long surveyId,
                                                    @RequestParam String type){
         return ResponseEntity.ok().body(statisticsService.getPostResult(surveyId, postId, type));
+    }
+
+    // 설문 게시물 참여자 목록
+    @GetMapping("/result/userList/{surveyId}/{postId}")
+    public ResponseEntity<?> getSurveyUserList(@PathVariable Long surveyId,
+                                               @PathVariable Long postId){
+
+        return ResponseEntity.ok().body(statisticsService.getSurveyUserList(surveyId, postId));
+    }
+
+    // 개인 설문 결과
+    @GetMapping("/result/{surveyId}/{postId}/{nickname}")
+    public ResponseEntity<?> getSurveyUserResult(@PathVariable Long surveyId,
+                                                 @PathVariable Long postId,
+                                                 @PathVariable String nickname){
+        return ResponseEntity.ok().body(statisticsService.getSurveyUserResult(surveyId, postId, nickname));
+    }
+
+    // 점수형 설문 개별 통계
+    @GetMapping("/result/score/{surveyId}/{postId}/{nickname}")
+    public ResponseEntity<?> getScoreUserAnswer(@PathVariable Long surveyId,
+                                                @PathVariable Long postId,
+                                                @PathVariable String nickname){
+        return ResponseEntity.ok().body(statisticsService.getScoreUserAnswer(surveyId, postId, nickname));
 
     }
+
+    // 점수형 설문 정답
+    @GetMapping("/result/score/{surveyId}")
+    public ResponseEntity<?> getScoreAnswer(@PathVariable Long surveyId){
+        return ResponseEntity.ok().body(statisticsService.getScoreAnswer(surveyId));
+    }
+
+    // 점수 설문 참여 사용자 목록
+    @GetMapping("/result/score/userList/{surveyId}/{postId}")
+    public ResponseEntity<?> getScoreUserList(@PathVariable Long surveyId,
+                                              @PathVariable Long postId){
+        return ResponseEntity.ok().body(statisticsService.getSurveyUserList(surveyId, postId));
+    }
+
+    // 점수 설문 전체 통계
+    @GetMapping("/result/score/{surveyId}/{postId}")
+    public ResponseEntity<?> getScoreResultOfPost(@PathVariable Long surveyId,
+                                                  @PathVariable Long postId){
+
+        return ResponseEntity.ok().body(statisticsService.getScoreResult(surveyId, postId));
+    }
+
 
 }

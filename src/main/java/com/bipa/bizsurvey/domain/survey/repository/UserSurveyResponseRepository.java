@@ -19,4 +19,6 @@ public interface UserSurveyResponseRepository extends JpaRepository<UserSurveyRe
     List<String> findNicknamesBySurveyPostId(@Param("surveyPostId") SurveyPost surveyPost);
 
     UserSurveyResponse findBySurveyPostIdAndUserId(Long surveyPostId, Long userId);
+
+    boolean existsBySurveyPostIdAndUserId(Long surveyPostId, Long userId);
 }

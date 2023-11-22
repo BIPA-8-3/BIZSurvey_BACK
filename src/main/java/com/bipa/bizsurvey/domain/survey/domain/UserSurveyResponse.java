@@ -5,6 +5,7 @@ import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.survey.dto.request.ParticipateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "user_survey_response")
-public class UserSurveyResponse {
+public class UserSurveyResponse extends BaseEntity {
 
 
     @Id

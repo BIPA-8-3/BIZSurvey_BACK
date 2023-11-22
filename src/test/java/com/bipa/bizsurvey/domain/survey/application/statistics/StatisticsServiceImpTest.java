@@ -3,19 +3,20 @@ package com.bipa.bizsurvey.domain.survey.application.statistics;
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
-import com.bipa.bizsurvey.domain.survey.dto.response.ChartAndTextResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.FileResultResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.StatisticsResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.*;
 import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
+import com.querydsl.core.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @SpringBootTest
 @Slf4j
+@Transactional
 class StatisticsServiceImpTest {
 
     @Autowired
@@ -60,7 +61,6 @@ class StatisticsServiceImpTest {
 
         StatisticsResponse result = serviceImp.getPostResult(surveyId, postId, type);
 
-        log.info("===========!!!!!!!!!!!!!!!!!");
 
         List<ChartAndTextResponse> c = result.getChartAndTextResults();
 
@@ -73,5 +73,20 @@ class StatisticsServiceImpTest {
         });
 
     }
+
+    @Test
+    public void testScoreResult(){
+
+        Long surveyId = 25L;
+        Long postId = 2L;
+
+        List<ScoreResultResponse> result = serviceImp.getScoreResult(surveyId, postId);
+
+        result.forEach(dto-> {
+            log.info("dto ={}", dto);
+        });
+
+    }
+
 
 }
