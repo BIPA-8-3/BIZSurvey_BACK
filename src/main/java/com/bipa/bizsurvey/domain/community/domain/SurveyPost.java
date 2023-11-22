@@ -62,6 +62,9 @@ public class SurveyPost extends BaseEntity {
     }
 
 
+    public void addCount(){
+        this.memberCount += 1;
+    }
 
 
 

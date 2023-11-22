@@ -55,15 +55,13 @@ public class SurveyCommunityService {
                 UserSurveyResponse userSurveyResponse = UserSurveyResponse.toEntity(survey, user, question, surveyPost);
                 userSurveyResponseRepository.save(userSurveyResponse);
             }
+
+            addCount(postId);
     }
-
-    // TODO : count 추가
+    
     private void addCount(Long postId){
-
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
-
-
-
+        surveyPost.addCount();
     }
 
 
