@@ -10,7 +10,7 @@ import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "user")
+@Table(name = "users")
 @Getter
 @ToString
 public class User extends BaseEntity {

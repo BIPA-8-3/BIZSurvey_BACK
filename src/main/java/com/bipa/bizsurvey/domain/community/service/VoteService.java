@@ -1,10 +1,10 @@
 package com.bipa.bizsurvey.domain.community.service;
 
 import com.bipa.bizsurvey.domain.community.domain.*;
-import com.bipa.bizsurvey.domain.community.dto.request.vote.request.CreateVoteAnswerRequest;
-import com.bipa.bizsurvey.domain.community.dto.request.vote.request.CreateVoteRequest;
-import com.bipa.bizsurvey.domain.community.dto.request.vote.response.AnswerPercentageResponse;
-import com.bipa.bizsurvey.domain.community.dto.request.vote.response.VoteAnswerResponse;
+import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteAnswerRequest;
+import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteRequest;
+import com.bipa.bizsurvey.domain.community.dto.response.vote.AnswerPercentageResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.vote.VoteAnswerResponse;
 import com.bipa.bizsurvey.domain.community.exception.voteException.VoteException;
 import com.bipa.bizsurvey.domain.community.exception.voteException.VoteExceptionType;
 import com.bipa.bizsurvey.domain.community.repository.VoteAnswerRepository;

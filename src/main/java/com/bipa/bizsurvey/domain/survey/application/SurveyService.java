@@ -178,7 +178,7 @@ public class SurveyService {
     }
 
 
-    private Survey findSurvey(Long surveyId){
+    public Survey findSurvey(Long surveyId){
         return surveyRepository.findById(surveyId).orElseThrow(
                 () -> new SurveyException(SurveyExceptionType.NON_EXIST_SURVEY)
         );
