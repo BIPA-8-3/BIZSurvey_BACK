@@ -16,4 +16,5 @@ public class PostResponse {
     private String nickname;
     private String createTime;
     private List<CommentResponse> commentList;
+    private List<PostImageResponse> imageResponseList;
 }

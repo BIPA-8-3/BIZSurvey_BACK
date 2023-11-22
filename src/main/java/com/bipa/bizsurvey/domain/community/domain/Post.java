@@ -43,6 +43,12 @@ public class Post extends BaseEntity {
     private Boolean reported;
     // 신고 당했는지 여부
 
+    @Setter
+    @Column(nullable = true)
+    private Long voteId;
+
+
+
     @Builder
     public Post(String title, String content, PostType postType, User user) {
         this.title = title;
