@@ -71,6 +71,11 @@ public class Post extends BaseEntity {
         this.content = updatePostRequest.getContent();
     }
 
+    public void updatePost(String title, String content){
+        this.title = title;
+        this.content = content;
+    }
+
     public void updateDelFlag(){
         setDelFlag(true);
     }
