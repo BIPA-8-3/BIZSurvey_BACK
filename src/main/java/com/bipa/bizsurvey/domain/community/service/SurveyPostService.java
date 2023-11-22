@@ -36,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -79,7 +80,7 @@ public class SurveyPostService {
 
     // 상세 조회
     public SurveyPostResponse getSurveyPost(Long postId){
-         Tuple tuple = jpaQueryFactory
+         Tuple tuple = jpaQueryFactory // TODO : Optional.ofNullable 예외처리 필요
                  .select(
                          p.id,
                          p.title,
@@ -280,11 +281,6 @@ public class SurveyPostService {
             surveyPost.addScore(100); // 서비스 중 : 100점
         }
     }
-
-
-
-
-
 
 
 
