@@ -1,6 +1,8 @@
 package com.bipa.bizsurvey.domain.workspace.repository;
 
 import com.bipa.bizsurvey.domain.workspace.domain.Contact;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,4 +15,9 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
             "AND c.workspace.id = :workspaceId " +
             "AND (c.name LIKE %:keyword% OR c.email LIKE %:keyword%)")
     List<Contact> searchContact(Long workspaceId, String keyword);
+
+    @Query("SELECT c FROM Contact AS c WHERE c.delFlag = false " +
+            "AND c.workspace.id = :workspaceId " +
+            "AND (c.name LIKE %:keyword% OR c.email LIKE %:keyword%)")
+    Page<Contact> searchContact(Long workspaceId, String keyword, Pageable pageable);
 }

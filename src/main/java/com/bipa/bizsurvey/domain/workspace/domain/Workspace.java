@@ -39,5 +39,4 @@ public class Workspace extends BaseEntity {
     public void updateWorkspace(String workspaceName) {
         this.workspaceName = workspaceName;
     }
-
 }

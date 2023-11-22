@@ -41,7 +41,7 @@ public class ContactServiceTests {
     public void testList() {
         ContactDto.SearchRequest request = new ContactDto.SearchRequest();
         request.setWorkspaceId(1L);
-        request.setKeyword("test");
+        request.setKeyword("update");
         contactService.searchContacts(request).stream().forEach(log::info);
     }
 
@@ -50,5 +50,4 @@ public class ContactServiceTests {
         Long id = 1L;
         contactService.delete(id);
     }
-
 }
