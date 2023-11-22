@@ -29,6 +29,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ import java.util.Objects;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
@@ -52,7 +54,6 @@ public class SurveyService {
     public QSurvey s = new QSurvey("s");
 
     public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
-
         return jpaQueryFactory
                 .select(Projections.constructor(SurveyListResponse.class, s.id, s.title))
                 .from(s)
@@ -70,13 +71,13 @@ public class SurveyService {
         // get question
         Long surveyKey = survey.getId();
         List<QuestionResponse> questionDtoList = surveyMapper
-                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalse(surveyKey));
+                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalseOrderByStep(surveyKey));
 
         // get answer
         questionDtoList.forEach(questionDto -> {
                 Long questionKey = questionDto.getQuestionId();
                 List<AnswerResponse> answerDtoList = surveyMapper
-                        .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalse(questionKey));
+                        .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalseOrderByStep(questionKey));
                 questionDto.setAnswers(answerDtoList);
         });
 
@@ -96,19 +97,18 @@ public class SurveyService {
     }
 
 
-    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser, Long workspaceId){
-        Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
+    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, Long surveyId){
+        Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-        Long surveyId = modifySurvey(updateSurveyRequest, loginUser, workspaceId);
+        modifySurvey(updateSurveyRequest);
         deleteQuestionAndAnswer(surveyId);
         modifyQuestions(updateSurveyRequest.getUpdateQuestions());
         addQuestions(updateSurveyRequest.getCreateQuestions(), surveyId);
     }
 
-    public void deleteSurvey(Long surveyId, LoginUser loginUser, Long workspaceId){
+    public void deleteSurvey(Long surveyId){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-        checkPermission(loginUser, workspaceId);
         survey.setDelFlag(true);
         surveyRepository.save(survey);
     }
@@ -126,11 +126,10 @@ public class SurveyService {
 
 
     // update survey
-    private Long modifySurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser, Long workspaceId) {
+    private void modifySurvey(UpdateSurveyRequest updateSurveyRequest) {
         Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
         survey.updateSurvey(updateSurveyRequest);
         surveyRepository.save(survey);
-        return survey.getId();
     }
 
 
@@ -140,6 +139,7 @@ public class SurveyService {
         createQuestionRequest.forEach(createQuestionDto -> {
             Question question = Question.toEntity(createQuestionDto, survey);
             questionRepository.save(question);
+            log.info("question ={}", createQuestionRequest);
             addAnswer(createQuestionDto.getAnswers(), question);
         });
     }
@@ -209,21 +209,23 @@ public class SurveyService {
 
     private OrderSpecifier<?> sortByField(String fieldName){
 
-        Order order = Order.DESC;
+        Order desc = Order.DESC;
+        Order asc = Order.ASC;
+
 
         if (Objects.isNull(fieldName)){
-            return new OrderSpecifier<>(order, s.id);
+            return new OrderSpecifier<>(desc, s.id);
         }
 
-        if (fieldName.equals("redDate")){
-            return new OrderSpecifier<>(order, s.regDate);
+        if (fieldName.equals("regDate")){
+            return new OrderSpecifier<>(asc, s.regDate);
         }
 
         if (fieldName.equals("modDate")){
-            return new OrderSpecifier<>(order, s.modDate);
+            return new OrderSpecifier<>(desc, s.modDate);
         }
 
-        return OrderByNull.getDefault();
+        return new OrderSpecifier<>(desc, s.id);
     }
 
 

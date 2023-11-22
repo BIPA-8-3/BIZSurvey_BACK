@@ -58,7 +58,7 @@ public class SurveyCommunityService {
 
             addCount(postId);
     }
-    
+
     private void addCount(Long postId){
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
         surveyPost.addCount();

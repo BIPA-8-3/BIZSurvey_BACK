@@ -2,10 +2,10 @@ package com.bipa.bizsurvey.domain.survey.application.statistics;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
+import com.bipa.bizsurvey.domain.survey.application.StatisticsService;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.response.*;
 import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
-import com.querydsl.core.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.util.List;
 class StatisticsServiceImpTest {
 
     @Autowired
-    private StatisticsServiceImp serviceImp;
+    private StatisticsService serviceImp;
     @Autowired
     private SurveyRepository surveyRepository;
     @Autowired
@@ -55,12 +55,9 @@ class StatisticsServiceImpTest {
     @Test
     public void testGetResultStatistics(){
 
-        Long surveyId = 24L;
         Long postId = 1L;
-        String type = "";
 
-        StatisticsResponse result = serviceImp.getPostResult(surveyId, postId, type);
-
+        StatisticsResponse result = serviceImp.getPostResult(postId);
 
         List<ChartAndTextResponse> c = result.getChartAndTextResults();
 

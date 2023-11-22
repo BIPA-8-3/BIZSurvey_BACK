@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sCommunity/survey")
+@RequestMapping("/s-community/survey")
 @RequiredArgsConstructor
 public class SurveyCommunityController {
 

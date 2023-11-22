@@ -34,8 +34,7 @@ public class Question extends BaseEntity {
     @Column(nullable = false)
     private AnswerType answerType;
 
-    @ColumnDefault("false")
-    @Column(insertable = false)
+    @Column(nullable = false)
     private Boolean isRequired;
 
     private int score;

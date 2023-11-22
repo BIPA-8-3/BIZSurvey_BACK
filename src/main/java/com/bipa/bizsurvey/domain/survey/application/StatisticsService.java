@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.application.statistics;
+package com.bipa.bizsurvey.domain.survey.application;
 
 import com.bipa.bizsurvey.domain.community.domain.QSurveyPost;
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
@@ -14,7 +14,6 @@ import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
 import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
-import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class StatisticsServiceImp {
+public class StatisticsService {
 
     private final SurveyPostRepository surveyPostRepository;
     private final QuestionRepository questionRepository;
@@ -93,7 +92,7 @@ public class StatisticsServiceImp {
 
     //게시물 통계
 
-    public StatisticsResponse getPostResult(Long surveyId, Long postId, String type) {
+    public StatisticsResponse getPostResult(Long postId) {
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
         Survey survey = surveyPost.getSurvey();
 
