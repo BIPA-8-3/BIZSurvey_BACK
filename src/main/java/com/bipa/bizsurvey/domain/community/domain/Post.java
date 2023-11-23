@@ -43,6 +43,12 @@ public class Post extends BaseEntity {
     private Boolean reported;
     // 신고 당했는지 여부
 
+    @Setter
+    @Column(nullable = true)
+    private Long voteId;
+
+
+
     @Builder
     public Post(String title, String content, PostType postType, User user) {
         this.title = title;
@@ -63,6 +69,11 @@ public class Post extends BaseEntity {
     public void updatePost(UpdatePostRequest updatePostRequest){
         this.title = updatePostRequest.getTitle();
         this.content = updatePostRequest.getContent();
+    }
+
+    public void updatePost(String title, String content){
+        this.title = title;
+        this.content = content;
     }
 
     public void updateDelFlag(){

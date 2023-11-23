@@ -1,14 +1,17 @@
 package com.bipa.bizsurvey.domain.survey.dto.response;
 
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ChartResult {
+@AllArgsConstructor
+public class ScoreAnswerCount {
 
     private String answer;
 
-    private int count;
+    private Long count;
 
 }

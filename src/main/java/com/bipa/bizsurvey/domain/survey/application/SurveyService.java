@@ -1,6 +1,8 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
+import com.bipa.bizsurvey.domain.community.domain.QPost;
 import com.bipa.bizsurvey.domain.survey.domain.Answer;
+import com.bipa.bizsurvey.domain.survey.domain.QSurvey;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.request.*;
@@ -21,16 +23,24 @@ import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
+import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
@@ -40,44 +50,37 @@ public class SurveyService {
     private final SurveyMapper surveyMapper;
     private final UserRepository userRepository;
     private final WorkspaceAdminRepository workspaceAdminRepository;
+    private final JPAQueryFactory jpaQueryFactory;
+    public QSurvey s = new QSurvey("s");
 
-
-    // TODO : 파일 첨부
-
-
-
-    public List<SurveyListResponse> getSurveyList(Long workspaceId){
-        List<Survey> surveyList = surveyRepository.findAllByWorkspaceId(workspaceId);
-        List<SurveyListResponse> result = new ArrayList<>();
-
-        for(Survey survey : surveyList){
-            SurveyListResponse surveyResponse = SurveyListResponse.builder()
-                    .surveyId(survey.getId())
-                    .title(survey.getTitle())
-                    .build();
-            result.add(surveyResponse);
-        }
-        return result;
+    public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
+        return jpaQueryFactory
+                .select(Projections.constructor(SurveyListResponse.class, s.id, s.title))
+                .from(s)
+                .where(s.workspace.id.eq(workspaceId)
+                        .and(s.delFlag.eq(false)))
+                .orderBy(sortByField(fieldName))
+                .fetch();
     }
 
     public SurveyResponse getSurvey(Long surveyId){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-//        checkPermission(loginUser, workspaceId);
         // get survey
         SurveyResponse surveyDto = surveyMapper.toSurveyInWorkspaceResponse(survey);
         // get question
         Long surveyKey = survey.getId();
         List<QuestionResponse> questionDtoList = surveyMapper
-                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalse(surveyKey));
+                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalseOrderByStep(surveyKey));
 
         // get answer
         questionDtoList.forEach(questionDto -> {
                 Long questionKey = questionDto.getQuestionId();
                 List<AnswerResponse> answerDtoList = surveyMapper
-                        .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalse(questionKey));
+                        .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalseOrderByStep(questionKey));
                 questionDto.setAnswers(answerDtoList);
         });
+
         surveyDto.setQuestions(questionDtoList);
         return surveyDto;
     }
@@ -86,23 +89,26 @@ public class SurveyService {
         checkPermission(loginUser, workspaceId);
         Long surveyId = addSurvey(createSurveyRequest, loginUser, workspaceId);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
+        // 질문 수 체크
+        if (questionRequests.size() > 40){
+            throw new SurveyException(SurveyExceptionType.QUESTION_LIMIT_EXCEEDED);
+        }
         addQuestions(questionRequests, surveyId);
     }
 
-    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser, Long workspaceId){
-        Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
+
+    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, Long surveyId){
+        Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-//        checkPermission(loginUser, workspaceId);
-        Long surveyId = modifySurvey(updateSurveyRequest, loginUser, workspaceId);
+        modifySurvey(updateSurveyRequest);
         deleteQuestionAndAnswer(surveyId);
         modifyQuestions(updateSurveyRequest.getUpdateQuestions());
         addQuestions(updateSurveyRequest.getCreateQuestions(), surveyId);
     }
 
-    public void deleteSurvey(Long surveyId, LoginUser loginUser, Long workspaceId){
+    public void deleteSurvey(Long surveyId){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-        checkPermission(loginUser, workspaceId);
         survey.setDelFlag(true);
         surveyRepository.save(survey);
     }
@@ -120,11 +126,10 @@ public class SurveyService {
 
 
     // update survey
-    private Long modifySurvey(UpdateSurveyRequest updateSurveyRequest, LoginUser loginUser, Long workspaceId) {
+    private void modifySurvey(UpdateSurveyRequest updateSurveyRequest) {
         Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
         survey.updateSurvey(updateSurveyRequest);
         surveyRepository.save(survey);
-        return survey.getId();
     }
 
 
@@ -134,6 +139,7 @@ public class SurveyService {
         createQuestionRequest.forEach(createQuestionDto -> {
             Question question = Question.toEntity(createQuestionDto, survey);
             questionRepository.save(question);
+            log.info("question ={}", createQuestionRequest);
             addAnswer(createQuestionDto.getAnswers(), question);
         });
     }
@@ -172,7 +178,7 @@ public class SurveyService {
     }
 
 
-    private Survey findSurvey(Long surveyId){
+    public Survey findSurvey(Long surveyId){
         return surveyRepository.findById(surveyId).orElseThrow(
                 () -> new SurveyException(SurveyExceptionType.NON_EXIST_SURVEY)
         );
@@ -201,6 +207,26 @@ public class SurveyService {
         }
     }
 
+    private OrderSpecifier<?> sortByField(String fieldName){
+
+        Order desc = Order.DESC;
+        Order asc = Order.ASC;
+
+
+        if (Objects.isNull(fieldName)){
+            return new OrderSpecifier<>(desc, s.id);
+        }
+
+        if (fieldName.equals("regDate")){
+            return new OrderSpecifier<>(asc, s.regDate);
+        }
+
+        if (fieldName.equals("modDate")){
+            return new OrderSpecifier<>(desc, s.modDate);
+        }
+
+        return new OrderSpecifier<>(desc, s.id);
+    }
 
 
 }

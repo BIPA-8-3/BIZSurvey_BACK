@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -33,6 +34,9 @@ public class Question extends BaseEntity {
     @Column(nullable = false)
     private AnswerType answerType;
 
+    @Column(nullable = false)
+    private Boolean isRequired;
+
     private int score;
 
     @Column(nullable = false)
@@ -47,12 +51,13 @@ public class Question extends BaseEntity {
 
 
     @Builder
-    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey, int step) {
+    public Question(String surveyQuestion, AnswerType answerType, int score, Survey survey, int step, Boolean isRequired) {
         this.surveyQuestion = surveyQuestion;
         this.answerType = answerType;
         this.score = score;
         this.survey = survey;
         this.step = step;
+        this.isRequired = isRequired;
     }
 
     public static Question toEntity(CreateQuestionRequest createQuestionRequest, Survey survey) {
@@ -62,12 +67,14 @@ public class Question extends BaseEntity {
                 .score(createQuestionRequest.getScore())
                 .survey(survey)
                 .step(createQuestionRequest.getStep())
+                .isRequired(createQuestionRequest.getIsRequired())
                 .build();
     }
 
     public void updateQuestion(UpdateQuestionRequest updateQuestionRequest){
         this.surveyQuestion = updateQuestionRequest.getSurveyQuestion();
         this.answerType = updateQuestionRequest.getAnswerType();
+        this.isRequired = updateQuestionRequest.getIsRequired();
         this.score = updateQuestionRequest.getScore();
         this.step = updateQuestionRequest.getStep();
 

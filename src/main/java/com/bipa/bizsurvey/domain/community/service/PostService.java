@@ -15,11 +15,8 @@ import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
-import com.bipa.bizsurvey.global.common.sorting.SortingRequest;
-import com.bipa.bizsurvey.global.common.sorting.SortingStandard;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -40,13 +37,18 @@ public class PostService {
     private final UserRepository userRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final CommentService commentService;
-    public QPost p = new QPost("p");
+    private final PostImageService postImageService;
+    public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
     public void createPost(Long userId, CreatePostRequest createPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.toEntity(user, PostType.COMMUNITY, createPostRequest);
-        postRepository.save(post);
+        Post save = postRepository.save(post);
+
+        if(createPostRequest.getImageUrlList() != null){
+            postImageService.createPostImages(save.getId() , createPostRequest.getImageUrlList());
+        }
     }
 
     // 게시물 전체 조회
@@ -57,6 +59,14 @@ public class PostService {
     // TODO : 신고된 게시물 띄우지 않기로(추가해야함)
     // TODO : QueryDSL 로 업데이트
     public Page<?> getPostList(Pageable pageable, String fieldName){
+
+        long totalCount = jpaQueryFactory
+                .select(p)
+                .from(p)
+                .where(p.postType.eq(PostType.COMMUNITY))
+                .where(p.delFlag.eq(false))
+                .stream().count();
+
 
 
         List<Post> postList = jpaQueryFactory
@@ -84,9 +94,7 @@ public class PostService {
             result.add(postResponse);
         }
 
-
-
-        return new PageImpl<>(result, pageable, result.size());
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
 
@@ -95,7 +103,16 @@ public class PostService {
 
     // TODO : 신고된 게시물 띄우지 않기로(추가됨)
     public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
-        QPost p = new QPost("p");
+
+        long totalCount = jpaQueryFactory
+                .select(p)
+                .from(p)
+                .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
+                .where(p.postType.eq(PostType.COMMUNITY))
+                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
+                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .stream().count();
 
         List<Post> postList = jpaQueryFactory
                 .select(p)
@@ -126,7 +143,7 @@ public class PostService {
 
 
 
-        return new PageImpl<>(result, pageable, result.size());
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
 
@@ -135,7 +152,6 @@ public class PostService {
     // /community/updatePost/{post_id}
     public PostResponse getPost(Long postId){
         Post post = findPost(postId);
-
         checkAvailable(post);
         post.addCount(); // 조회수 증가
         return PostResponse.builder()
@@ -146,6 +162,7 @@ public class PostService {
                 .nickname(post.getUser().getNickname())
                 .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm"))) // TODO : 이 양식으로 전부 추가
                 .commentList(commentService.getCommentList(postId))
+                .imageResponseList(postImageService.getImageList(postId))
                 .build();
     }
 
@@ -153,8 +170,17 @@ public class PostService {
     // 게시물 수정
    // /community/updatePost/{post_id}
     public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
-        Post post = findPost(postId);
-        checkPermission(userId, post);
+
+        if(updatePostRequest.getAddImgUrlList() != null){
+            postImageService.createPostImages(postId, updatePostRequest.getAddImgUrlList());
+        }
+
+        if(updatePostRequest.getDeleteImgUrlList() != null){
+            postImageService.deletePostImages(postId, updatePostRequest.getDeleteImgUrlList());
+        }
+
+
+        Post post = checkPermission(userId, postId);
         post.updatePost(updatePostRequest);
         postRepository.save(post);
     }
@@ -162,9 +188,8 @@ public class PostService {
     // 게시물 삭제
     // /community/deletePost/{postId}
     public void deletePost(Long userId, Long postId){
-        Post post = findPost(postId);
+        Post post = checkPermission(userId, postId);
         checkAvailable(post);
-        checkPermission(userId, post);
         post.updateDelFlag();
     }
 
@@ -175,10 +200,15 @@ public class PostService {
         );
     }
 
-    public void checkPermission(Long userId, Post post) {
+    public Post checkPermission(Long userId, Long postId) {
+
+            Post post = findPost(postId);
+
             if(!Objects.equals(userId, post.getUser().getId())){
-                throw new PostException(UserExceptionType.NO_PERMISSION);
+                throw new UserException(UserExceptionType.NO_PERMISSION);
             }
+
+            return post;
     }
 
     public void checkAvailable(Post post){

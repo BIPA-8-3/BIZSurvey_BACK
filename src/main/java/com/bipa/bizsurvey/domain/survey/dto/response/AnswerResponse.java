@@ -18,9 +18,5 @@ public class AnswerResponse {
 
     private Correct correct;
 
-    private LocalDateTime regDate;
-
-    private LocalDateTime modDate;
-
 
 }

@@ -2,7 +2,9 @@ package com.bipa.bizsurvey.domain.community.domain;
 
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.community.domain.Vote;
+import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "vote_user_answer")
-public class VoteUserAnswer {
+public class VoteUserAnswer extends BaseEntity {
 
 
     @Id
@@ -31,5 +33,10 @@ public class VoteUserAnswer {
     @JoinColumn(name = "vote_id")
     private Vote vote;
 
-
+    @Builder
+    public VoteUserAnswer(String answer, User user, Vote vote) {
+        this.answer = answer;
+        this.user = user;
+        this.vote = vote;
+    }
 }
