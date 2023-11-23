@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.workspace.redis;
+package com.bipa.bizsurvey.domain.workspace.mq;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

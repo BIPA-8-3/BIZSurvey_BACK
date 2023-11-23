@@ -51,10 +51,6 @@ public class WorkspaceAdminDto {
         private Long workspaceId;
     }
 
-
-
-
-
     @Data
     @Builder
     public static class Response {

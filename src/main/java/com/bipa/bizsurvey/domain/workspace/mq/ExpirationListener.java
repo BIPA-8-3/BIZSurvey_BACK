@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.workspace.redis;
+package com.bipa.bizsurvey.domain.workspace.mq;
 
 import com.bipa.bizsurvey.domain.workspace.application.WorkspaceAdminService;
 import lombok.extern.log4j.Log4j2;

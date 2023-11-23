@@ -14,8 +14,6 @@ import javax.persistence.*;
 @Getter
 @Table(name = "shared_survey")
 public class SharedSurvey extends BaseEntity {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shared_survey_id")
@@ -26,10 +24,7 @@ public class SharedSurvey extends BaseEntity {
     @Column(nullable = false)
     private String deadline;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id")
     private Survey survey;
-
-
 }
