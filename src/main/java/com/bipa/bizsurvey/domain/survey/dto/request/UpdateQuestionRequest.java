@@ -21,6 +21,8 @@ public class UpdateQuestionRequest {
 
     private AnswerType answerType;
 
+    private Boolean isRequired;
+
     private int score;
 
     private int step;

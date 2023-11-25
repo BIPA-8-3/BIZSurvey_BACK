@@ -8,6 +8,7 @@ import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.CreateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostResponse;
+import com.bipa.bizsurvey.domain.community.enums.AccessType;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
@@ -21,6 +22,7 @@ import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,10 +30,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -68,12 +73,14 @@ public class SurveyPostService {
                 .survey(survey)
                 .build();
 
+        createScore(surveyPost);
+
         surveyPostRepository.save(surveyPost);
     }
 
     // 상세 조회
     public SurveyPostResponse getSurveyPost(Long postId){
-         Tuple tuple = jpaQueryFactory
+         Tuple tuple = jpaQueryFactory // TODO : Optional.ofNullable 예외처리 필요
                  .select(
                          p.id,
                          p.title,
@@ -95,7 +102,8 @@ public class SurveyPostService {
          Post post = postService.findPost(postId);
          post.addCount(); // 조회수 증가
 
-        return SurveyPostResponse.builder()
+
+        SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
                 .postId(tuple.get(p.id))
                 .title(tuple.get(p.title))
                 .content(tuple.get(p.content))
@@ -107,6 +115,8 @@ public class SurveyPostService {
                 .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .commentList(commentService.getCommentList(postId))
                 .build();
+
+        return checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse);
     }
 
     // 전체 조회
@@ -136,14 +146,25 @@ public class SurveyPostService {
                 .from(p)
                 .innerJoin(sp).on(p.id.eq(sp.post.id))
                 .where(p.delFlag.eq(false))
+                .orderBy(sp.score.desc())
+                .orderBy(sortByField(fieldName))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(sortByField(fieldName))
                 .fetch();
 
         List<SurveyPostResponse> results = new ArrayList<>();
 
         for(Tuple tuple : tupleList){
+
+            // 엔티티 조회
+            SurveyPost surveyPost = jpaQueryFactory
+                    .selectFrom(sp)
+                    .where(sp.post.id.eq(tuple.get(p.id)))
+                    .fetchOne();
+
+            // 점수 생성
+            createScore(surveyPost);
+
             SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
                     .postId(tuple.get(p.id))
                     .title(tuple.get(p.title))
@@ -155,10 +176,14 @@ public class SurveyPostService {
                     .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .build();
-            results.add(surveyPostResponse);
+
+            checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse);
+
+            results.add(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse));
         }
         return new PageImpl<>(results, pageable, totalCount);
     }
+
 
 
     // 검색
@@ -190,14 +215,24 @@ public class SurveyPostService {
                 .where(p.delFlag.eq(false))
                 .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
                         .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .orderBy(sp.score.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(p.count.desc())
                 .fetch();
 
         List<SurveyPostResponse> results = new ArrayList<>();
 
         for(Tuple tuple : tupleList){
+
+            // 엔티티 조회
+            SurveyPost surveyPost = jpaQueryFactory
+                    .selectFrom(sp)
+                    .where(sp.post.id.eq(tuple.get(p.id)))
+                    .fetchOne();
+
+            // 점수 생성
+            createScore(surveyPost);
+
             SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
                     .postId(tuple.get(p.id))
                     .title(tuple.get(p.title))
@@ -209,7 +244,8 @@ public class SurveyPostService {
                     .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .build();
-            results.add(surveyPostResponse);
+
+            results.add(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse));
         }
         return new PageImpl<>(results, pageable, totalCount);
 
@@ -222,6 +258,30 @@ public class SurveyPostService {
         surveyPost.updateSurveyPost(updateSurveyPostRequest, survey);
         surveyPostRepository.save(surveyPost);
     }
+
+    private SurveyPostResponse checkAccess(LocalDateTime start, LocalDateTime close, SurveyPostResponse surveyPostResponse){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if(localDateTime.isBefore(start)){
+            surveyPostResponse.setCanAccess(AccessType.CAN_NOT_START.getIsAccess());
+        }else if(localDateTime.isAfter(close)){
+            surveyPostResponse.setCanAccess(AccessType.CLOSED.getIsAccess());
+        }else{
+            surveyPostResponse.setCanAccess(AccessType.CAN_START.getIsAccess());
+        }
+        return surveyPostResponse;
+    }
+
+    private void createScore(SurveyPost surveyPost){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if(localDateTime.isBefore(surveyPost.getStartDateTime())){ // 시작 전
+            surveyPost.addScore(50); // 시작 전 50점
+        }else if(localDateTime.isAfter(surveyPost.getEndDateTime())){
+            surveyPost.addScore(0); // 종료 0점
+        }else {
+            surveyPost.addScore(100); // 서비스 중 : 100점
+        }
+    }
+
 
 
     private OrderSpecifier<?> sortByField(String filedName){

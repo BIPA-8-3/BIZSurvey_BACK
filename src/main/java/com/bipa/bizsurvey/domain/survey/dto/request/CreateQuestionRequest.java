@@ -18,6 +18,8 @@ public class CreateQuestionRequest {
 
     private AnswerType answerType;
 
+    private Boolean isRequired;
+
     private int score;
 
     private int step;

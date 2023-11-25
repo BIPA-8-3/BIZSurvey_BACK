@@ -22,6 +22,8 @@ public class QuestionResponse {
 
     private int step;
 
+    private Boolean isRequired;
+
     private List<AnswerResponse> answers;
 
 

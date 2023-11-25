@@ -2,13 +2,11 @@ package com.bipa.bizsurvey.domain.survey.repository;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
-import com.bipa.bizsurvey.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserSurveyResponseRepository extends JpaRepository<UserSurveyResponse, Long> {
 
@@ -19,4 +17,6 @@ public interface UserSurveyResponseRepository extends JpaRepository<UserSurveyRe
     List<String> findNicknamesBySurveyPostId(@Param("surveyPostId") SurveyPost surveyPost);
 
     UserSurveyResponse findBySurveyPostIdAndUserId(Long surveyPostId, Long userId);
+
+    boolean existsBySurveyPostIdAndUserId(Long surveyPostId, Long userId);
 }

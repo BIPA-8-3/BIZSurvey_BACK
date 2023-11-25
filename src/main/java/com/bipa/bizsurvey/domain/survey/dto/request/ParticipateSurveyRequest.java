@@ -9,15 +9,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParticipateSurvey {
+public class ParticipateSurveyRequest {
 
+    private Long questionId;
 
     private String answer;
 
     private AnswerType answerType;
 
-    private Long questionId;
-
-
+    private String url;
 
 }
