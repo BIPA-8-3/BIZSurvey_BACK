@@ -2,8 +2,10 @@ package com.bipa.bizsurvey.domain.admin.application;
 
 import com.bipa.bizsurvey.domain.admin.dto.user.UserSearchRequest;
 import com.bipa.bizsurvey.domain.admin.dto.user.AdminUserResponse;
+import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.user.domain.QUser;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -31,6 +33,11 @@ public class AdminUserService {
 
         BooleanBuilder conditions = buildConditions(userSearchRequest);
 
+        long totalCount = jpaQueryFactory
+                .select(qUser)
+                .from(qUser)
+                .where(qUser.delFlag.eq(false))
+                .stream().count();
 
         List<User> users = jpaQueryFactory
                 .select(qUser)
@@ -44,7 +51,34 @@ public class AdminUserService {
         List<AdminUserResponse> result = users.stream()
                 .map(AdminUserResponse::new)
                 .collect(toList());
-        return new PageImpl<>(result, pageable, result.size());
+        return new PageImpl<>(result, pageable, totalCount);
+    }
+
+    // 회원 목록
+    public Page<?> getPlanUserList(Pageable pageable, Plan plen) {
+
+
+        long totalCount = jpaQueryFactory
+                .select(qUser)
+                .from(qUser)
+                .where(qUser.delFlag.eq(false))
+                .where(qUser.planSubscribe.eq(plen))
+                .stream().count();
+
+        List<User> users = jpaQueryFactory
+                .select(qUser)
+                .from(qUser)
+                .where(qUser.delFlag.eq(false))
+                .where(qUser.planSubscribe.eq(plen))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(qUser.regDate.desc())
+                .fetch();
+
+        List<AdminUserResponse> result = users.stream()
+                .map(AdminUserResponse::new)
+                .collect(toList());
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
     private BooleanExpression emailEq(String email) {
@@ -76,4 +110,6 @@ public class AdminUserService {
 
         return conditions;
     }
+    
+    
 }

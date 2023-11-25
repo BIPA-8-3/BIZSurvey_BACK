@@ -23,6 +23,7 @@ public class JwtProcess {
                 .withExpiresAt(new Date(System.currentTimeMillis() + JwtVO.EXPIRATION_TIME))
                 .withClaim("id", loginUser.getLoginInfoRequest().getId())
                 .withClaim("nickname", loginUser.getLoginInfoRequest().getNickname())
+                .withClaim("email", loginUser.getLoginInfoRequest().getEmail())
                 .withClaim("role", loginUser.getLoginInfoRequest().getPlanSubscribe() + "")
                 .sign(Algorithm.HMAC512(JwtVO.SECRET));
         return JwtVO.TOKEN_PREFIX + jwtToken;
@@ -48,7 +49,8 @@ public class JwtProcess {
         Long id = decodedJWT.getClaim("id").asLong();
         String nickname = decodedJWT.getClaim("nickname").asString();
         String role = decodedJWT.getClaim("role").asString();
-        LoginInfoRequest user = LoginInfoRequest.builder().id(id).nickname(nickname).planSubscribe(Plan.valueOf(role)).build();
+        String email = decodedJWT.getClaim("email").toString();
+        LoginInfoRequest user = LoginInfoRequest.builder().id(id).email(email).nickname(nickname).planSubscribe(Plan.valueOf(role)).build();
         return new LoginUser(user);
     }
 }

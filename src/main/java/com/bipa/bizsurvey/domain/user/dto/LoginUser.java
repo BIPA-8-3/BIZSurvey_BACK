@@ -83,4 +83,8 @@ public class LoginUser implements UserDetails, OAuth2User {
         return String.valueOf(loginInfoRequest.getPlanSubscribe());
     }
 
+    public String getEmail(){
+        return loginInfoRequest.getEmail();
+    }
+
 }

@@ -64,7 +64,6 @@ public class UserController {
     @GetMapping("/user/info")
     public ResponseEntity<?> userInfo(@AuthenticationPrincipal LoginUser loginUser){
         UserInfoResponse infoResponse = userService.userInfo(loginUser.getId());
-        System.out.println(loginUser.getNickname());
         return ResponseEntity.ok().body(infoResponse);
     }
 
@@ -136,6 +135,13 @@ public class UserController {
     //프로필 업로드
 
     //마이페이지 > 설문 게시물 조회
+    @GetMapping("/user/s-community/list")
+    public ResponseEntity<?> userSurveyCommunityList(@PageableDefault(size = 10) Pageable pageable,
+                                               @AuthenticationPrincipal LoginUser loginUser){
+
+        return ResponseEntity.ok().body(userService.getSurveyPostList(pageable, loginUser.getId())); // 200 OK
+    }
+
 
     //마이페이지 > 커뮤니티 게시물 조회
     @GetMapping("/user/community/list")
@@ -146,4 +152,5 @@ public class UserController {
     }
 
     //마이페이지 > 설문 참여 내역 조회
+
 }

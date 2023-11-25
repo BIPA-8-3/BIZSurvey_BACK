@@ -5,7 +5,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.domain.QPost;
+import com.bipa.bizsurvey.domain.community.domain.QSurveyPost;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostResponse;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.community.service.CommentService;
@@ -23,6 +25,7 @@ import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.config.jwt.JwtVO;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,6 +51,8 @@ public class UserService {
     private final JPAQueryFactory jpaQueryFactory;
     private final CommentService commentService;
     public QPost p = new QPost("p");
+
+
     private final RedisService redisService;
     
     public void join(JoinRequest joinDto){
@@ -195,6 +200,59 @@ public class UserService {
         }
 
         return new PageImpl<>(result, pageable, result.size());
+    }
+
+    // 설문 커뮤니티 조회
+    public Page<?> getSurveyPostList(Pageable pageable, Long id){
+        QSurveyPost sp = QSurveyPost.surveyPost;
+
+        long totalCount = jpaQueryFactory
+                .select(p)
+                .from(p)
+                .where(p.postType.eq(PostType.SURVEY))
+                .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
+                .where(p.user.id.eq(id))
+                .stream().count();
+
+
+        List<Tuple> tupleList = jpaQueryFactory.
+                select(
+                        p.id,
+                        p.title,
+                        p.content,
+                        p.count,
+                        p.user.nickname,
+                        p.regDate,
+                        sp.maxMember,
+                        sp.startDateTime,
+                        sp.endDateTime
+                )
+                .from(p)
+                .innerJoin(sp).on(p.id.eq(sp.post.id))
+                .where(p.delFlag.eq(false))
+                .where(p.user.id.eq(id))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        List<SurveyPostResponse> results = new ArrayList<>();
+
+        for(Tuple tuple : tupleList){
+            SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
+                    .postId(tuple.get(p.id))
+                    .title(tuple.get(p.title))
+                    .content(tuple.get(p.content))
+                    .count(tuple.get(p.count))
+                    .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                    .nickname(tuple.get(p.user.nickname))
+                    .maxMember(tuple.get(sp.maxMember))
+                    .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                    .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                    .build();
+            results.add(surveyPostResponse);
+        }
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
 

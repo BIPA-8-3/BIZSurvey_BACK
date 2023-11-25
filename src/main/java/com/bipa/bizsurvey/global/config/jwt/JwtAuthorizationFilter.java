@@ -37,7 +37,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             try {
                 log.debug("디버그 : 토큰이 존재함");
                 String token = request.getHeader(JwtVO.HEADER).replace(JwtVO.TOKEN_PREFIX, "");
-                System.out.println(token);
                 LoginUser loginUser = JwtProcess.verify(token);
                 log.debug("디버그 : 토큰이 검증이 완료됨");
                 // 임시 세션 (UserDetails 타입 or username)
