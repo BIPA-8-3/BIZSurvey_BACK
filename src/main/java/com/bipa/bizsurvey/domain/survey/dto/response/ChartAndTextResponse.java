@@ -5,19 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonalResultResponse {
+public class ChartAndTextResponse {
 
     private Long questionId;
 
-    private String answer;
-
-    private String url;
-
     private AnswerType questionType;
 
-    private AnswerType answerType;
+    private List<ChartAndTextResult> answers;
+
 
 }

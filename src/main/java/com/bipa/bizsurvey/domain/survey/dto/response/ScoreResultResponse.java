@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.survey.dto.response;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,11 +10,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TextResultResponse {
+public class ScoreResultResponse {
 
     private Long questionId;
 
-    private List<String> answers;
-
+    private List<ScoreAnswerCount> answers;
 
 }

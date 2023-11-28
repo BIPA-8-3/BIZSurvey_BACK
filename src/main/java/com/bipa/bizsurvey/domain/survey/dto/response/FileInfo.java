@@ -1,18 +1,15 @@
 package com.bipa.bizsurvey.domain.survey.dto.response;
 
-
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SurveyListResponse {
+public class FileInfo {
 
-    private Long surveyId;
+    private String filename;
 
-    private String title;
-
+    private String url;
 }
