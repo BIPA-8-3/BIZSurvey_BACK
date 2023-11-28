@@ -22,6 +22,20 @@ spring:
   config:
     activate:
       on-profile: common
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 10000
+          starttls:
+            enable: true
+        mime:
+          charset: UTF-8
 
 cloud:
   aws:
@@ -35,6 +49,19 @@ cloud:
       auto: ${BUCKET_REGION_AUTO}
     stack:
       auto: ${BUCKET_STACK}
+
+logging:
+  level:
+    org.hibernate:
+      type:
+        descriptor.sql: trace
+
+AES:
+  PRIVATE_KEY: ${PRIVATE_KEY}
+
+domain:
+  backend: bizsurvey.shop/api/
+  frontend: bizsurvey.shop
 
 ---
 
@@ -52,21 +79,17 @@ spring:
     hibernate.ddl-auto: update
     show-sql: true
     properties:
-      hibernate.format_sql: true
-      hibernate.default_batch_fetch_size: 100
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        use_sql_comments: true
+        show_sql: true
     sql.init.mode: alway
   redis:
     host: localhost
     port: 6379
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USER_NAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-
+    topic:
+      expired: __keyevent@*__:expired
 
 ---
 
