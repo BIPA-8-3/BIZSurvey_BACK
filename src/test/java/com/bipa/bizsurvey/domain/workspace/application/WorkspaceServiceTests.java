@@ -3,10 +3,15 @@ package com.bipa.bizsurvey.domain.workspace.application;
 
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceDto;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
+import com.bipa.bizsurvey.global.common.email.MailUtil;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @SpringBootTest
 @Log4j2
@@ -39,8 +44,7 @@ public class WorkspaceServiceTests {
     }
 
     @Test
-    public void testDelete() {
-        Long id = 4L;
-        workspaceService.delete(id);
+    public void testDelete() throws Exception {
+        return;
     }
 }

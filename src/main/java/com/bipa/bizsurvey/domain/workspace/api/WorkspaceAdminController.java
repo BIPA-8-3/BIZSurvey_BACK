@@ -15,7 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/workspace/admin")
 @Log4j2

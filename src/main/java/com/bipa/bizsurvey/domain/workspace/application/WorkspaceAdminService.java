@@ -19,6 +19,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,9 @@ public class WorkspaceAdminService {
     private final MailUtil mailUtil;
     private static final String TOKEN_PREFIX = "INVITE-";
     private static final Long TOKEN_VALID_TIME_SECONDS = 60 * 60 * 24 * 3L;
+
+    @Value("${domain.backend}")
+    private String backendAddress;
 
     public WorkspaceAdminDto.Response invite(WorkspaceAdminDto.InviteRequest request) throws Exception {
         Workspace workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(request.getWorkspaceId())
@@ -69,7 +73,6 @@ public class WorkspaceAdminService {
         return processInvite(workspaceAdmin);
     }
 
-
     private WorkspaceAdminDto.Response processInvite(WorkspaceAdmin workspaceAdmin) throws Exception {
         // send Email
         Workspace workspace = workspaceAdmin.getWorkspace();
@@ -91,7 +94,7 @@ public class WorkspaceAdminService {
 
         emailMessage.put("msg", "초대를 수락하신다면 다음 링크를 눌러주세요. (링크는 3일간 유효합니다.)");
         emailMessage.put("hasLink", true);
-        emailMessage.put("link", "localhost:8080/" + fullToken);
+        emailMessage.put("link", backendAddress + fullToken);
         emailMessage.put("linkText", "입장하기");
 
         mailUtil.sendTemplateMail(emailMessage);

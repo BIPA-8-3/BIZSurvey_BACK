@@ -56,6 +56,13 @@ logging:
       type:
         descriptor.sql: trace
 
+AES:
+  PRIVATE_KEY: ${PRIVATE_KEY}
+
+domain:
+  backend: bizsurvey.shop/api/
+  frontend: bizsurvey.shop
+
 ---
 
 spring:

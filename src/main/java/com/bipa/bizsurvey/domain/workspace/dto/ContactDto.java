@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.workspace.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.security.core.parameters.P;
 
 public class ContactDto {
     @Data
@@ -33,5 +34,11 @@ public class ContactDto {
         private String name;
         private String email;
         private String remark;
+    }
+
+    @Data
+    public static class SharedRequest {
+        private Long id;
+        private String email;
     }
 }

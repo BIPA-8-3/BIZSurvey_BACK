@@ -17,7 +17,6 @@ import javax.persistence.*;
 @Table(name = "survey")
 public class Survey extends BaseEntity {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "survey_id")
@@ -31,7 +30,6 @@ public class Survey extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private SurveyType surveyType;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")
