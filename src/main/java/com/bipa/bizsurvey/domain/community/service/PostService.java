@@ -15,6 +15,7 @@ import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Transactional
@@ -118,7 +117,7 @@ public class PostService {
                 .select(p)
                 .from(p)
                 .where(p.delFlag.eq(false))
-                .where(p.reported.eq(false)) 
+                .where(p.reported.eq(false))
                 .where(p.postType.eq(PostType.COMMUNITY))
                 .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
                         .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
@@ -168,7 +167,7 @@ public class PostService {
 
 
     // 게시물 수정
-   // /community/updatePost/{post_id}
+    // /community/updatePost/{post_id}
     public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
 
         if(updatePostRequest.getAddImgUrlList() != null){
@@ -200,15 +199,39 @@ public class PostService {
         );
     }
 
+    // 상위 50개를 찾아오는 post 메소드
+    public List<String> findPostTitle(){
+
+        Set<String> set = new HashSet<>();
+
+        List<Tuple> tuples = jpaQueryFactory
+                .selectDistinct(p.title, p.count)
+                .from(p)
+                .where(p.delFlag.eq(false).and(p.reported.eq(false)))
+                .orderBy(p.count.desc())
+                .limit(50)
+                .fetch();
+
+        for (Tuple tuple : tuples) {
+            set.add(tuple.get(p.title));
+        }
+
+        System.out.println();
+
+        return new ArrayList<String>(set);
+    }
+
+
+
     public Post checkPermission(Long userId, Long postId) {
 
-            Post post = findPost(postId);
+        Post post = findPost(postId);
 
-            if(!Objects.equals(userId, post.getUser().getId())){
-                throw new UserException(UserExceptionType.NO_PERMISSION);
-            }
+        if(!Objects.equals(userId, post.getUser().getId())){
+            throw new UserException(UserExceptionType.NO_PERMISSION);
+        }
 
-            return post;
+        return post;
     }
 
     public void checkAvailable(Post post){
