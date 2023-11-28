@@ -22,7 +22,6 @@ import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,7 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+
 
 @Service
 @Transactional
