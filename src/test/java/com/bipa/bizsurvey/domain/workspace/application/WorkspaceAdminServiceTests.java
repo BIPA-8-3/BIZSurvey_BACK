@@ -27,8 +27,8 @@ public class WorkspaceAdminServiceTests {
     @Test
     public void testAcceptInvite() {
         WorkspaceAdminDto.AcceptRequest request = new WorkspaceAdminDto.AcceptRequest();
-        String token = "6_5jJVLPfTCtL9uY2rEmU";
-
+        String token ="test";
+        
         request.setToken("INVITE-" + token);
         request.setUserId(3L);
 
