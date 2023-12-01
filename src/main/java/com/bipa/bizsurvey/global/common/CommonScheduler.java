@@ -21,7 +21,7 @@ public class CommonScheduler {
     @Scheduled(cron = "0 30 15 ? * TUE")
     public void autoUpdate() {
         List<String> postTitles = postService.findPostTitle();
-        redisService.saveData("searchTitles", postTitles);
+        redisService.saveData("searchTitles", postTitles, 1L);
         log.info("스케줄러 동작");
     }
 
