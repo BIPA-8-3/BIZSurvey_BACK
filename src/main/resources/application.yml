@@ -118,7 +118,7 @@ spring:
 
 bizLog:
   logging:
-    dir: C://logs/spring-boot-log/bizSurveyAppLog
+    dir: ${SPRING_LOGGING_DIR}
     level: INFO
 
 

@@ -5,7 +5,7 @@
     <springProperty scope="context" name="LOG_LEVEL" source="bizLog.logging.level"/>
     <springProperty scope="context" name="LOG_DIR" source="bizLog.logging.dir"/>
 
-    <!-- 콘솔에 로그를 남깁니다. -->
+
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
@@ -15,7 +15,7 @@
         </encoder>
     </appender>
 
-    <!-- 파일에 로그를 남깁니다. -->
+
     <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/application.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -31,13 +31,13 @@
         </rollingPolicy>
     </appender>
 
-    <!-- 나머지 설정 생략 -->
+
 
     <!-- DEBUG 레벨 로그를 Console, File, RollingFile에 남깁니다. ERROR 인 경우 bamdule-error.log에 남깁니다. -->
     <root level="${LOG_LEVEL}">
         <appender-ref ref="Console"/>
         <appender-ref ref="File"/>
-        <!-- 나머지 설정 생략 -->
+
     </root>
 
 </configuration>
