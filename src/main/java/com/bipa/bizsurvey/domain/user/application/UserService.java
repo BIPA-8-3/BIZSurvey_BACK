@@ -10,7 +10,7 @@ import com.bipa.bizsurvey.domain.community.dto.response.post.PostResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostResponse;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
-import com.bipa.bizsurvey.domain.community.service.CommentService;
+import com.bipa.bizsurvey.domain.community.application.CommentService;
 import com.bipa.bizsurvey.domain.user.domain.Claim;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserClaimResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
