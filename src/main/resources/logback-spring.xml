@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- application.yml에 정의한 log level, dir 데이터를 정의합니다 -->
+    <springProperty scope="context" name="LOG_LEVEL" source="bizLog.logging.level"/>
+    <springProperty scope="context" name="LOG_DIR" source="bizLog.logging.dir"/>
+
+    <!-- 콘솔에 로그를 남깁니다. -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n
+            </Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 파일에 로그를 남깁니다. -->
+    <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/application.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss} [%-5level] %logger{36} - %msg%n
+            </Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/bizSurveyTest/test.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 나머지 설정 생략 -->
+
+    <!-- DEBUG 레벨 로그를 Console, File, RollingFile에 남깁니다. ERROR 인 경우 bamdule-error.log에 남깁니다. -->
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="File"/>
+        <!-- 나머지 설정 생략 -->
+    </root>
+
+</configuration>

@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.service;
+package com.bipa.bizsurvey.domain.community.application;
 
 import com.bipa.bizsurvey.domain.community.domain.*;
 import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteAnswerRequest;

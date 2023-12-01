@@ -115,6 +115,14 @@ spring:
     topic:
       expired: __keyevent@*__:expired
 
+
+bizLog:
+  logging:
+    dir: C://logs/spring-boot-log/bizSurveyAppLog
+    level: INFO
+
+
+
 ---
 
 spring:

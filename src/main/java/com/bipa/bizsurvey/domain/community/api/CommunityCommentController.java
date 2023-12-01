@@ -2,7 +2,7 @@ package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.dto.request.comment.CreateCommentRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.comment.UpdateCommentRequest;
-import com.bipa.bizsurvey.domain.community.service.CommentService;
+import com.bipa.bizsurvey.domain.community.application.CommentService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
