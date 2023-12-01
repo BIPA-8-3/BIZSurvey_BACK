@@ -22,50 +22,20 @@ spring:
   config:
     activate:
       on-profile: common
-
-cloud:
-  aws:
-    s3:
-      bucket: ${BUCKET_NAME}
-    credentials:
-      accessKey: ${BUCKET_ACCESSKEY}
-      secretKey: ${BUCKET_SECRETKEY}
-    region:
-      static: ${BUCKET_REGION}
-      auto: ${BUCKET_REGION_AUTO}
-    stack:
-      auto: ${BUCKET_STACK}
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: development_database
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    defer-datasource-initialization: true
-    hibernate.ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate.format_sql: true
-      hibernate.default_batch_fetch_size: 100
-    sql.init.mode: alway
-  redis:
-    host: localhost
-    port: 6379
   mail:
     host: smtp.gmail.com
     port: 587
     username: ${MAIL_USER_NAME}
     password: ${MAIL_PASSWORD}
     properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+      mail:
+        smtp:
+          auth: true
+          timeout: 10000
+          starttls:
+            enable: true
+        mime:
+          charset: UTF-8
   security:
     oauth2:
       client:
@@ -91,6 +61,59 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET_NAME}
+    credentials:
+      accessKey: ${BUCKET_ACCESSKEY}
+      secretKey: ${BUCKET_SECRETKEY}
+    region:
+      static: ${BUCKET_REGION}
+      auto: ${BUCKET_REGION_AUTO}
+    stack:
+      auto: ${BUCKET_STACK}
+
+logging:
+  level:
+    org.hibernate:
+      type:
+        descriptor.sql: trace
+
+AES:
+  PRIVATE_KEY: ${PRIVATE_KEY}
+
+domain:
+  backend: bizsurvey.shop/api/
+  frontend: bizsurvey.shop
+  
+---
+
+spring:
+  config:
+    activate:
+      on-profile: development_database
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    defer-datasource-initialization: true
+    hibernate.ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        use_sql_comments: true
+        show_sql: true
+    sql.init.mode: alway
+  redis:
+    host: localhost
+    port: 6379
+    topic:
+      expired: __keyevent@*__:expired
 
 ---
 

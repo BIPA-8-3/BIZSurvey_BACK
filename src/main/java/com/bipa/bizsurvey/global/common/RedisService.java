@@ -3,16 +3,17 @@ package com.bipa.bizsurvey.global.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -54,15 +55,16 @@ public class RedisService {
         return (String) valueOperations.get(key);
     }
 
-    public Set<String> scanKeys(String pattern) {
-        ScanOptions options = ScanOptions.scanOptions().match(pattern).build();
-        Cursor<byte[]> cursor = redisTemplate.getConnectionFactory().getConnection().scan(options);
-
-        Set<String> keys = new HashSet<>();
-        while (cursor.hasNext()) {
-            keys.add(new String(cursor.next()));
+    public void validateDataExists(String key) {
+        if(!redisTemplate.hasKey(key)) {
+            throw new RuntimeException("유효하지 않은 key값 입니다.");
         }
-
-        return keys;
     }
+    public void deleteData(String key) {
+        redisTemplate.delete(key);
+    }
+    public RedisTemplate<String, Object> getRedisTemplate() {
+        return this.redisTemplate;
+    }
+
 }

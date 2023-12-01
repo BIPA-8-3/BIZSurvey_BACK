@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
     List<Survey> findAllByWorkspaceId(Long workspaceId);
@@ -21,4 +22,6 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
             ") subquery ON s.workspace_id = subquery.workspace_id " +
             "WHERE s.del_flag = false AND subquery.workspace_id IS NOT NULL", nativeQuery = true)
     List<Object[]> getSurveyList(@Param("userId") Long userId);
+
+    Optional<Survey> findByIdAndDelFlagFalse(Long id);
 }
