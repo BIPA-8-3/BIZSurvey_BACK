@@ -36,7 +36,6 @@ public class UserExceptionHandler {
             ExceptionDto errorDto = new ExceptionDto(400, HttpStatus.BAD_REQUEST, fieldError.getField()+" : "+ fieldError.getDefaultMessage());
             errorDtoList.add(errorDto);
         }
-
-        return ResponseEntity.ok().body(errorDtoList);
+        return ResponseEntity.badRequest().body(errorDtoList);
     }
 }

@@ -1,7 +1,13 @@
 package com.bipa.bizsurvey.global.config.jwt;
 
+import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.exception.UserException;
+import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
+import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.util.CustomResponseUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -18,15 +24,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private AuthenticationManager authenticationManager;
+    private RedisService redisService;
+    private UserRepository userRepository;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, RedisService redisService, UserRepository userRepository) {
         super(authenticationManager);
         setFilterProcessesUrl("/login");
         this.authenticationManager = authenticationManager;
+        this.redisService = redisService;
+        this.userRepository = userRepository;
     }
 
     // Post : /api/login
@@ -36,15 +51,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.debug("디버그 : attemptAuthentication 호출됨");
         try {
             ObjectMapper om = new ObjectMapper();
-            LoginRequest loginRequestReqDto = om.readValue(request.getInputStream(), LoginRequest.class);
-            System.out.println(loginRequestReqDto);
-            // 강제 로그인
+            LoginRequest loginInfoRequestReqDto = om.readValue(request.getInputStream(), LoginRequest.class);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginRequestReqDto.getEmail(), loginRequestReqDto.getPassword());
+                    loginInfoRequestReqDto.getEmail(), loginInfoRequestReqDto.getPassword());
 
-            // UserDetailsService의 loadUserByUsername 호출
-            // JWT를 쓴다 하더라도, 컨트롤러 진입을 하면 시큐리티의 권한체크, 인증체크의 도움을 받을 수 있게 세션을 만든다.
-            // 이 세션의 유효기간은 request하고, response하면 끝!!
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
             return authentication;
         } catch (Exception e) {
@@ -59,15 +69,43 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         CustomResponseUtil.fail(response, "로그인 실패");
     }
 
-    // return authentication 잘 작동하면 successfulAuthentication 메서드 호출됩니다.
+    // return authentication 잘 작동하면 successfulAuthentication 메서드 호출
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-        log.debug("디버그 : successfulAuthentication 호출됨");
+
         LoginUser loginUser = (LoginUser) authResult.getPrincipal();
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
+
+        String dateTimeString = user.getForbiddenDate();
+
+        if ("forbidden".equals(dateTimeString)) {
+            CustomResponseUtil.fail(response, "영구 정지");
+            return;
+        }
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        if (dateTimeString != null && !dateTimeString.equals("")) {
+            LocalDateTime targetDateTime = LocalDateTime.parse(dateTimeString, formatter);
+
+            if (currentDateTime.isBefore(targetDateTime)) {
+                CustomResponseUtil.fail(response, "정지");
+                return;
+            }
+        }
+
+        user.forbiddenDateUpdate("");
+        userRepository.save(user);
+
         String jwtToken = JwtProcess.create(loginUser);
         response.addHeader(JwtVO.HEADER, jwtToken);
-        CustomResponseUtil.success(response, "로그인 성공");
-    }
 
+        String refreshToken = JwtProcess.refreshCreate(loginUser, redisService);
+        response.addHeader(JwtVO.REFRESH_HEADER, refreshToken);
+
+        CustomResponseUtil.success(response, "로그인 성공", jwtToken, refreshToken);
+    }
 }

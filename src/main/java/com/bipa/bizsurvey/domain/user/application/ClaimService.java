@@ -45,14 +45,14 @@ public class ClaimService {
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
 
 
-        // 댓글이 신고된 경우
+            // 댓글이 신고된 경우
         }else if(claimRequest.getClaimType() == ClaimType.COMMENT){
             Comment comment = commentService.findComment(claimRequest.getId());
             comment.updateReported(); // 신고된 댓글
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
 
 
-        // 대댓글이 신고된 경우
+            // 대댓글이 신고된 경우
         } else if (claimRequest.getClaimType() == ClaimType.CHILD_COMMENT) {
             ChildComment childComment = childCommentService.findChildComment(claimRequest.getId());
             childComment.updateReported(); // 신고된 대댓글
