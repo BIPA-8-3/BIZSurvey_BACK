@@ -50,6 +50,11 @@ public class RedisService {
         }
     }
 
+    public String getData(String key) {
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        return (String) valueOperations.get(key);
+    }
+
     public void validateDataExists(String key) {
         if(!redisTemplate.hasKey(key)) {
             throw new RuntimeException("유효하지 않은 key값 입니다.");

@@ -1,10 +1,10 @@
 package com.bipa.bizsurvey.domain.user.application;
 
+import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.user.dto.LoginRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,10 +12,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class LoginService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     // 시큐리티로 로그인이 될때, 시큐리티가 loadUserByUsername() 실행해서 username을 체크!!
     // 없으면 오류
@@ -25,14 +25,14 @@ public class LoginService implements UserDetailsService {
         User userPS = userRepository.findByEmail(username).orElseThrow(
                 () -> new InternalAuthenticationServiceException("인증 실패"));
 
-        LoginRequest loginRequestDTO = LoginRequest.builder()
+        LoginInfoRequest loginInfoRequestDTO = LoginInfoRequest.builder()
                 .id(userPS.getId())
                 .email(userPS.getEmail())
                 .nickname(userPS.getNickname())
                 .password(userPS.getPassword())
                 .planSubscribe(userPS.getPlanSubscribe())
                 .build();
-        return new LoginUser(loginRequestDTO);
+        return new LoginUser(loginInfoRequestDTO);
     }
 
 }
