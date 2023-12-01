@@ -3,7 +3,7 @@ package com.bipa.bizsurvey.domain.community.api;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.CreateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
-import com.bipa.bizsurvey.domain.community.service.SurveyPostService;
+import com.bipa.bizsurvey.domain.community.application.SurveyPostService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.service;
+package com.bipa.bizsurvey.domain.community.application;
 
 import com.bipa.bizsurvey.domain.community.domain.Comment;
 import com.bipa.bizsurvey.domain.community.domain.Post;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.AbstractDocument;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
