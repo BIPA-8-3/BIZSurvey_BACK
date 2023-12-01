@@ -40,14 +40,14 @@ public class AdminController {
     }
 
     //회원목록 상세
-    @GetMapping("/users/{id}")
+    @GetMapping("/user/{id}")
     public ResponseEntity<?> getOneUser(@PathVariable Long id){
         UserInfoResponse infoResponse = userService.userInfo(id);
         return ResponseEntity.ok().body(infoResponse);
     }
 
     //플랜 회원 조회
-    @GetMapping("/users/{plan}")
+    @GetMapping("/user/plan/{plan}")
     public ResponseEntity<?> planUser(@PageableDefault(size = 10) Pageable pageable,
                                       @PathVariable Plan plan){
 
