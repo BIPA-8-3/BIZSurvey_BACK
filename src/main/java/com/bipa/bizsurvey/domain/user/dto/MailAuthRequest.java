@@ -9,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 public class MailAuthRequest {
-
     @Email
     private String email;
 

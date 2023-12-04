@@ -3,9 +3,9 @@ package com.bipa.bizsurvey.domain.user.application;
 import com.bipa.bizsurvey.domain.community.domain.ChildComment;
 import com.bipa.bizsurvey.domain.community.domain.Comment;
 import com.bipa.bizsurvey.domain.community.domain.Post;
-import com.bipa.bizsurvey.domain.community.service.ChildCommentService;
-import com.bipa.bizsurvey.domain.community.service.CommentService;
-import com.bipa.bizsurvey.domain.community.service.PostService;
+import com.bipa.bizsurvey.domain.community.application.ChildCommentService;
+import com.bipa.bizsurvey.domain.community.application.CommentService;
+import com.bipa.bizsurvey.domain.community.application.PostService;
 import com.bipa.bizsurvey.domain.user.domain.Claim;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.claim.ClaimRequest;
@@ -45,14 +45,14 @@ public class ClaimService {
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
 
 
-        // 댓글이 신고된 경우
+            // 댓글이 신고된 경우
         }else if(claimRequest.getClaimType() == ClaimType.COMMENT){
             Comment comment = commentService.findComment(claimRequest.getId());
             comment.updateReported(); // 신고된 댓글
             saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
 
 
-        // 대댓글이 신고된 경우
+            // 대댓글이 신고된 경우
         } else if (claimRequest.getClaimType() == ClaimType.CHILD_COMMENT) {
             ChildComment childComment = childCommentService.findChildComment(claimRequest.getId());
             childComment.updateReported(); // 신고된 대댓글

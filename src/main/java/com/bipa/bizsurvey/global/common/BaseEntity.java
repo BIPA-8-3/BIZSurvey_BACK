@@ -1,5 +1,7 @@
 package com.bipa.bizsurvey.global.common;
 
+import com.bipa.bizsurvey.domain.community.domain.Post;
+import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import lombok.Getter;
 
 import lombok.Setter;
@@ -31,4 +33,8 @@ public abstract class BaseEntity {
     @ColumnDefault("false")
     @Column(insertable = false)
     private Boolean delFlag;
+
+    public void delete() {
+        this.delFlag = true;
+    }
 }

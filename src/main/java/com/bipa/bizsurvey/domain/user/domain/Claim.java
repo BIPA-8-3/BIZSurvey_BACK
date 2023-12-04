@@ -3,11 +3,10 @@ package com.bipa.bizsurvey.domain.user.domain;
 
 import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
 import com.bipa.bizsurvey.domain.user.enums.ClaimType;
+import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.global.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -39,11 +38,23 @@ public class Claim extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Setter
+    @ColumnDefault("false")
+    @Column(insertable = false)
+    private Boolean processing;
+
+    @Column(nullable = false)
+    private Long penalized;
+
     @Builder
     public Claim(ClaimType claimType, Long logicalKey, ClaimReason claimReason, User user) {
         this.claimType = claimType;
         this.logicalKey = logicalKey;
         this.claimReason = claimReason;
         this.user = user;
+    }
+
+    public void claimProcessing(){
+        this.processing = true;
     }
 }

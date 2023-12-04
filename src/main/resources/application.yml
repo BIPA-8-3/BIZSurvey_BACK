@@ -22,6 +22,44 @@ spring:
   config:
     activate:
       on-profile: common
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER_NAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 10000
+          starttls:
+            enable: true
+        mime:
+          charset: UTF-8
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            authorization-grant-type: authorization_code
+            client-authentication-method: POST
+            client-name: Kakao
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+              - gender
+              - age_range
+              - birthday
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
 
 cloud:
   aws:
@@ -36,6 +74,19 @@ cloud:
     stack:
       auto: ${BUCKET_STACK}
 
+logging:
+  level:
+    org.hibernate:
+      type:
+        descriptor.sql: trace
+
+AES:
+  PRIVATE_KEY: ${PRIVATE_KEY}
+
+domain:
+  backend: bizsurvey.shop/api/
+  frontend: bizsurvey.shop
+  
 ---
 
 spring:
@@ -52,20 +103,24 @@ spring:
     hibernate.ddl-auto: update
     show-sql: true
     properties:
-      hibernate.format_sql: true
-      hibernate.default_batch_fetch_size: 100
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        use_sql_comments: true
+        show_sql: true
     sql.init.mode: alway
   redis:
     host: localhost
     port: 6379
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USER_NAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+    topic:
+      expired: __keyevent@*__:expired
+
+
+bizLog:
+  logging:
+    dir: ${SPRING_LOGGING_DIR}
+    level: INFO
+
 
 
 ---

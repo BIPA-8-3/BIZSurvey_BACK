@@ -1,7 +1,7 @@
 package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteRequest;
-import com.bipa.bizsurvey.domain.community.service.VoteService;
+import com.bipa.bizsurvey.domain.community.application.VoteService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

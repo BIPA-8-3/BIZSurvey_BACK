@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.domain.community.dto.response.comment.CommentResponse;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,5 +23,6 @@ public class SurveyPostResponse {
     private String startDateTime;
     private String endDateTime;
     private List<CommentResponse> commentList;
+    private String canAccess;
 
 }
