@@ -16,7 +16,7 @@ public class QuestionResponse {
 
     private String surveyQuestion;
 
-    private AnswerType answerType;
+    private String answerType;
 
     private int score;
 
