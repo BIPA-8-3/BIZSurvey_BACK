@@ -85,9 +85,9 @@ public class SurveyService {
         return surveyDto;
     }
 
-    public void createSurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser, Long workspaceId){
-        checkPermission(loginUser, workspaceId);
-        Long surveyId = addSurvey(createSurveyRequest, loginUser, workspaceId);
+    public void createSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId){
+//        checkPermission(loginUser, workspaceId);
+        Long surveyId = addSurvey(createSurveyRequest,  workspaceId);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
         // 질문 수 체크
         if (questionRequests.size() > 40){
@@ -115,8 +115,11 @@ public class SurveyService {
 
 
     // create survey & check permission
-    private Long addSurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser, Long workspaceId){
-        User user = userRepository.findById(loginUser.getId()).orElseThrow();
+    private Long addSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId){
+//        User user = userRepository.findById(loginUser.getId()).orElseThrow();
+        User user = User.builder()
+                .id(1L)
+                .build();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
