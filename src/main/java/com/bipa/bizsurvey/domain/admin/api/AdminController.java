@@ -56,9 +56,8 @@ public class AdminController {
 
     //커뮤니티 목록
     @GetMapping("/community")
-    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable,
-                                         @RequestParam(required = false) String fieldName){
-        return ResponseEntity.ok().body(postService.getPostList(pageable, fieldName));
+    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable){
+        return ResponseEntity.ok().body(postService.getPostList(pageable));
     }
 
     //설문 커뮤니티 목록

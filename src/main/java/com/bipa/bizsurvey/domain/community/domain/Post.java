@@ -63,6 +63,7 @@ public class Post extends BaseEntity {
                 .content(createPostRequest.getContent())
                 .postType(postType)
                 .user(user)
+
                 .build();
     }
 

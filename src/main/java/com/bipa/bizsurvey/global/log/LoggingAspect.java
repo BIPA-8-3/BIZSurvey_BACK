@@ -27,15 +27,32 @@ public class LoggingAspect {
 
     @Before("cut()")
     public void beforeParameterLog(JoinPoint joinPoint){
+        if (joinPoint == null) {
+            log.error("joinPoint is null");
+            return;
+        }
+
         Method method = getMethod(joinPoint);
+        if (method == null) {
+            log.error("Method is null");
+            return;
+        }
+
         log.info("=====method name = {} =====", method.getName());
 
         Object[] args = joinPoint.getArgs();
-        if(args.length == 0)
+        if (args == null || args.length == 0) {
             log.info("no parameter");
-        for (Object arg : args){
-            log.info("parameter type = {}", arg.getClass().getSimpleName());
-            log.info("parameter value = {}", arg);
+            return;
+        }
+
+        for (Object arg : args) {
+            if (arg == null) {
+                log.info("parameter is null");
+            } else {
+                log.info("parameter type = {}", arg.getClass().getSimpleName());
+                log.info("parameter value = {}", arg);
+            }
         }
 
     }
