@@ -21,4 +21,7 @@ public class PostResponse {
     // 투표 생성 여부 추가
     private Long voteId;
 
+    // 댓글 사이즈
+    private int commentSize;
+
 }

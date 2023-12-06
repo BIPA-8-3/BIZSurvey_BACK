@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.community.application;
 
+import com.bipa.bizsurvey.domain.community.domain.Comment;
 import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.domain.QPost;
 import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
@@ -11,6 +12,7 @@ import com.bipa.bizsurvey.domain.community.enums.CreateType;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
+import com.bipa.bizsurvey.domain.community.repository.CommentRepository;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
@@ -158,7 +160,7 @@ public class PostService {
                     .content(post.getContent())
                     .count(post.getCount())
                     .nickname(post.getUser().getNickname())
-                    .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
+                    .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                     .build();
             result.add(postResponse);
         }
@@ -176,15 +178,18 @@ public class PostService {
         Post post = findPost(postId);
         checkAvailable(post);
         post.addCount(); // 조회수 증가
+
         return PostResponse.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .count(post.getCount())
                 .nickname(post.getUser().getNickname())
-                .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm"))) // TODO : 이 양식으로 전부 추가
+                .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))) // TODO : 이 양식으로 전부 추가
                 .commentList(commentService.getCommentList(postId))
                 .imageResponseList(postImageService.getImageList(postId))
+                .voteId(post.getVoteId())
+                .commentSize(commentService.getCommentList(postId).size())
                 .build();
     }
 

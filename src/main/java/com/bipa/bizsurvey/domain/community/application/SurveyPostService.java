@@ -146,7 +146,7 @@ public class SurveyPostService {
                 .innerJoin(sp).on(p.id.eq(sp.post.id))
                 .where(p.delFlag.eq(false))
                 .orderBy(sp.score.desc())
-                .orderBy(sortByField(fieldName))
+                .orderBy(p.reported.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
