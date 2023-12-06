@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,7 +15,7 @@ public class ParticipateSurveyRequest {
 
     private Long questionId;
 
-    private String answer;
+    private List<String> answer;
 
     private AnswerType answerType;
 

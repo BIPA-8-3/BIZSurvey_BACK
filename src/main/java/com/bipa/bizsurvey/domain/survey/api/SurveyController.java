@@ -43,9 +43,9 @@ public class SurveyController {
     //설문지 등록
     @PostMapping("/{workspaceId}")
     public ResponseEntity<String> createSurvey(@RequestBody @Valid CreateSurveyRequest createSurveyRequest,
-//                                               @AuthenticationPrincipal LoginUser loginUser,
+                                               @AuthenticationPrincipal LoginUser loginUser,
                                                @PathVariable Long workspaceId) {
-        surveyService.createSurvey(createSurveyRequest, workspaceId);
+        surveyService.createSurvey(createSurveyRequest, workspaceId, loginUser);
         return ResponseEntity.ok().body("설문지 등록이 완료되었습니다.");
     }
 
