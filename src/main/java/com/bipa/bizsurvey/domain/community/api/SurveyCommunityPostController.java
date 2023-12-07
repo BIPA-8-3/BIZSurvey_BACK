@@ -31,7 +31,7 @@ public class SurveyCommunityPostController {
 
     // 전체 조회
     @GetMapping("")
-    public ResponseEntity<?> getSurveyPostList(@PageableDefault(size = 10)Pageable pageable,
+    public ResponseEntity<?> getSurveyPostList(@PageableDefault(size = 8)Pageable pageable,
                                                @RequestParam(required = false) String fieldName
                                                ){
         return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable, fieldName));

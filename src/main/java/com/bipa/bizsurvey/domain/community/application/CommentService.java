@@ -70,7 +70,7 @@ public class CommentService {
                     .commentId(comment.getId())
                     .content(checkContent(comment))
                     .nickName(comment.getUser().getNickname())
-                    .createTime(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
+                    .createTime(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                     .build();
 
             commentResponseList.add(commentResponse);

@@ -37,11 +37,10 @@ public class CommunityPostController {
 
      //게시물 전체 조회
     @GetMapping("")
-    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable,
-                                         @RequestParam(required = false) String fieldName
+    public ResponseEntity<?> getPostList(@PageableDefault(size = 15) Pageable pageable
                                          ){
 
-        return ResponseEntity.ok().body(postService.getPostList(pageable, fieldName)); // 200 OK
+        return ResponseEntity.ok().body(postService.getPostList(pageable)); // 200 OK
     }
 
     // 게시물 상세 조회
