@@ -37,7 +37,7 @@ public class SurveyCommunityPostController {
         return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable, fieldName));
     }
 
-    ///sCommunity/showSPost/{post_id}
+    ///s-community/showSPost/{post_id}
     @GetMapping("/showPost/{postId}")
     public ResponseEntity<?> showSurveyPost(@PathVariable Long postId){
         return ResponseEntity.ok().body(surveyPostService.getSurveyPost(postId));
