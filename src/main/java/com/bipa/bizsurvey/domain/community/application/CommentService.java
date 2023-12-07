@@ -34,6 +34,8 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final ChildCommentService childCommentService;
+
 
 
     // 댓글 생성
@@ -71,6 +73,7 @@ public class CommentService {
                     .content(checkContent(comment))
                     .nickName(comment.getUser().getNickname())
                     .createTime(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .childCommentResponses(childCommentService.getChildCommentList(comment.getId()))
                     .build();
 
             commentResponseList.add(commentResponse);
