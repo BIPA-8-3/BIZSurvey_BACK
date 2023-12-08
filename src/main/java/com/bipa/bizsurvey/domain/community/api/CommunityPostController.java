@@ -4,6 +4,9 @@ import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.application.PostService;
+import com.bipa.bizsurvey.domain.community.dto.response.post.PostTitleResponse;
+import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
+import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.global.common.RedisService;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +56,7 @@ public class CommunityPostController {
     // 게시물 검색
     @PostMapping("/search")
     public ResponseEntity<?> searchPost(@Valid @RequestBody SearchPostRequest searchPostRequest,
-                                        @PageableDefault(size = 10)Pageable pageable
+                                        @PageableDefault(size = 15)Pageable pageable
                                         ){
 
         return ResponseEntity.ok().body(postService.searchPost(searchPostRequest, pageable));
@@ -79,20 +82,35 @@ public class CommunityPostController {
     // searchTitle
     @PostMapping("/findPostTitle")
     public ResponseEntity<?> findPostTitle(@RequestBody SearchPostRequest searchPostRequest){
-        List<String> titles = redisService.getData("searchTitles", ArrayList.class).get();
-        if(titles.isEmpty()){
-            return ResponseEntity.ok().body("일치하는 결과가 없습니다.");
+
+        if(searchPostRequest.getKeyword().equals("") || searchPostRequest.getKeyword().equals(" ")){
+            return ResponseEntity.ok().body("");
         }
 
-        List<String> answerList = new ArrayList<>();
+
+        List<String> titles = redisService.getData("searchTitles", ArrayList.class)
+                .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
+
+        if(titles.size() == 0){
+            return ResponseEntity.ok().body("");
+        }
+
+
+        List<PostTitleResponse> answerList = new ArrayList<>();
         for (String title : titles) {
             if(title != null && title.contains(searchPostRequest.getKeyword())){
-                answerList.add(title);
+                if(answerList.size() >= 10) {
+                    break;
+                }
+                answerList.add(PostTitleResponse.builder()
+                                .result(title)
+                                .build()
+                );
             }
         }
+
+
+
         return ResponseEntity.ok().body(answerList);
     }
-
-
-
 }
