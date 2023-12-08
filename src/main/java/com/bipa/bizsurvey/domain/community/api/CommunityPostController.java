@@ -54,12 +54,12 @@ public class CommunityPostController {
     }
 
     // 게시물 검색
-    @PostMapping("/search")
-    public ResponseEntity<?> searchPost(@Valid @RequestBody SearchPostRequest searchPostRequest,
+    @GetMapping ("/search")
+    public ResponseEntity<?> searchPost(@RequestParam String keyword,
                                         @PageableDefault(size = 15)Pageable pageable
                                         ){
 
-        return ResponseEntity.ok().body(postService.searchPost(searchPostRequest, pageable));
+        return ResponseEntity.ok().body(postService.searchPost(keyword, pageable));
     }
 
     // update
@@ -90,7 +90,6 @@ public class CommunityPostController {
 
         List<String> titles = redisService.getData("searchTitles", ArrayList.class)
                 .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
-
         if(titles.size() == 0){
             return ResponseEntity.ok().body("");
         }

@@ -126,7 +126,7 @@ public class PostService {
 
 
     // TODO : 신고된 게시물 띄우지 않기로(추가됨)
-    public Page<?> searchPost(SearchPostRequest searchPostRequest, Pageable pageable){
+    public Page<?> searchPost(String keyword, Pageable pageable){
 
         long totalCount = jpaQueryFactory
                 .select(p)
@@ -134,8 +134,8 @@ public class PostService {
                 .where(p.delFlag.eq(false))
                 .where(p.reported.eq(false))
                 .where(p.postType.eq(PostType.COMMUNITY))
-                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
-                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .where(p.content.like("%" + keyword + "%")
+                        .or(p.title.like("%" + keyword + "%")))
                 .stream().count();
 
         List<Post> postList = jpaQueryFactory
@@ -144,8 +144,8 @@ public class PostService {
                 .where(p.delFlag.eq(false))
                 .where(p.reported.eq(false))
                 .where(p.postType.eq(PostType.COMMUNITY))
-                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
-                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .where(p.content.like("%" + keyword + "%")
+                        .or(p.title.like("%" + keyword + "%")))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(p.count.desc())
@@ -227,7 +227,7 @@ public class PostService {
         );
     }
 
-    // 상위 50개를 찾아오는 post 메소드
+    // 조회수 기준 상위 50개 제목을를 찾아오는 post 메소드
     public List<String> findPostTitle(){
 
         Set<String> set = new HashSet<>();
@@ -235,6 +235,7 @@ public class PostService {
         List<Tuple> tuples = jpaQueryFactory
                 .selectDistinct(p.title, p.count)
                 .from(p)
+                .where(p.postType.eq(PostType.COMMUNITY)) // 검색 자동완성이 COMMUNITY 랑 S-COMMUNITY 랑 다르다
                 .where(p.delFlag.eq(false).and(p.reported.eq(false)))
                 .orderBy(p.count.desc())
                 .limit(50)
