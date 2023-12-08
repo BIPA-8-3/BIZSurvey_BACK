@@ -16,7 +16,7 @@ public class SurveyExceptionHandler {
                 exception.getExceptionType().getHttpStatus(),
                 exception.getExceptionType().getErrorMessage()
         );
-        return ResponseEntity.ok().body(exceptionDto);
+        return ResponseEntity.badRequest().body(exceptionDto);
     }
 
 }

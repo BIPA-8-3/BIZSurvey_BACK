@@ -18,6 +18,7 @@ import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class SurveyCommunityService {
 
     private final SurveyPostRepository surveyPostRepository;
@@ -52,8 +54,12 @@ public class SurveyCommunityService {
                 if (b != null && b && survey.getAnswer() == null){
                     throw  new SurveyException(SurveyExceptionType.MISSING_REQUIRED_VALUE);
                 }
-                UserSurveyResponse userSurveyResponse = UserSurveyResponse.toEntity(survey, user, question, surveyPost);
-                userSurveyResponseRepository.save(userSurveyResponse);
+                survey.getAnswer().forEach((answer) -> {
+                    UserSurveyResponse userSurveyResponse = UserSurveyResponse.toEntity(survey, user, question, surveyPost, answer);
+                    userSurveyResponseRepository.save(userSurveyResponse);
+                });
+
+
             }
 
             addCount(postId);
@@ -66,17 +72,20 @@ public class SurveyCommunityService {
 
 
     // 설문 페이지
-    public SurveyResponse getSurvey(Long postId, LoginUser loginUser){
-        //이미 참여한 회원 확인
+    public SurveyResponse getSurvey(Long postId){
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
-        Long userId = loginUser.getId();
-        boolean isExists = userSurveyResponseRepository.existsBySurveyPostIdAndUserId(surveyPost.getId(), userId);
-        if (isExists){
-            throw new SurveyException(SurveyExceptionType.ALREADY_PARTICIPATED);
-        }
 
         return surveyService.getSurvey(surveyPost.getSurvey().getId());
     }
+
+    // 참여 회원 체크
+    public boolean checkUserParticipation(Long postId, LoginUser loginUser){
+        SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
+        Long userId = loginUser.getId();
+        boolean isExists = userSurveyResponseRepository.existsBySurveyPostIdAndUserId(surveyPost.getId(), userId);
+        return isExists;
+    }
+
 
 
     // 설문 게시글 등록 시 본인 설문지 목록
