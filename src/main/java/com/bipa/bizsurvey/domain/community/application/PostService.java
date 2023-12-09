@@ -18,12 +18,14 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -43,6 +46,7 @@ public class PostService {
     private final JPAQueryFactory jpaQueryFactory;
     private final CommentService commentService;
     private final PostImageService postImageService;
+    private final RedisService redisService;
     public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
@@ -69,18 +73,6 @@ public class PostService {
     // TODO : 신고된 게시물 띄우지 않기로(추가해야함)
     // TODO : QueryDSL 로 업데이트
     public Page<?> getPostList(Pageable pageable){
-
-
-        List<Long> postBestIdList = jpaQueryFactory
-                .select(p.id)
-                .from(p)
-                .where(p.delFlag.eq(false))
-                .where(p.reported.eq(false))
-                .where(p.postType.eq(PostType.COMMUNITY))
-                .offset(0)
-                .limit(5)
-                .orderBy(p.count.desc())
-                .fetch();
 
         long totalCount = jpaQueryFactory
                 .select(p)
@@ -113,12 +105,13 @@ public class PostService {
                     .commentSize(commentService.getCommentList(post.getId()).size())
                     .voteId(post.getVoteId())
                     .createType(checkCreateType(post))
+                    .isBest(checkIsBest(post.getId()))
                     .build();
 
             result.add(postTableResponse);
         }
 
-        return new PageImpl<>(checkIsBest(postBestIdList, result), pageable, totalCount);
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
 
@@ -126,6 +119,7 @@ public class PostService {
 
 
     // TODO : 신고된 게시물 띄우지 않기로(추가됨)
+    // TODO : BEST 게시물 ID 뽑는 메소드 분리
     public Page<?> searchPost(String keyword, Pageable pageable){
 
         long totalCount = jpaQueryFactory
@@ -151,18 +145,23 @@ public class PostService {
                 .orderBy(p.count.desc())
                 .fetch();
 
-        List<PostResponse> result = new ArrayList<>();
+        List<PostTableResponse> result = new ArrayList<>();
 
         for(Post post: postList){
-            PostResponse postResponse = PostResponse.builder()
+
+            PostTableResponse postTableResponse = PostTableResponse.builder()
                     .postId(post.getId())
                     .title(post.getTitle())
-                    .content(post.getContent())
                     .count(post.getCount())
                     .nickname(post.getUser().getNickname())
-                    .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .commentSize(commentService.getCommentList(post.getId()).size())
+                    .voteId(post.getVoteId())
+                    .createType(checkCreateType(post))
+                    .isBest(checkIsBest(post.getId()))
                     .build();
-            result.add(postResponse);
+
+            result.add(postTableResponse);
         }
 
 
@@ -259,14 +258,18 @@ public class PostService {
         }
     }
 
-    public List<PostTableResponse> checkIsBest(List<Long> postIdList, List<PostTableResponse> postTableResponses){
-        for (PostTableResponse postTableResponse : postTableResponses) {
-            if (postIdList.contains(postTableResponse.getPostId())) {
-                postTableResponse.setIsBest("best");
-            }
-        }
 
-        return postTableResponses;
+    public String checkIsBest(Long postId){
+        List<Integer> postIdList = redisService.getData("bestCommunityPostId", ArrayList.class)
+                .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
+
+
+        log.info("잘 갖고 오니? {}", postIdList);
+
+        if(postIdList.contains(postId.intValue())){
+            return "best";
+        }
+        return null;
     }
 
 
@@ -293,6 +296,25 @@ public class PostService {
             throw new PostException(PostExceptionType.ALREADY_DELETED);
         }
     }
+
+    // redis에 캐싱함(스케줄러 사용)
+    public List<Long> choseBestCommunityPostId(){
+
+        return jpaQueryFactory
+                .select(p.id)
+                .from(p)
+                .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
+                .where(p.postType.eq(PostType.COMMUNITY))
+                .offset(0)
+                .limit(5)
+                .orderBy(p.count.desc())
+                .fetch();
+    }
+
+
+
+
 
     // 동적 정렬 기능 보류
 
