@@ -24,6 +24,10 @@ public class CommonScheduler {
         log.info("스케줄러 동작");
     }
 
+    @Scheduled(cron = "0 30 15 ? * SAT")
+    public void bestCommunityPostId(){
+        redisService.saveData("bestCommunityPostId", postService.choseBestCommunityPostId());
+    }
 
 
 }
