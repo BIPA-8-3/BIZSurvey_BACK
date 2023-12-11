@@ -7,6 +7,8 @@ import com.bipa.bizsurvey.domain.user.dto.MailAuthRequest;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.global.common.RedisService;
+import com.bipa.bizsurvey.global.common.email.EmailMessage;
+import com.bipa.bizsurvey.global.common.email.MailUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -28,44 +30,60 @@ public class EmailSendService {
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
     private final RedisService redisService;
+    private final MailUtil mailUtil;
 
-    public void authEmail(EmailCheckRequest request){
+    public void authEmail(EmailCheckRequest request) throws Exception {
         Optional<User> emailUser = userRepository.findByEmail(request.getEmail());
         if(emailUser.isPresent()){
             throw new UserException(UserExceptionType.ALREADY_EXIST_EMAIL);
         }
+
         Random random = new Random();
         String authKey = String.valueOf(random.nextInt(888888) + 111111);
-        sendAuthEmail(request.getEmail(), authKey);
+
+        try {
+            sendAuthEmail(request.getEmail(), authKey);
+        } catch (Exception e) {
+            throw new Exception("인증 이메일 전송 중 오류 발생", e);
+        }
     }
 
     public void checkEmail(String email){
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new UserException(UserExceptionType.NON_EXIST_EMAIL)
         );
-
+        if(user.getProvider().equals("kakao")){
+            throw new UserException(UserExceptionType.KAKAO_PROVIDER_CHECK);
+        }
     }
 
-    public void sendAuthEmail(String email, String authKey) {
+    public void sendAuthEmail(String email, String authKey) throws Exception {
         String subject = "[bizSurvey] 인증번호";
         String text = "회원 가입을 위한 인증번호는 " + authKey + "입니다. <br/>";
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setTo(email);
-            helper.setSubject(subject);
-            helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
-        redisService.saveData(authKey, email, 60 * 3L);
+        System.out.println(email);
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(email)
+                .subject(subject)
+                .build();
+
+
+        emailMessage.put("msg", text);
+        emailMessage.put("hasLink", true);
+
+        mailUtil.sendTemplateMail(emailMessage);
+        redisService.saveData(authKey, email, 60 * 60 * 24L);
     }
 
     //사용자가 입력한 인증 번호 체크
     public void authCheck(MailAuthRequest request){
         String value = redisService.getData(request.getAuthNumber());
-        if (value == null || !value.equals(request.getEmail())) {
+        if (value == null) {
+            throw new UserException(UserExceptionType.ALREADY_EXIST_AUTH_NUMBER);
+        }
+        String email = value.replace("\"","");
+        System.out.println(email);
+        System.out.println(request.getAuthNumber());
+        if (!email.equals(request.getEmail())) {
             throw new UserException(UserExceptionType.ALREADY_EXIST_AUTH_NUMBER);
         }
     }
@@ -77,21 +95,20 @@ public class EmailSendService {
         byte[] encryptedBytes = encrypt(email, secretKey);
         String key = Base64.getUrlEncoder().encodeToString(encryptedBytes);
         String subject = "[bizSurvey] 비밀번호 재설정";
-        String text = "<div>"
-                + "<p>아래 링크를 클릭하면 비밀번호를 재설정하세요. <br>"
-                + "(이 링크를 24시간 후 만료되며 한 번만 사용할 수 있습니다.)<p>"
-                + "<a href='http://localhost:8080/email-validation/" + key + "'>인증 링크</a>"
-                + "</div>";
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setTo(email);
-            helper.setSubject(subject);
-            helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+        String text = "아래 링크를 클릭하면 비밀번호를 재설정하세요."
+                + "(이 링크를 24시간 후 만료되며 한 번만 사용할 수 있습니다.)";
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(email)
+                .subject(subject)
+                .build();
+
+        emailMessage.put("msg", text);
+        emailMessage.put("hasLink", true);
+        emailMessage.put("link", "http://localhost:3000/emailValidation/" + key );
+        emailMessage.put("linkText", "비밀번호 변경");
+        mailUtil.sendTemplateMail(emailMessage);
+
         redisService.saveData(key, email, 60L);
     }
 

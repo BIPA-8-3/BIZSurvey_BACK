@@ -6,10 +6,9 @@ import lombok.*;
 
 import java.util.List;
 
-
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class QuestionResponse {
 
     private Long questionId;
@@ -25,6 +24,16 @@ public class QuestionResponse {
     private Boolean isRequired;
 
     private List<AnswerResponse> answers;
+
+//    public QuestionResponse(Long questionId, String surveyQuestion, AnswerType answerType, int score , int step , Boolean isRequired, List<AnswerResponse> answers){
+//        this.questionId = questionId;
+//        this.surveyQuestion = surveyQuestion;
+//        this.answerType = answerType.getValue();
+//        this.step = step;
+//        this.score = score;
+//        this.isRequired = isRequired;
+//        this.answers = answers;
+//    }
 
 
 }

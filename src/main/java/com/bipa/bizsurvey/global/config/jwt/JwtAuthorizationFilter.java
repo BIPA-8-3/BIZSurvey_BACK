@@ -45,7 +45,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication); //Authentication 객체 저장
                 log.debug("디버그 : 임시 세션이 생성됨");
             }catch (TokenExpiredException e){
-                CustomResponseUtil.noLogin(response, "Access 토큰이 만료되었습니다.");
+                CustomResponseUtil.expiry(response, "Access 토큰이 만료되었습니다.");
+                 return;
             }
 
 

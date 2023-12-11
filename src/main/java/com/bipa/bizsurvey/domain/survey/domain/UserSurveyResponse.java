@@ -56,12 +56,13 @@ public class UserSurveyResponse extends BaseEntity {
         this.surveyPost = surveyPost;
     }
 
-    public static UserSurveyResponse toEntity(ParticipateSurveyRequest participateSurvey, User user, Question question, SurveyPost surveyPost){
+    public static UserSurveyResponse toEntity(ParticipateSurveyRequest participateSurvey, User user, Question question, SurveyPost surveyPost, String answer){
         return UserSurveyResponse.builder()
-                .answer(participateSurvey.getAnswer())
+                .answer(answer)
                 .answerType(participateSurvey.getAnswerType())
                 .user(user)
                 .question(question)
+                .url(participateSurvey.getUrl())
                 .surveyPost(surveyPost)
                 .build();
     }

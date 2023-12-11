@@ -6,19 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParticipateSurveyRequest {
+public class ParticipateSurvey {
 
-    private Long questionId;
 
-    private List<String> answer;
+    private String answer;
 
     private AnswerType answerType;
 
-    private String url;
+    private Long questionId;
+
+
 
 }

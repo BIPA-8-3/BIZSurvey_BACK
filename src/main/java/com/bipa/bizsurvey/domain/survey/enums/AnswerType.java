@@ -12,7 +12,7 @@ public enum AnswerType {
     MULTIPLE_CHOICE("객관식(복수형)"),
     TEXT("주관식"),
     FILE("파일"),
-    CALENDER("날짜");
+    CALENDAR("날짜");
 
 
     private final String value;
@@ -21,13 +21,13 @@ public enum AnswerType {
         this.value = value;
     }
 
-    @JsonCreator
-    public static AnswerType from(String type){
-        for (AnswerType answerType : AnswerType.values()) {
-            if (answerType.getValue().equals(type)){
-                return answerType;
-            }
-        }
-        return null;
-    }
+//    @JsonCreator
+//    public static AnswerType from(String type){
+//        for (AnswerType answerType : AnswerType.values()) {
+//            if (answerType.getValue().equals(type)){
+//                return answerType;
+//            }
+//        }
+//        return null;
+//    }
 }

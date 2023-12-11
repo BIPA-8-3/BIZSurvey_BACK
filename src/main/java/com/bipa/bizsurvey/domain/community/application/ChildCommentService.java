@@ -73,7 +73,7 @@ public class ChildCommentService {
                     .childCommentId(childComment.getId())
                     .content(checkContent(childComment))
                     .nickName(childComment.getUser().getNickname())
-                    .createTime(childComment.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
+                    .createTime(childComment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                     .build();
             commentResponseList.add(commentResponse);
         }

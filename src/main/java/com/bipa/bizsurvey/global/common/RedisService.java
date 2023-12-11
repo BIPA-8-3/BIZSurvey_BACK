@@ -22,6 +22,18 @@ public class RedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+
+    public <T> void saveData(String key, T data){
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            String value = objectMapper.writeValueAsString(data);
+            redisTemplate.opsForValue().set(key, value);
+        }catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+
     public <T> void saveData(String key, T data, Long duration){
         try{
             ObjectMapper objectMapper = new ObjectMapper();

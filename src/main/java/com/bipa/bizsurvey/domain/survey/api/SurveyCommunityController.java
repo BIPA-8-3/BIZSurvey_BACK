@@ -20,9 +20,15 @@ public class SurveyCommunityController {
 
     // 설문 참여 페이지 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getSurvey(@PathVariable Long postId,
-                                       @AuthenticationPrincipal LoginUser loginUser){
-        return ResponseEntity.ok().body(surveyCommunityService.getSurvey(postId, loginUser));
+    public ResponseEntity<?> getSurvey(@PathVariable Long postId){
+        return ResponseEntity.ok().body(surveyCommunityService.getSurvey(postId));
+    }
+
+    // 설문 참여 여부 확인
+    @GetMapping("/check/{postId}")
+    public ResponseEntity<?> checkUserParticipation(@PathVariable Long postId,
+                                                    @AuthenticationPrincipal LoginUser loginUser){
+        return ResponseEntity.ok().body(surveyCommunityService.checkUserParticipation(postId, loginUser));
     }
 
     // 시용자 설문 참여 저장
