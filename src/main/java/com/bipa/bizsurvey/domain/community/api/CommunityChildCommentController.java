@@ -2,7 +2,7 @@ package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.dto.request.childComment.CreateChildCommentRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.childComment.UpdateChildCommentRequest;
-import com.bipa.bizsurvey.domain.community.service.ChildCommentService;
+import com.bipa.bizsurvey.domain.community.application.ChildCommentService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

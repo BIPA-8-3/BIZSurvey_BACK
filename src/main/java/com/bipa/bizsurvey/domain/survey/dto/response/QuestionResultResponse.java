@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.survey.dto.request;
+package com.bipa.bizsurvey.domain.survey.dto.response;
 
 
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
@@ -11,14 +11,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParticipateSurveyRequest {
+public class QuestionResultResponse {
 
     private Long questionId;
 
-    private List<String> answer;
+    private String title;
 
     private AnswerType answerType;
 
-    private String url;
+    private List<AnswerResultResponse> answers;
 
 }

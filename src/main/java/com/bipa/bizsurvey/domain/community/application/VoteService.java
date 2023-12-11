@@ -1,10 +1,11 @@
-package com.bipa.bizsurvey.domain.community.service;
+package com.bipa.bizsurvey.domain.community.application;
 
 import com.bipa.bizsurvey.domain.community.domain.*;
 import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteAnswerRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteRequest;
 import com.bipa.bizsurvey.domain.community.dto.response.vote.AnswerPercentageResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.vote.VoteAnswerResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.vote.VoteResponse;
 import com.bipa.bizsurvey.domain.community.exception.voteException.VoteException;
 import com.bipa.bizsurvey.domain.community.exception.voteException.VoteExceptionType;
 import com.bipa.bizsurvey.domain.community.repository.VoteAnswerRepository;
@@ -57,7 +58,7 @@ public class VoteService {
         }
 
         // show vote answer
-        public List<VoteAnswerResponse> showVoteAnswerList(Long postId, Long voteId){
+        public VoteResponse showVoteAnswerList(Long postId, Long voteId){
                 Vote vote = findVote(postId, voteId);
                 List<VoteAnswer> voteAnswerList = jpaQueryFactory
                         .select(va)
@@ -74,7 +75,11 @@ public class VoteService {
                                 .build();
                         list.add(voteAnswerResponse);
                 }
-                return list;
+
+                return VoteResponse.builder()
+                        .voteTitle(vote.getVoteQuestion())
+                        .answerList(list)
+                        .build();
         }
 
         public void choseAnswer(Long userId, Long postId, Long voteId, Long voteAnswerId){

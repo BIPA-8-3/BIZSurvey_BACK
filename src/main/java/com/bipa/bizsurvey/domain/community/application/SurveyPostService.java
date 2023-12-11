@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.service;
+package com.bipa.bizsurvey.domain.community.application;
 
 import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.domain.QPost;
@@ -146,7 +146,7 @@ public class SurveyPostService {
                 .innerJoin(sp).on(p.id.eq(sp.post.id))
                 .where(p.delFlag.eq(false))
                 .orderBy(sp.score.desc())
-                .orderBy(sortByField(fieldName))
+                .orderBy(p.reported.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -186,15 +186,15 @@ public class SurveyPostService {
 
 
     // 검색
-    public Page<?> searchSurveyPost(SearchPostRequest searchPostRequest, Pageable pageable){
+    public Page<?> searchSurveyPost(String keyword, Pageable pageable){
         long totalCount = jpaQueryFactory
                 .select(p)
                 .from(p)
                 .where(p.delFlag.eq(false))
                 .where(p.reported.eq(false))
                 .where(p.postType.eq(PostType.COMMUNITY))
-                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
-                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .where(p.content.like("%" + keyword + "%")
+                        .or(p.title.like("%" + keyword + "%")))
                 .stream().count();
 
         List<Tuple> tupleList = jpaQueryFactory.
@@ -212,8 +212,8 @@ public class SurveyPostService {
                 .from(p)
                 .innerJoin(sp).on(p.eq(sp.post))
                 .where(p.delFlag.eq(false))
-                .where(p.content.like("%" + searchPostRequest.getKeyword() + "%")
-                        .or(p.title.like("%" + searchPostRequest.getKeyword() + "%")))
+                .where(p.content.like("%" + keyword + "%")
+                        .or(p.title.like("%" + keyword + "%")))
                 .orderBy(sp.score.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -283,24 +283,24 @@ public class SurveyPostService {
 
 
 
-    private OrderSpecifier<?> sortByField(String filedName){
-
-        Order order = Order.DESC;
-
-        if(Objects.isNull(filedName)){
-            return new OrderSpecifier<>(order, p.id);
-        }
-
-        if(filedName.equals("count")){
-            return new OrderSpecifier<>(order, p.count);
-        }
-
-        if(filedName.equals("regDate")){
-            return new OrderSpecifier<>(order, p.regDate);
-        }
-
-        return OrderByNull.getDefault();
-    }
+//    private OrderSpecifier<?> sortByField(String filedName){
+//
+//        Order order = Order.DESC;
+//
+//        if(Objects.isNull(filedName)){
+//            return new OrderSpecifier<>(order, p.id);
+//        }
+//
+//        if(filedName.equals("count")){
+//            return new OrderSpecifier<>(order, p.count);
+//        }
+//
+//        if(filedName.equals("regDate")){
+//            return new OrderSpecifier<>(order, p.regDate);
+//        }
+//
+//        return OrderByNull.getDefault();
+//    }
 
 
 }

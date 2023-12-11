@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.service;
+package com.bipa.bizsurvey.domain.community.application;
 
 import com.bipa.bizsurvey.domain.community.domain.Comment;
 import com.bipa.bizsurvey.domain.community.domain.Post;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.AbstractDocument;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,8 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final ChildCommentService childCommentService;
+
 
 
     // 댓글 생성
@@ -71,7 +72,8 @@ public class CommentService {
                     .commentId(comment.getId())
                     .content(checkContent(comment))
                     .nickName(comment.getUser().getNickname())
-                    .createTime(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
+                    .createTime(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .childCommentResponses(childCommentService.getChildCommentList(comment.getId()))
                     .build();
 
             commentResponseList.add(commentResponse);

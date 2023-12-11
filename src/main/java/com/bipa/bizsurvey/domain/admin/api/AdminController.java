@@ -5,8 +5,8 @@ import com.bipa.bizsurvey.domain.admin.application.AdminUserService;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimDetailResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse;
 import com.bipa.bizsurvey.domain.admin.dto.user.UserSearchRequest;
-import com.bipa.bizsurvey.domain.community.service.PostService;
-import com.bipa.bizsurvey.domain.community.service.SurveyPostService;
+import com.bipa.bizsurvey.domain.community.application.PostService;
+import com.bipa.bizsurvey.domain.community.application.SurveyPostService;
 import com.bipa.bizsurvey.domain.user.application.UserService;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
@@ -56,9 +56,8 @@ public class AdminController {
 
     //커뮤니티 목록
     @GetMapping("/community")
-    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable,
-                                         @RequestParam(required = false) String fieldName){
-        return ResponseEntity.ok().body(postService.getPostList(pageable, fieldName));
+    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable){
+        return ResponseEntity.ok().body(postService.getPostList(pageable));
     }
 
     //설문 커뮤니티 목록

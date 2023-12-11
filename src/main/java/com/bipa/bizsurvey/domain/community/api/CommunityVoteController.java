@@ -1,7 +1,7 @@
 package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.dto.request.vote.CreateVoteRequest;
-import com.bipa.bizsurvey.domain.community.service.VoteService;
+import com.bipa.bizsurvey.domain.community.application.VoteService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class CommunityVoteController {
     public ResponseEntity<?> createVote(@PathVariable Long postId,
                                         @Valid @RequestBody CreateVoteRequest createVoteRequest,
                                         @AuthenticationPrincipal LoginUser loginUser){
-        voteService.createVote(loginUser.getId() ,createVoteRequest, postId);
+        voteService.createVote(loginUser.getId(), createVoteRequest, postId);
         return ResponseEntity.ok().body("투표가 생성되었습니다.");
     }
 
@@ -33,12 +33,14 @@ public class CommunityVoteController {
     }
 
     @GetMapping("/{postId}/{voteId}/choseAnswer/{voteAnswerId}")
-    public ResponseEntity<?> choseAnswer(@AuthenticationPrincipal LoginUser loginUser,
+    public ResponseEntity<?> choseAnswer(//@AuthenticationPrincipal LoginUser loginUser,
                                          @PathVariable Long postId,
                                          @PathVariable Long voteId,
                                          @PathVariable Long voteAnswerId){
 
-        voteService.choseAnswer(loginUser.getId(), postId, voteId, voteAnswerId);
+        Long userID = 1L;
+
+        voteService.choseAnswer(userID, postId, voteId, voteAnswerId);
         return ResponseEntity.ok().body("투표가 등록되었습니다.");
     }
 

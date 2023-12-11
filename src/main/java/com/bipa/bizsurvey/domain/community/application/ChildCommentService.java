@@ -1,4 +1,4 @@
-package com.bipa.bizsurvey.domain.community.service;
+package com.bipa.bizsurvey.domain.community.application;
 
 import com.bipa.bizsurvey.domain.community.domain.ChildComment;
 import com.bipa.bizsurvey.domain.community.domain.Comment;
@@ -73,7 +73,7 @@ public class ChildCommentService {
                     .childCommentId(childComment.getId())
                     .content(checkContent(childComment))
                     .nickName(childComment.getUser().getNickname())
-                    .createTime(childComment.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
+                    .createTime(childComment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                     .build();
             commentResponseList.add(commentResponse);
         }
