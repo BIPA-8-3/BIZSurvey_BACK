@@ -12,10 +12,8 @@ import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.community.service.CommentService;
 import com.bipa.bizsurvey.domain.user.domain.Claim;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserClaimResponse;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoUpdateRequest;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserPlanResponse;
+import com.bipa.bizsurvey.domain.user.dto.mypage.*;
+import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
@@ -56,7 +54,7 @@ public class UserService {
     private final RedisService redisService;
     
     public void join(JoinRequest joinDto){
-        User user = userRepository.save(joinDto.toEntity(passwordEncoder));
+        User user = userRepository.save(joinDto.toEntity(passwordEncoder, "bizsurvey"));
     }
 
     // 닉네임 중복 확인
@@ -253,6 +251,42 @@ public class UserService {
             results.add(surveyPostResponse);
         }
         return new PageImpl<>(results, pageable, totalCount);
+    }
+
+    public Map<String, String> additionalJoin(UserAdditionalJoinRequest request){
+
+        User user = userRepository.findById(request.getId()).orElseThrow(
+                () -> new UserException(UserExceptionType.NON_EXIST_USER)
+        );
+        user.additionalJoin(request);
+        userRepository.save(user);
+
+        LoginInfoRequest loginInfoRequest = LoginInfoRequest.builder()
+                .nickname(request.getNickname())
+                .build();
+
+        String token = JWT.create()
+                .withSubject("bank")
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtVO.EXPIRATION_TIME))
+                .withClaim("id", request.getId())
+                .withClaim("nickname", request.getNickname())
+                .withClaim("email", request.getEmail())
+                .withClaim("role", request.getPlanSubscribe() + "")
+                .sign(Algorithm.HMAC512(JwtVO.SECRET));
+
+        String refreshToken = JWT.create()
+                .withSubject("biz")
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtVO.REFRESH_EXPIRATION_TIME))
+                .withClaim("id", request.getId())
+                .sign(Algorithm.HMAC512(JwtVO.SECRET));
+
+        redisService.saveData(String.valueOf(request.getId()), refreshToken, 30L * 24 * 60 * 60);
+
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+        tokenMap.put("refreshToken", refreshToken);
+
+        return tokenMap;
     }
 
 

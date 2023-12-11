@@ -44,10 +44,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.userRepository = userRepository;
     }
 
-    // Post : /api/login
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
+        System.out.println("11");
         log.debug("디버그 : attemptAuthentication 호출됨");
         try {
             ObjectMapper om = new ObjectMapper();
@@ -81,7 +81,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String dateTimeString = user.getForbiddenDate();
 
         if ("forbidden".equals(dateTimeString)) {
-            CustomResponseUtil.fail(response, "영구 정지");
+            CustomResponseUtil.forbidden(response, "영구 정지");
             return;
         }
 
@@ -90,9 +90,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         if (dateTimeString != null && !dateTimeString.equals("")) {
             LocalDateTime targetDateTime = LocalDateTime.parse(dateTimeString, formatter);
-
             if (currentDateTime.isBefore(targetDateTime)) {
-                CustomResponseUtil.fail(response, "정지");
+                CustomResponseUtil.forbidden(response, "정지");
                 return;
             }
         }

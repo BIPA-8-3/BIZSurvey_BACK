@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.user.domain;
 
+import com.bipa.bizsurvey.domain.user.dto.mypage.UserAdditionalJoinRequest;
 import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoUpdateRequest;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
@@ -45,8 +46,12 @@ public class User extends BaseEntity {
 
     private String forbiddenDate;
 
+    private String provider;
+
+    private String profile;
+
     @Builder
-    public User(Long id, String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe) {
+    public User(Long id, String email, String name, String nickname, Gender gender, String birthdate, String password, String company, Plan planSubscribe, String provider) {
         this.id = id;
         this.email = email;
         this.name = name;
@@ -56,12 +61,16 @@ public class User extends BaseEntity {
         this.password = password;
         this.company = company;
         this.planSubscribe = planSubscribe;
-
+        this.provider = provider;
     }
 
     public void userInfoUpdate(UserInfoUpdateRequest request){
         this.nickname = request.getNickname();
-        this.gender = request.getGender();
+        this.birthdate = request.getBirthdate();
+    }
+
+    public void additionalJoin(UserAdditionalJoinRequest request){
+        this.nickname = request.getNickname();
         this.birthdate = request.getBirthdate();
     }
 

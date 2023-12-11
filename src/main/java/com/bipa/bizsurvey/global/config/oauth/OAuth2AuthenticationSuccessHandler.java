@@ -23,6 +23,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+        System.out.println("test!!!!");
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         String jwtToken = JwtProcess.create(loginUser);
         String refreshJwtToken = JwtProcess.refreshCreate(loginUser, redisService);
