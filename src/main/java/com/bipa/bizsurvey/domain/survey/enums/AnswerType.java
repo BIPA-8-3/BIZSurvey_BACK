@@ -21,13 +21,13 @@ public enum AnswerType {
         this.value = value;
     }
 
-    @JsonCreator
-    public static AnswerType from(String type){
-        for (AnswerType answerType : AnswerType.values()) {
-            if (answerType.getValue().equals(type)){
-                return answerType;
-            }
-        }
-        return null;
-    }
+//    @JsonCreator
+//    public static AnswerType from(String type){
+//        for (AnswerType answerType : AnswerType.values()) {
+//            if (answerType.getValue().equals(type)){
+//                return answerType;
+//            }
+//        }
+//        return null;
+//    }
 }

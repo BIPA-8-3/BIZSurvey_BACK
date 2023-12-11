@@ -14,6 +14,9 @@ public class FileResultResponse {
 
     private Long questionId;
 
+    //추가
+    private String title;
+
     private AnswerType questionType;
 
     private List<FileInfo> fileInfos;
