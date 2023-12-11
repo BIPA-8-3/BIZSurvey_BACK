@@ -32,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 @Service
@@ -279,6 +277,26 @@ public class SurveyPostService {
         }else {
             surveyPost.addScore(100); // 서비스 중 : 100점
         }
+    }
+
+    public List<String> findSurveyPostTitle(){
+
+        Set<String> set = new HashSet<>();
+
+        List<Tuple> tuples = jpaQueryFactory
+                .selectDistinct(p.title, p.count)
+                .from(p)
+                .where(p.postType.eq(PostType.SURVEY)) // 검색 자동완성이 COMMUNITY 랑 S-COMMUNITY 랑 다르다
+                .where(p.delFlag.eq(false).and(p.reported.eq(false)))
+                .orderBy(p.count.desc())
+                .limit(50)
+                .fetch();
+
+        for (Tuple tuple : tuples) {
+            set.add(tuple.get(p.title));
+        }
+
+        return new ArrayList<String>(set);
     }
 
 

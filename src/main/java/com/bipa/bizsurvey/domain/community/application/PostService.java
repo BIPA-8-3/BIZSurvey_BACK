@@ -263,9 +263,6 @@ public class PostService {
         List<Integer> postIdList = redisService.getData("bestCommunityPostId", ArrayList.class)
                 .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
 
-
-        log.info("잘 갖고 오니? {}", postIdList);
-
         if(postIdList.contains(postId.intValue())){
             return "best";
         }
