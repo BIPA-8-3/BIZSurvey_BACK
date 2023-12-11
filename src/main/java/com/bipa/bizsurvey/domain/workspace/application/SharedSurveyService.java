@@ -64,7 +64,7 @@ public class SharedSurveyService {
         // 공유 설문 Insert
         SharedSurvey sharedSurvey = SharedSurvey.builder()
                 .survey(survey)
-                .deadLine(request.getDeadLine())
+                .deadline(request.getDeadline())
                 .build();
 
         sharedSurveyRepository.save(sharedSurvey);
@@ -165,10 +165,10 @@ public class SharedSurveyService {
     // 링크 유효성 검사
     public Long linkValidation(Long sharedSurveyId, String token) {
         SharedSurvey sharedSurvey = sharedSurveyRepository.findByIdAndDelFlagFalse(sharedSurveyId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 링크입니다."));
-        LocalDateTime deadLine = sharedSurvey.getRegDate().plusDays(sharedSurvey.getDeadLine());
+        LocalDateTime deadline = sharedSurvey.getRegDate().plusDays(sharedSurvey.getDeadline());
 
-        // deadLine이 지났는지 확인
-        if (deadLine.isBefore(LocalDateTime.now())) {
+        // deadline이 지났는지 확인
+        if (deadline.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("만료된 링크입니다.");
         }
 
@@ -190,7 +190,7 @@ public class SharedSurveyService {
 
     // 유효기간 연장
     public void deadlineExtension(Long shardSurveyId) {
-        getShredSurvey(shardSurveyId).plusDeadLine();
+        getShredSurvey(shardSurveyId).plusDeadline();
     }
 
 
@@ -233,11 +233,11 @@ public class SharedSurveyService {
         List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalse(surveyId);
 
         return sharedSurveys.stream().map(e -> {
-            LocalDateTime dueDate = e.getRegDate().plusDays(e.getDeadLine());
+            LocalDateTime dueDate = e.getRegDate().plusDays(e.getDeadline());
             return SharedSurveyDto.SharedSurveysResponse.builder()
                     .id(e.getId())
                     .dueDate(dueDate)
-                    .deadLine(LocalDateTime.now().isAfter(dueDate)) // true 마감일자 안 지남
+                    .deadline(LocalDateTime.now().isAfter(dueDate)) // true 마감일자 안 지남
                     .surveyId(e.getSurvey().getId())
                     .build();
         }).collect(Collectors.toList());

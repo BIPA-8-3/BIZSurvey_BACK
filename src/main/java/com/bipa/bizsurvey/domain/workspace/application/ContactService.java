@@ -33,7 +33,7 @@ public class ContactService {
                 .workspace(workspace)
                 .name(request.getName())
                 .email(request.getEmail())
-                .remark(request.getRemark())
+//                .remark(request.getRemark())
                 .build();
 
         contactRepository.save(contact);
@@ -42,7 +42,7 @@ public class ContactService {
                 .id(contact.getId())
                 .email(contact.getEmail())
                 .name(contact.getName())
-                .remark(contact.getRemark())
+//                .remark(contact.getRemark())
                 .build();
     }
 
@@ -53,7 +53,7 @@ public class ContactService {
                 .id(contact.getId())
                 .name(contact.getName())
                 .email(contact.getEmail())
-                .remark(contact.getRemark())
+//                .remark(contact.getRemark())
                 .build();
     }
 
@@ -76,14 +76,14 @@ public class ContactService {
                     .id(e.getId())
                     .name(e.getName())
                     .email(e.getEmail())
-                    .remark(e.getRemark())
+//                    .remark(e.getRemark())
                     .build())
                     .collect(Collectors.toList());
     }
 
     public void update(Long id, ContactDto.UpdateRequest request) {
         Contact contact = contactRepository.findByIdAndDelFlagFalse(id).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 연락처입니다."));
-        contact.update(request.getName(), request.getEmail(), request.getRemark());
+        contact.update(request.getName(), request.getEmail());
     }
 
     public void delete(Long id) {

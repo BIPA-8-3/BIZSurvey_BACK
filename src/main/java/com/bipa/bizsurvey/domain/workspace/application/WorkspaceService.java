@@ -7,6 +7,7 @@ import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceDto;
+import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +28,10 @@ public class WorkspaceService {
 
     public WorkspaceDto.ListResponse create(Long userId, WorkspaceDto.CreateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
+
+        if(request.getWorkspaceType() == null) {
+            request.setWorkspaceType(WorkspaceType.COMPANY);
+        }
         Workspace workspace = Workspace.builder()
                 .workspaceName(request.getWorkspaceName())
                 .workspaceType(request.getWorkspaceType())
