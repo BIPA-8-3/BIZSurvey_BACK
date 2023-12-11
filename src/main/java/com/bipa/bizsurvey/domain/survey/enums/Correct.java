@@ -18,13 +18,13 @@ public enum Correct {
         this.value = value;
     }
 
-    @JsonCreator
-    public static Correct from(String type){
-        for (Correct correct : Correct.values()) {
-            if (correct.getValue().equals(type)){
-                return correct;
-            }
-        }
-        return null;
-    }
+//    @JsonCreator
+//    public static Correct from(String type){
+//        for (Correct correct : Correct.values()) {
+//            if (correct.getValue().equals(type)){
+//                return correct;
+//            }
+//        }
+//        return null;
+//    }
 }
