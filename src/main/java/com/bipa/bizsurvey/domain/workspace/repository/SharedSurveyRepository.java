@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface SharedSurveyRepository extends JpaRepository<SharedSurvey, Long> {
     Optional<SharedSurvey> findByIdAndDelFlagFalse(Long id);
-    List<SharedSurvey> findBySurveyIdAndDelFlagFalse(Long surveyId);
+    List<SharedSurvey> findBySurveyIdAndDelFlagFalseOrderByModDateDesc(Long surveyId);
 }

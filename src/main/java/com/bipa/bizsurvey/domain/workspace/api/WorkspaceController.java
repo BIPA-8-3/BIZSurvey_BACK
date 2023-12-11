@@ -47,7 +47,8 @@ public class WorkspaceController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> modify(@PathVariable Long id, @RequestBody WorkspaceDto.UpdateRequest request) {
+    public ResponseEntity<String> modify(@PathVariable Long id,
+                                         @RequestBody WorkspaceDto.UpdateRequest request) {
         workspaceService.update(id, request);
         return ResponseEntity.noContent().build();
     }

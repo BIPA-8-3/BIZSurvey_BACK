@@ -1,6 +1,5 @@
 package com.bipa.bizsurvey.domain.workspace.domain;
 
-
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
@@ -21,20 +20,20 @@ public class SharedSurvey extends BaseEntity {
     @Column(name = "shared_survey_id")
     private Long id;
 
-    @ColumnDefault("7L")
-    private Long deadLine;
+    @ColumnDefault("7")
+    private Long deadline;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
     @Builder
-    public SharedSurvey(Survey survey, Long deadLine) {
+    public SharedSurvey(Survey survey, Long deadline) {
         this.survey = survey;
-        this.deadLine = deadLine;
+        this.deadline = deadline;
     }
-    public void plusDeadLine() {
-        this.deadLine += 7;
+    public void plusDeadline() {
+        this.deadline += 7;
     }
 
 }

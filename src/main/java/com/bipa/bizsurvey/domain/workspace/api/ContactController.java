@@ -39,7 +39,7 @@ public class ContactController {
 
     @GetMapping("/list")
     public ResponseEntity<List<ContactDto.Response>> list(@AuthenticationPrincipal LoginUser loginUser,
-                                                          ContactDto.SearchRequest request) {
+                                                          @ModelAttribute ContactDto.SearchRequest request) {
         return ResponseEntity.ok().body(contactService.searchContacts(request));
     }
 

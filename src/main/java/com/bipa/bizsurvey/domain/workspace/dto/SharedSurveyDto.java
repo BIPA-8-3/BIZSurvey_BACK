@@ -11,7 +11,7 @@ public class SharedSurveyDto {
     @Data
     public static class SharedRequest {
         private Long surveyId;
-        private Long deadLine;
+        private Long deadline;
         private List<ContactDto.SharedRequest> contactList;
     }
 
@@ -41,6 +41,6 @@ public class SharedSurveyDto {
         private Long id;
         private LocalDateTime dueDate;
         private Long surveyId;
-        private Boolean deadLine;
+        private Boolean deadline;
     }
 }
