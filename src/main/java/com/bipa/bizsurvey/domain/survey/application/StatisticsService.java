@@ -79,7 +79,7 @@ public class StatisticsService {
                         u.question.id,
                         u.answer,
                         u.url,
-                        u.question.answerType,
+//                        u.question.answerType,
                         u.answerType
                         ))
                 .from(u)
@@ -146,7 +146,7 @@ public class StatisticsService {
     }
 
     // 점수형 게시물 통계
-    public List<ScoreResultResponse> getScoreResult(Long surveyId, Long postId){
+    public List<ScoreResultResponse> getScoreResult(Long postId){
 
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
         Survey survey = surveyPost.getSurvey();
@@ -154,15 +154,18 @@ public class StatisticsService {
         List<ScoreResultResponse> list = jpaQueryFactory
                 .select(Projections.constructor(ScoreResultResponse.class,
                         a.question.id,
+                        a.question.surveyQuestion,
                         Projections.list(Projections.constructor(ScoreAnswerCount.class,
                                 a.surveyAnswer,
-                                u.answer.count()))
+                                u.answer.count(),
+                                a.correct))
                         ))
                 .from(a)
                 .leftJoin(u).on(a.question.eq(u.question).and(u.surveyPost.eq(surveyPost)).and(u.answer.eq(a.surveyAnswer)))
                 .where(a.delFlag.eq(false)
                         .and(a.question.survey.eq(survey)))
-                .groupBy(a.surveyAnswer, a.question)
+                .groupBy(a.surveyAnswer, a.question, a.correct)
+                .orderBy(a.question.step.asc())
                 .fetch();
 
         // 그룹화된 데이터를 questionId를 기준으로 다시 그룹화
@@ -173,10 +176,13 @@ public class StatisticsService {
         List<ScoreResultResponse> processedResults = groupedResults.entrySet().stream()
                 .map(entry -> {
                     long questionId = entry.getKey();
+                    List<ScoreResultResponse> scoreList = entry.getValue();
+                    String title = scoreList.get(0).getTitle();
+
                     List<ScoreAnswerCount> mergedAnswers = entry.getValue().stream()
                             .flatMap(result -> result.getAnswers().stream())
                             .collect(Collectors.toList());
-                    return new ScoreResultResponse(questionId, mergedAnswers);
+                    return new ScoreResultResponse(questionId, title, mergedAnswers);
                 })
                 .collect(Collectors.toList());
 
@@ -186,11 +192,11 @@ public class StatisticsService {
 
 
 
-
+    //기본 설문 게시물 차트,텍스트 통계
     public List<ChartAndTextResponse> processChartAndText(Survey survey, SurveyPost surveyPost){
 
         List<ChartAndTextResponse> results = jpaQueryFactory
-                .select(Projections.constructor(ChartAndTextResponse.class, u.question.id, u.question.answerType.as("questionType"),
+                .select(Projections.constructor(ChartAndTextResponse.class, u.question.id,u.question.surveyQuestion, u.question.answerType.as("questionType"),
                         Projections.list(Projections.constructor(ChartAndTextResult.class, u.answer, u.count().as("count"))))
                 )
                 .from(u)
@@ -214,6 +220,7 @@ public class StatisticsService {
 
                     // questionId에 대한 모든 answerType을 동일한 값으로 설정
                     AnswerType answerType = chartResultResponses.get(0).getQuestionType();
+                    String title = chartResultResponses.get(0).getTitle();
 
                     // 각 value(ChartResultResponse)의 answers를 합치기
                     List<ChartAndTextResult> combinedAnswers = chartResultResponses.stream()
@@ -221,7 +228,7 @@ public class StatisticsService {
                             .collect(Collectors.toList());
 
                     // 새로운 ChartResultResponse 객체 생성
-                    return new ChartAndTextResponse(questionId, answerType, combinedAnswers);
+                    return new ChartAndTextResponse(questionId, title, answerType, combinedAnswers);
                 })
                 .collect(Collectors.toList());
 
@@ -232,7 +239,7 @@ public class StatisticsService {
 
     public List<FileResultResponse> processFile(Survey survey, SurveyPost surveyPost){
         List<FileResultResponse> results = jpaQueryFactory
-                .select(Projections.constructor(FileResultResponse.class, u.question.id, u.question.answerType.as("questionType"),
+                .select(Projections.constructor(FileResultResponse.class, u.question.id,u.question.surveyQuestion, u.question.answerType.as("questionType"),
                         Projections.list(Projections.constructor(FileInfo.class, u.answer.as("filename"), u.url)))
                 )
                 .from(u)
@@ -254,6 +261,7 @@ public class StatisticsService {
 
                     // questionId에 대한 모든 answerType을 동일한 값으로 설정
                     AnswerType answerType = fileResultResponses.get(0).getQuestionType();
+                    String title = fileResultResponses.get(0).getTitle();
 
                     // 각 value(ChartResultResponse)의 answers를 합치기
                     List<FileInfo> combinedAnswers = fileResultResponses.stream()
@@ -261,7 +269,7 @@ public class StatisticsService {
                             .collect(Collectors.toList());
 
                     // 새로운 ChartResultResponse 객체 생성
-                    return new FileResultResponse(questionId, answerType, combinedAnswers);
+                    return new FileResultResponse(questionId, title, answerType, combinedAnswers);
                 })
                 .collect(Collectors.toList());
     }

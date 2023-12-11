@@ -13,9 +13,14 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UserInfoUpdateRequest {
+public class UserAdditionalJoinRequest {
     private Long id;
     @NotBlank
+    private String email;
+    @NotBlank
     private String nickname;
+
     private String birthdate;
+
+    private Plan PlanSubscribe;
 }

@@ -14,6 +14,8 @@ public class ScoreResultResponse {
 
     private Long questionId;
 
+    private String title;
+
     private List<ScoreAnswerCount> answers;
 
 }

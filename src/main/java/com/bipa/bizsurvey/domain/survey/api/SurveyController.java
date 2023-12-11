@@ -106,7 +106,7 @@ public class SurveyController {
     }
 
     // 점수형 설문 정답
-    @GetMapping("/result/score/{surveyId}")
+    @GetMapping("/result/score/answer/{surveyId}")
     public ResponseEntity<?> getScoreAnswer(@PathVariable Long surveyId){
         return ResponseEntity.ok().body(statisticsService.getScoreAnswer(surveyId));
     }
@@ -119,10 +119,10 @@ public class SurveyController {
     }
 
     // 점수 설문 전체 통계
-    @GetMapping("/result/score/{surveyId}/{postId}")
-    public ResponseEntity<?> getScoreResultOfPost(@PathVariable Long surveyId,
+    @GetMapping("/result/score/{postId}")
+    public ResponseEntity<?> getScoreResultOfPost(
                                                   @PathVariable Long postId){
-        return ResponseEntity.ok().body(statisticsService.getScoreResult(surveyId, postId));
+        return ResponseEntity.ok().body(statisticsService.getScoreResult(postId));
     }
 
 

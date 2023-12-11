@@ -62,6 +62,7 @@ public class UserSurveyResponse extends BaseEntity {
                 .answerType(participateSurvey.getAnswerType())
                 .user(user)
                 .question(question)
+                .url(participateSurvey.getUrl())
                 .surveyPost(surveyPost)
                 .build();
     }

@@ -76,5 +76,17 @@ public class CustomResponseUtil {
         }
     }
 
+    public static void expiry(HttpServletResponse response, String msg) {
+        try {
+            ObjectMapper om = new ObjectMapper();
+            ExceptionDto responseDto = new ExceptionDto(402, HttpStatus.UNAUTHORIZED, msg);
+            String responseBody = om.writeValueAsString(responseDto);
+            response.setContentType("application/json; charset=utf-8");
+            response.setStatus(402);
+            response.getWriter().println(responseBody);
+        } catch (Exception e) {
+            log.error("서버 파싱 에러");
+        }
+    }
 
 }
