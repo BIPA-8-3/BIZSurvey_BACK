@@ -3,9 +3,11 @@ package com.bipa.bizsurvey.global.config.oauth;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Map;
 
+@ToString
 @Getter
 public class OAuth2UserInfo {
 

@@ -4,8 +4,6 @@ import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.config.jwt.JwtAuthenticationFilter;
 import com.bipa.bizsurvey.global.config.jwt.JwtAuthorizationFilter;
-import com.bipa.bizsurvey.global.config.oauth.CustomOAuth2UserService;
-import com.bipa.bizsurvey.global.config.oauth.OAuth2AuthenticationSuccessHandler;
 import com.bipa.bizsurvey.global.util.CustomResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +23,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Slf4j
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final RedisService redisService;
     private final UserRepository userRepository;
     @Bean
@@ -67,23 +62,25 @@ public class SecurityConfig {
 
         http.authorizeRequests(
                 authorize -> authorize.antMatchers("/user/**").authenticated()
-                        //.antMatchers("/admin/**").access("hasRole('ADMIN')")
-                        .antMatchers("/signup/**", "/login/**", "/refresh/**").permitAll()
+                        .antMatchers("/plan/**", "/admin/**").authenticated()
+//                        .antMatchers("/admin/**").access("hasRole('ADMIN')")
+                        .antMatchers("/signup/**", "/login/**", "/refresh/**", "/oauth2/**").permitAll()
         );
 
-        http.oauth2Login()
-                .userInfoEndpoint().userService(customOAuth2UserService)
-                .and()
-                .successHandler(oAuth2AuthenticationSuccessHandler); // 인증 성공 시 Handler
+//        http.oauth2Login()
+//                .loginProcessingUrl("/oauth2/authorization/kakao")
+//                .userInfoEndpoint().userService(customOAuth2UserService)
+//                .and()
+//                .defaultSuccessUrl("http://localhost:3000/", true);
                 //.failureHandler(oAuth2AuthenticationFailureHandler);
         return http.build();
     }
 
     public CorsConfigurationSource configurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
-        configuration.addAllowedOriginPattern("*");
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader("Authorization");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

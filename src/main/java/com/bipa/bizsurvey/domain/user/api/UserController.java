@@ -5,14 +5,21 @@ import com.bipa.bizsurvey.domain.user.application.EmailSendService;
 import com.bipa.bizsurvey.domain.user.application.UserService;
 import com.bipa.bizsurvey.domain.user.dto.*;
 import com.bipa.bizsurvey.domain.user.dto.claim.ClaimListResponse;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserClaimResponse;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoResponse;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserInfoUpdateRequest;
-import com.bipa.bizsurvey.domain.user.dto.mypage.UserPlanResponse;
+import com.bipa.bizsurvey.domain.user.dto.mypage.*;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
+import com.bipa.bizsurvey.global.common.storage.Domain;
+import com.bipa.bizsurvey.global.common.storage.StorageService;
 import com.bipa.bizsurvey.global.config.jwt.JwtVO;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +29,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.client.methods.HttpPost;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +47,8 @@ public class UserController {
 
     private final UserService userService;
     private final EmailSendService emailSendService;
+    private final StorageService storageService;
+
 
     //회원가입
     @PostMapping("/signup")
@@ -41,7 +59,7 @@ public class UserController {
 
     //이메일 인증 번호 전송
     @PostMapping("/signup/send-email")
-    public ResponseEntity<?> sendEmail(@Valid @RequestBody EmailCheckRequest request){
+    public ResponseEntity<?> sendEmail(@Valid @RequestBody EmailCheckRequest request) throws Exception {
         emailSendService.authEmail(request);
         return ResponseEntity.ok().body("이메일로 인증번호가 전송되었습니다.");
     }
@@ -99,7 +117,7 @@ public class UserController {
                                         @PathVariable Plan plan, HttpServletResponse response){
         String token = userService.planUpdate(loginUser, plan);
         response.addHeader(JwtVO.HEADER, JwtVO.TOKEN_PREFIX + token);
-        return ResponseEntity.ok().body(plan + "으로 구독 신청되었습니다.");
+        return ResponseEntity.ok().body(plan.getValue() + "으로 변경되었습니다.");
     }
 
     //Tokken 재발급 요청
@@ -111,7 +129,7 @@ public class UserController {
     }
 
     //비밀번호 변경 > 이메일 존재 확인
-    @GetMapping("/check-email")
+    @PostMapping("/check-email")
     public ResponseEntity<?> checkEmail(@Valid @RequestBody EmailCheckRequest request) throws Exception {
         emailSendService.checkEmail(request.getEmail());
         emailSendService.sendPasswordEmail(request.getEmail());
@@ -151,6 +169,79 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getPostList(pageable, loginUser.getId())); // 200 OK
     }
 
-    //마이페이지 > 설문 참여 내역 조회
+
+
+    @PatchMapping("/signup/additional")
+    public ResponseEntity<?> additional(@Valid @RequestBody UserAdditionalJoinRequest updateRequest,
+                                            HttpServletResponse response){
+
+        Map<String, String> token = userService.additionalJoin(updateRequest);
+
+        response.addHeader(JwtVO.HEADER, JwtVO.TOKEN_PREFIX + token.get("token"));
+        response.addHeader(JwtVO.REFRESH_HEADER, JwtVO.TOKEN_PREFIX + token.get("refreshToken"));
+
+
+
+        return ResponseEntity.ok().body("회원 정보가 저장되었습니다.");
+    }
+
+
+    @PostMapping("/user/profile-picture")
+    public ResponseEntity<String> updateProfilePicture(
+            @AuthenticationPrincipal LoginUser loginUser,
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            String url = storageService.uploadFile(file, Domain.USER, null);
+            System.out.println(url);
+            return ResponseEntity.ok("프로필 이미지가 업데이트되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace(); // 예외를 로그로 출력합니다.
+            return ResponseEntity.status(500).body("프로필 이미지 업데이트 중 오류가 발생했습니다.");
+        }
+    }
+
+//    public void getAccessToken(String autorize_code) {
+//
+//        final String RequestUrl = "https://kauth.kakao.com/oauth/token";
+//        final List<NameValuePair> postParams = new ArrayList<NameValuePair>();
+//        postParams.add(new BasicNameValuePair("grant_type", "authorization_code"));
+//        postParams.add(new BasicNameValuePair("client_id", clientId));
+//        postParams.add(new BasicNameValuePair("redirect_uri", redirectUri));
+//        postParams.add(new BasicNameValuePair("code", autorize_code));
+//
+//
+//        final HttpClient client = HttpClientBuilder.create().build();
+//        final HttpPost post = new HttpPost(RequestUrl);
+//        JsonNode returnNode = null;
+//
+//        try {
+//
+//            post.setEntity(new UrlEncodedFormEntity(postParams)); // RequestUrl 접근 후 사용자의 정보를 담은 postParams 객체를 전달
+//
+//            final HttpResponse response = client.execute(post);
+//            final int responseCode = response.getStatusLine().getStatusCode();
+//
+//            // JSON 형태 반환값 처리
+//            ObjectMapper mapper = new ObjectMapper();
+//            returnNode = mapper.readTree(response.getEntity().getContent());
+//
+//        } catch (UnsupportedEncodingException e) {
+//
+//            e.printStackTrace();
+//
+//        } catch (ClientProtocolException e) {
+//
+//            e.printStackTrace();
+//
+//        } catch (IOException e) {
+//
+//            e.printStackTrace();
+//
+//        } finally {
+//            // clear resources
+//        }
+//
+//    }
 
 }

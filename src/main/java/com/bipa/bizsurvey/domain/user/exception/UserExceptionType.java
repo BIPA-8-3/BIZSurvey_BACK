@@ -14,6 +14,8 @@ public enum UserExceptionType implements BaseExceptionType {
     NON_EXIST_USER(600, HttpStatus.BAD_REQUEST, "존재하지 않는 유저입니다."),
     JWT_VERIFICATION(401, HttpStatus.BAD_REQUEST, "유효하지 않은 Refresh Token 입니다."),
     NON_AUTH_PASSWORDEMAIL(600, HttpStatus.BAD_REQUEST, "비밀번호 재설정 링크가 만료되었습니다."),
+
+    KAKAO_PROVIDER_CHECK(600, HttpStatus.BAD_REQUEST, "카카오로 가입한 계정입니다. 비밀번호 찾기는 이메일로 가입한 경우에만 가능합니다"),
     ;
 
 
