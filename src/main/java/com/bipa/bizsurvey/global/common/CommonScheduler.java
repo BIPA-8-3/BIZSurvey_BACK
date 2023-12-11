@@ -17,13 +17,17 @@ public class CommonScheduler {
     private final RedisService redisService;
     private final PostService postService;
 
-    @Scheduled(cron = "0 30 15 ? * TUE")
+    @Scheduled(cron = "0 0 18 ? * THU")
     public void autoUpdate() {
         List<String> postTitles = postService.findPostTitle();
-        redisService.saveData("searchTitles", postTitles, 1L);
+        redisService.saveData("searchTitles", postTitles);
         log.info("스케줄러 동작");
     }
 
+    @Scheduled(cron = "0 30 15 ? * SAT")
+    public void bestCommunityPostId(){
+        redisService.saveData("bestCommunityPostId", postService.choseBestCommunityPostId());
+    }
 
 
 }

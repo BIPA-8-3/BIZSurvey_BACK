@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public enum Plan {
     COMMUNITY("커뮤니티"),
-    NORMAL_SUBSCRIBE("일반 구독"),
-    COMPANY_SUBSCRIBE("기업 구독");
+    NORMAL_SUBSCRIBE("개인 플랜"),
+    COMPANY_SUBSCRIBE("그룹 플랜");
 
     private final String value;
 

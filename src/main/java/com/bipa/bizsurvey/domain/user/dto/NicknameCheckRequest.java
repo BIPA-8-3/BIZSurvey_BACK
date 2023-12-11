@@ -7,5 +7,5 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class NicknameCheckRequest {
     @NotBlank
-    private String Nickname;
+    private String nickname;
 }

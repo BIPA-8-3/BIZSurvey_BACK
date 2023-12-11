@@ -72,6 +72,8 @@ dependencies {
 	//OAuth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	//json
+	implementation 'org.json:json:20231013'
 
 }
 

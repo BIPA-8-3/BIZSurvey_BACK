@@ -27,7 +27,6 @@ public class JoinRequest {
 
     private Gender gender;
 
-    @NotBlank
     private String birthdate;
 
     @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}", message = "비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.")
@@ -38,7 +37,9 @@ public class JoinRequest {
 
     private Plan planSubscribe;
 
-    public User toEntity(BCryptPasswordEncoder passwordEncoder){
+    private String provider;
+
+    public User toEntity(BCryptPasswordEncoder passwordEncoder, String provider){
         return User.builder()
                 .email(email)
                 .name(name)
@@ -48,6 +49,7 @@ public class JoinRequest {
                 .password(passwordEncoder.encode(password))
                 .company(company)
                 .planSubscribe(Plan.COMMUNITY)
+                .provider(provider)
                 .build();
     }
 

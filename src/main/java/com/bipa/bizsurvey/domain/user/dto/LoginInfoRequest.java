@@ -17,6 +17,7 @@ public class LoginInfoRequest {
     private Plan planSubscribe;
     private String name;
     private Gender gender;
+    private String provider;
 
     public LoginInfoRequest(User user){
         this.id = user.getId();
@@ -25,6 +26,7 @@ public class LoginInfoRequest {
         this.planSubscribe = user.getPlanSubscribe();
         this.name = user.getName();
         this.gender = user.getGender();
+        this.provider = user.getProvider();
     }
 
     public User toEntity(){
@@ -35,12 +37,7 @@ public class LoginInfoRequest {
                 .nickname(nickname)
                 .gender(gender)
                 .planSubscribe(Plan.COMMUNITY)
+                .provider(provider)
                 .build();
     }
-
-
-
-
-
-
 }
