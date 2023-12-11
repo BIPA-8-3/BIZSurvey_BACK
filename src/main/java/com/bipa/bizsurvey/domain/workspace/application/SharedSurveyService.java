@@ -230,7 +230,7 @@ public class SharedSurveyService {
 
     // 공유단위 목록 조회
     public List<SharedSurveyDto.SharedSurveysResponse> readSharedSurveyHistory(Long surveyId) {
-        List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalse(surveyId);
+        List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalseOrderByModDateDesc(surveyId);
 
         return sharedSurveys.stream().map(e -> {
             LocalDateTime dueDate = e.getRegDate().plusDays(e.getDeadline());
