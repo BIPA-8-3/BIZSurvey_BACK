@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -113,9 +115,10 @@ public class StatisticsService {
         List<UserScoreResponse> list = jpaQueryFactory
                 .select(Projections.constructor(UserScoreResponse.class,
                         u.question.id,
-                        u.answer,
-                        a.correct,
-                        u.question.score))
+                        u.question.score,
+                        Projections.list(
+                                u.answer
+                        )))
                 .from(u)
                 .innerJoin(a).on(u.question.id.eq(a.question.id))
                 .innerJoin(u.question)
@@ -123,10 +126,27 @@ public class StatisticsService {
                         .and(u.user.id.eq(user.getId()))
                         .and(u.answer.eq(a.surveyAnswer))
                         .and(a.delFlag.eq(false)))
+                .groupBy(u.question, a.correct, u.answer)
                 .fetch();
 
+        Map<Long, UserScoreResponse> answerMap = new HashMap<>();
 
-        return list;
+        for(UserScoreResponse answer : list){
+            Long questionId = answer.getQuestionId();
+
+            if(answerMap.containsKey(questionId)){
+                List<String> existingAnswers = new ArrayList<>(answerMap.get(questionId).getUserAnswer());
+
+                existingAnswers.addAll(answer.getUserAnswer());
+
+                answerMap.get(questionId).setUserAnswer(existingAnswers);
+            }else{
+                answerMap.put(questionId, answer);
+            }
+        }
+
+
+        return new ArrayList<>(answerMap.values());
     }
 
     // 점수형 설문 정답
