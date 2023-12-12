@@ -56,6 +56,8 @@ public class WorkspaceAdminDto {
     public static class Response {
         private Long id;
         private Long workspaceId;
+        private Long userId;
+        private String profileUrl;
         private String email;
         private String name;
         private String nickName;
@@ -66,7 +68,20 @@ public class WorkspaceAdminDto {
 
     @Data
     @Builder
+    public static class SseResponse {
+        private Long id;
+        private Long userId;
+        private String profileUrl;
+        private String email;
+        private String name;
+        private String nickName;
+        private AdminType adminType;
+    }
+
+    @Data
+    @Builder
     public static class ListResponse {
+        Response owner;
         List<Response> adminList;
         List<Response> waitList;
     }

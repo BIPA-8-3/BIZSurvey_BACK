@@ -1,20 +1,24 @@
 package com.bipa.bizsurvey.domain.workspace.application;
 
 
+import com.bipa.bizsurvey.domain.user.domain.QUser;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.domain.workspace.domain.QWorkspace;
 import com.bipa.bizsurvey.domain.workspace.domain.QWorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.domain.WorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceAdminDto;
+import com.bipa.bizsurvey.domain.workspace.enums.AdminType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.email.EmailMessage;
 import com.bipa.bizsurvey.global.common.email.MailUtil;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -100,7 +104,7 @@ public class WorkspaceAdminService {
         mailUtil.sendTemplateMail(emailMessage);
 
         // redis
-        redisService.saveData(TOKEN_PREFIX + fullToken, null, TOKEN_VALID_TIME_SECONDS);
+        redisService.saveData(TOKEN_PREFIX + fullToken, workspace.getId(), TOKEN_VALID_TIME_SECONDS);
 
         return WorkspaceAdminDto.Response.builder()
                 .id(adminId)
@@ -123,9 +127,14 @@ public class WorkspaceAdminService {
         WorkspaceAdmin workspaceAdmin = getWorkspaceAdmin(adminId);
 
         workspaceAdmin.acceptInvite(user);
+        Long workspaceId = Long.parseLong(redisService.getData(fullToken));
         redisService.deleteData(fullToken);
 
         return WorkspaceAdminDto.Response.builder()
+                .id(workspaceAdmin.getId())
+                .workspaceId(workspaceId)
+                .userId(user.getId())
+                .profileUrl(null)
                 .email(user.getEmail())
                 .name(user.getName())
                 .nickName(user.getNickname())
@@ -161,7 +170,29 @@ public class WorkspaceAdminService {
                         .build())
                 .collect(Collectors.toList());
 
+        QUser qUser = QUser.user;
+        QWorkspace qWorkspace = QWorkspace.workspace;
+
+        User u = jpaQueryFactory.select(qUser)
+                .from(qUser)
+                .where(qUser.eq(
+                        JPAExpressions.select(qWorkspace.user).from(qWorkspace).where(qWorkspace.id.eq(workspaceId))
+                )).fetchOne();
+
+        WorkspaceAdminDto.Response owner = WorkspaceAdminDto.Response.builder()
+                .id(0L)
+                .userId(u.getId())
+                .email(u.getEmail())
+                .name(u.getName())
+                .workspaceId(workspaceId)
+                .inviteFlag(true)
+                .adminType(AdminType.INVITE)
+                .nickName(u.getNickname())
+                .profileUrl(null)
+                .build();
+
         WorkspaceAdminDto.ListResponse response = WorkspaceAdminDto.ListResponse.builder()
+                .owner(owner)
                 .adminList(adminList)
                 .waitList(waitList)
                 .build();

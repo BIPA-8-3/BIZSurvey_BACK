@@ -87,7 +87,7 @@ public class SurveyService {
 //
 //        surveyDto.setQuestions(questionDtoList);
 
-        List<QuestionResponse> questionList = jpaQueryFactory
+       List<QuestionResponse> questionList = jpaQueryFactory
                 .select(
                         Projections.constructor(QuestionResponse.class,
                                 q.id,
@@ -116,7 +116,6 @@ public class SurveyService {
                 .groupBy(q.id, a.id)  // Group by questionId
                 .orderBy(q.step.asc(), a.step.asc())
                 .fetch();
-
 
         surveyDto.setQuestions(mergeAnswers(questionList));
         return surveyDto;

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "workspace_admin")
+@ToString
 public class WorkspaceAdmin extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

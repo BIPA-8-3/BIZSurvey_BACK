@@ -10,7 +10,7 @@ public class ContactDto {
     public static class CreateRequest {
         private String name;
         private String email;
-        private String remark;
+//        private String remark;
         private Long workspaceId;
     }
 
@@ -18,7 +18,7 @@ public class ContactDto {
     public static class UpdateRequest {
         private String name;
         private String email;
-        private String remark;
+//        private String remark;
     }
 
     @Data
@@ -33,7 +33,7 @@ public class ContactDto {
         private Long id;
         private String name;
         private String email;
-        private String remark;
+//        private String remark;
     }
 
     @Data
