@@ -52,7 +52,7 @@ public class SurveyService {
 
     public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
         return jpaQueryFactory
-                .select(Projections.constructor(SurveyListResponse.class, s.id, s.title))
+                .select(Projections.constructor(SurveyListResponse.class, s.id, s.title, s.surveyType))
                 .from(s)
                 .where(s.workspace.id.eq(workspaceId)
                         .and(s.delFlag.eq(false)))
@@ -87,7 +87,7 @@ public class SurveyService {
 //
 //        surveyDto.setQuestions(questionDtoList);
 
-        List<QuestionResponse> questionList = jpaQueryFactory
+       List<QuestionResponse> questionList = jpaQueryFactory
                 .select(
                         Projections.constructor(QuestionResponse.class,
                                 q.id,
@@ -111,13 +111,11 @@ public class SurveyService {
                 .where(
                         q.survey.id.eq(survey.getId()),
                         q.delFlag.isFalse(),
-                        a.delFlag.isFalse()
+                        a.delFlag.isFalse().or(a.delFlag.isNull())
                 )
-                .orderBy(q.step.asc())
-                .orderBy(a.step.asc())
                 .groupBy(q.id, a.id)  // Group by questionId
+                .orderBy(q.step.asc(), a.step.asc())
                 .fetch();
-
 
         surveyDto.setQuestions(mergeAnswers(questionList));
         return surveyDto;
@@ -252,30 +250,30 @@ public class SurveyService {
     }
 
     private List<QuestionResponse> mergeAnswers(List<QuestionResponse> questions) {
-        // questionId를 키로 사용하는 맵을 생성
         Map<Long, QuestionResponse> questionMap = new HashMap<>();
 
-        // 각각의 질문에 대해 반복
         for (QuestionResponse question : questions) {
             Long questionId = question.getQuestionId();
 
             if (questionMap.containsKey(questionId)) {
-                // 이미 해당 questionId가 맵에 존재하는 경우 answers를 추가
                 List<AnswerResponse> existingAnswers = new ArrayList<>(questionMap.get(questionId).getAnswers());
-
-                // 새로운 답변들을 기존 답변들과 결합
                 existingAnswers.addAll(question.getAnswers());
-
-                // 수정된 answers를 기존 QuestionResponse에 설정
                 questionMap.get(questionId).setAnswers(existingAnswers);
             } else {
-                // 해당 questionId가 맵에 없는 경우 그대로 추가
                 questionMap.put(questionId, question);
             }
         }
 
-        // 맵의 값들을 리스트로 변환하여 반환
-        return new ArrayList<>(questionMap.values());
+        List<QuestionResponse> result =  new ArrayList<>(questionMap.values());
+        result.sort(Comparator.comparing(QuestionResponse::getStep));
+
+        for (QuestionResponse mergedQuestion : result) {
+            List<AnswerResponse> mutableAnswers = new ArrayList<>(mergedQuestion.getAnswers());
+            mutableAnswers.sort(Comparator.comparing(AnswerResponse::getStep));
+            mergedQuestion.setAnswers(mutableAnswers);
+        }
+
+        return result;
     }
 
 

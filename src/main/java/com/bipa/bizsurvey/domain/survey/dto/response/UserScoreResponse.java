@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,10 +15,9 @@ public class UserScoreResponse {
 
     private Long questionId;
 
-    private String userAnswer;
-
-    private Correct correct;
-
     private int score;
 
+    private List<String> userAnswer;
+
 }
+
