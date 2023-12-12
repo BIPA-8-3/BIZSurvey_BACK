@@ -20,9 +20,11 @@ import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyResponseRepository;
 import com.bipa.bizsurvey.global.common.email.EmailMessage;
 import com.bipa.bizsurvey.global.common.email.MailUtil;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -227,6 +229,14 @@ public class SharedSurveyService {
     /////////////////////////////
     // 집계 로직 🥲전체적으로 수정 필요 //
     /////////////////////////////
+    private final JPAQueryFactory jpaQueryFactory;
+
+    QQuestion question = QQuestion.question;
+    QAnswer answer = QAnswer.answer;
+    QSharedSurveyResponse ssr = QSharedSurveyResponse.sharedSurveyResponse;
+    QSharedSurvey ss = QSharedSurvey.sharedSurvey;
+    QContact ct = QContact.contact;
+    QSharedList sl = QSharedList.sharedList;
 
     // 공유단위 목록 조회
     public List<SharedSurveyDto.SharedSurveysResponse> readSharedSurveyHistory(Long surveyId) {
@@ -236,6 +246,7 @@ public class SharedSurveyService {
             LocalDateTime dueDate = e.getRegDate().plusDays(e.getDeadline());
             return SharedSurveyDto.SharedSurveysResponse.builder()
                     .id(e.getId())
+                    .regDate(e.getRegDate())
                     .dueDate(dueDate)
                     .deadline(LocalDateTime.now().isAfter(dueDate)) // true 마감일자 안 지남
                     .surveyId(e.getSurvey().getId())
@@ -245,27 +256,24 @@ public class SharedSurveyService {
 
     // 공유 단위별 참여자 목록
     public List<SharedListDto.Response> readSharedContactList(Long sharedSurveyId) {
-        //공유 단위
-        List<SharedList> list = sharedListRepository.findSharedListsBySharedSurveyIdAndDelFlagFalse(sharedSurveyId);
-
-        return list.stream().map(e -> {
-            Contact contact = e.getContact();
-
-            return SharedListDto.Response.builder()
-                    .id(e.getId())
-                    .contactId(contact.getId())
-                    .email(contact.getEmail())
-                    .name(contact.getName())
-                    .build();
-        }).collect(Collectors.toList());
+        return jpaQueryFactory.select(Projections.fields(SharedListDto.Response.class,
+                        sl.id,
+                        sl.sharedSurvey.id.as("sharedSurveyId"),
+                        ct.id.as("contactId"),
+                        ct.email,
+                        ct.name,
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(ssr.count())
+                                        .from(ssr)
+                                        .where(ssr.sharedList.eq(sl)),
+                                "response")
+                ))
+                .from(sl)
+                .leftJoin(ct).on(sl.contact.eq(ct))
+                .where(sl.sharedSurvey.id.eq(sharedSurveyId).and(sl.delFlag.isFalse()))
+                .fetch();
     }
-
-    private final JPAQueryFactory jpaQueryFactory;
-    QQuestion question = QQuestion.question;
-    QAnswer answer = QAnswer.answer;
-    QSharedSurveyResponse ssr = QSharedSurveyResponse.sharedSurveyResponse;
-    QSharedSurvey ss = QSharedSurvey.sharedSurvey;
-
 
     // 개인 결과
     public List<SharedSurveyResponseDto.QuestionResponse> readSharedSurveyListResult(Long surveyId, Long sharedSurveyId, Long sharedListId) {
@@ -448,7 +456,8 @@ public class SharedSurveyService {
             AtomicInteger cnt = new AtomicInteger();
             sharedAnswer.stream().filter(e -> e.getQuestion().stream().allMatch(correctAnswer::contains)).forEach(e -> {
                 cnt.getAndIncrement();
-                e.setScore(temp.getScore());});
+                e.setScore(temp.getScore());
+            });
             temp.setCorrectCnt(cnt.get());
         }
 

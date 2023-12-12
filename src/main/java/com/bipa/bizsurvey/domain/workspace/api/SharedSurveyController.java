@@ -56,7 +56,7 @@ public class SharedSurveyController {
 
     // 공유 내역
     @GetMapping("/{surveyId}")
-    public ResponseEntity<List<SharedSurveyDto.SharedSurveysResponse> > readSharedSurveyHistory(@PathVariable Long surveyId) {
+    public ResponseEntity<List<SharedSurveyDto.SharedSurveysResponse>> readSharedSurveyHistory(@PathVariable Long surveyId) {
         return ResponseEntity.ok().body(sharedSurveyService.readSharedSurveyHistory(surveyId));
     }
 
