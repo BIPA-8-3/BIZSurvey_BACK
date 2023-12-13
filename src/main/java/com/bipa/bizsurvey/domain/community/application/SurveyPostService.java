@@ -68,6 +68,7 @@ public class SurveyPostService {
                 .maxMember(createSurveyPostRequest.getMaxMember())
                 .post(save)
                 .survey(survey)
+                .thumbImgUrl(createSurveyPostRequest.getThumbImageUrl())
                 .build();
 
         createScore(surveyPost);

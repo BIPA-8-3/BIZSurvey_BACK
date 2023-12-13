@@ -50,7 +50,7 @@ public class PostService {
     public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
-    public void createPost(Long userId, CreatePostRequest createPostRequest){
+    public Long createPost(Long userId, CreatePostRequest createPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.toEntity(user, PostType.COMMUNITY, createPostRequest);
 
@@ -63,6 +63,8 @@ public class PostService {
         if(createPostRequest.getImageUrlList() != null){
             postImageService.createPostImages(save.getId() , createPostRequest.getImageUrlList());
         }
+
+        return save.getId();
     }
 
     // 게시물 전체 조회

@@ -48,13 +48,16 @@ public class SurveyPost extends BaseEntity {
     @ColumnDefault("0")
     private int score;
 
+    private String thumbImgUrl;
+
     @Builder
-    public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, int maxMember, Post post, Survey survey) {
+    public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, int maxMember, Post post, Survey survey, String thumbImgUrl) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.maxMember = maxMember;
         this.post = post;
         this.survey = survey;
+        this.thumbImgUrl = thumbImgUrl;
     }
 
 

@@ -33,9 +33,8 @@ public class CommunityPostController {
     @PostMapping("/createPost")
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest createPostRequest,
                                         @AuthenticationPrincipal LoginUser loginUser){
-
-        postService.createPost(loginUser.getId(), createPostRequest);
-        return ResponseEntity.ok().body("게시물 등록이 완료되었습니다."); // 200 OK
+        
+        return ResponseEntity.ok().body(postService.createPost(1L, createPostRequest)); // TODO : 생성된 게시물 ID 리턴
     }
 
      //게시물 전체 조회
