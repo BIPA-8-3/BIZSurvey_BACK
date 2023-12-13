@@ -26,23 +26,24 @@ public class Contact extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    private String remark;
+//    private String remark;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
 
     @Builder
-    public Contact(String name, String email, String remark, Workspace workspace) {
+    public Contact(String name, String email, Workspace workspace) {
         this.name = name;
         this.email = email;
-        this.remark = remark;
+//        this.remark = remark;
         this.workspace = workspace;
     }
 
-    public void update(String name, String email, String remark) {
+
+    public void update(String name, String email) {
         this.name = name;
         this.email = email;
-        this.remark = remark;
+//        this.remark = remark;
     }
 }
