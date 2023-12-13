@@ -4,21 +4,25 @@ import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimUserResponse;
 import com.bipa.bizsurvey.domain.user.domain.Claim;
 import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ClaimRepository extends JpaRepository<Claim, Long> {
     List<Claim> findByUserId(Long userId);
 
+
     @Query("select new com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse" +
-            "(c.id, c.claimType, c.logicalKey, c.claimReason, c.user.id, c.user.name)" +
+            "(c.id, c.claimType, c.logicalKey, c.claimReason, c.user.id, c.user.name, c.regDate) " +
             "from Claim c " +
             "join c.user " +
-            "where c.delFlag = false and c.processing = :processing")
-    List<ClaimListResponse> findAllByWithUser(@Param("processing") boolean processing);
+            "where c.delFlag = false and c.processing = :processing "+
+            "order by c.regDate desc")
+    Page<ClaimListResponse> findAllByWithUser(@Param("processing") boolean processing, Pageable pageable);
 
     int countByPenalizedAndClaimReason(Long penalized, ClaimReason claimReason);
 

@@ -59,7 +59,7 @@ public class EmailSendService {
 
     public void sendAuthEmail(String email, String authKey) throws Exception {
         String subject = "[bizSurvey] 인증번호";
-        String text = "회원 가입을 위한 인증번호는 " + authKey + "입니다. <br/>";
+        String text = "회원 가입을 위한 인증번호는 " + authKey + "입니다.";
         System.out.println(email);
         EmailMessage emailMessage = EmailMessage.builder()
                 .to(email)
