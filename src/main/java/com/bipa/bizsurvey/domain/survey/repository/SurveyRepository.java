@@ -11,9 +11,10 @@ import java.util.Optional;
 public interface SurveyRepository extends JpaRepository<Survey, Long> {
     List<Survey> findAllByWorkspaceId(Long workspaceId);
 
-    @Query(value = "SELECT s.survey_id AS surveyId, s.title AS title, w.workspace_name AS workspaceName, w.workspace_type AS workspaceType " +
+    @Query(value = "SELECT s.survey_id AS surveyId, s.title AS title, w.workspace_name AS workspaceName, w.workspace_type AS workspaceType, u.nickname AS nickname " +
             "FROM survey s " +
             "INNER JOIN workspace w ON s.workspace_id = w.workspace_id " +
+            "LEFT JOIN users u ON u.user_id = w.user_id " +
             "LEFT JOIN (" +
             "    SELECT w.workspace_id " +
             "    FROM workspace_admin a " +
