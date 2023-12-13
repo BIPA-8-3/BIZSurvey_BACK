@@ -260,15 +260,15 @@ public class PostService {
 
 
     public String checkIsBest(Long postId){
-        List<Integer> postIdList = redisService.getData("bestCommunityPostId", ArrayList.class)
-                .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
-
-
-        log.info("잘 갖고 오니? {}", postIdList);
-
-        if(postIdList.contains(postId.intValue())){
-            return "best";
-        }
+//        List<Integer> postIdList = redisService.getData("bestCommunityPostId", ArrayList.class)
+//                .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
+//
+//
+//        log.info("잘 갖고 오니? {}", postIdList);
+//
+//        if(postIdList.contains(postId.intValue())){
+//            return "best";
+//        }
         return null;
     }
 
