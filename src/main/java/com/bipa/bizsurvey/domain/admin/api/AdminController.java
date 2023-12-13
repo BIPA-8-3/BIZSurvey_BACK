@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.domain.admin.application.AdminClaimService;
 import com.bipa.bizsurvey.domain.admin.application.AdminUserService;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimDetailResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse;
+import com.bipa.bizsurvey.domain.admin.dto.user.AdminUserSignupCountResponse;
 import com.bipa.bizsurvey.domain.admin.dto.user.UserSearchRequest;
 import com.bipa.bizsurvey.domain.community.application.PostService;
 import com.bipa.bizsurvey.domain.community.application.SurveyPostService;
@@ -48,37 +49,35 @@ public class AdminController {
 
     //플랜 회원 조회
     @GetMapping("/user/plan/{plan}")
-    public ResponseEntity<?> planUser(@PageableDefault(size = 10) Pageable pageable,
-                                      @PathVariable Plan plan){
+    public ResponseEntity<?> planUser(@PathVariable Plan plan){
 
-        return ResponseEntity.ok().body(adminUserService.getPlanUserList(pageable, plan));
+        return ResponseEntity.ok().body((adminUserService.getPlanUserList(plan)).size());
     }
 
     //커뮤니티 목록
     @GetMapping("/community")
-    public ResponseEntity<?> getPostList(@PageableDefault(size = 10) Pageable pageable){
-        return ResponseEntity.ok().body(postService.getPostList(pageable));
+    public ResponseEntity<?> getPostList(@PageableDefault(size = 20) Pageable pageable,
+                                         @RequestParam(required = false) String fieldName){
+        return ResponseEntity.ok().body(postService.getPostList(pageable, fieldName));
     }
 
     //설문 커뮤니티 목록
     @GetMapping("/s-community")
-    public ResponseEntity<?> getSurveyPost(@PageableDefault(size = 10) Pageable pageable,
+    public ResponseEntity<?> getSurveyPost(@PageableDefault(size = 20) Pageable pageable,
                                            @RequestParam(required = false) String fieldName){
         return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable, fieldName));
     }
 
     //미처리 신고 목록
     @GetMapping("/claim/unprocessed")
-    public ResponseEntity<?> claimUnprocessed(@PageableDefault(size = 10) Pageable pageable){
-        List<ClaimListResponse> result = adminClaimService.getProcessed(false);
-        return ResponseEntity.ok().body(new PageImpl<>(result, pageable, result.size()));
+    public ResponseEntity<?> claimUnprocessed(@PageableDefault(size = 20) Pageable pageable){
+        return ResponseEntity.ok().body(adminClaimService.getProcessed(false, pageable));
     }
 
     //처리 신고 목록
     @GetMapping("/claim/processed")
-    public ResponseEntity<?> claimProcessed(@PageableDefault(size = 10) Pageable pageable){
-        List<ClaimListResponse> result = adminClaimService.getProcessed(true);
-        return ResponseEntity.ok().body(new PageImpl<>(result, pageable, result.size()));
+    public ResponseEntity<?> claimProcessed(@PageableDefault(size = 20) Pageable pageable){
+        return ResponseEntity.ok().body(adminClaimService.getProcessed(true, pageable));
     }
 
     //신고내역 상세 조회
@@ -110,6 +109,12 @@ public class AdminController {
         return ResponseEntity.ok().body("");
     }
 
+    //회원가입 통계
+    @GetMapping("/signup/count")
+    public ResponseEntity<?> signupCount(){
+        List<AdminUserSignupCountResponse> list = adminUserService.signupCount();
+        return ResponseEntity.ok().body(list);
+    }
 
 
 

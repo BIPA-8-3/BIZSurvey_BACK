@@ -16,6 +16,7 @@ public class AdminUserResponse {
     private String company;
     private String plan;
     private String regDate;
+    private String provider;
 
     public AdminUserResponse(User user) {
         this.userId = user.getId();
@@ -27,5 +28,6 @@ public class AdminUserResponse {
         this.company = user.getCompany();
         this.plan = user.getPlanSubscribe().getValue();
         this.regDate = String.valueOf(user.getRegDate());
+        this.provider = user.getProvider();
     }
 }
