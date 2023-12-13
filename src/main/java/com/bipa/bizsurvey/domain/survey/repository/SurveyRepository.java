@@ -21,7 +21,8 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
             "    RIGHT JOIN workspace w ON a.workspace_id = w.workspace_id " +
             "    WHERE a.user_id = :userId AND (w.del_flag = false and a.del_flag = false) OR (w.user_id = :userId AND w.workspace_type = 'PERSONAL')" +
             ") subquery ON s.workspace_id = subquery.workspace_id " +
-            "WHERE s.del_flag = false AND subquery.workspace_id IS NOT NULL", nativeQuery = true)
+            "WHERE s.del_flag = false AND subquery.workspace_id IS NOT NULL "+
+            "ORDER BY w.workspace_name ASC", nativeQuery = true)
     List<Object[]> getSurveyList(@Param("userId") Long userId);
 
     Optional<Survey> findByIdAndDelFlagFalse(Long id);
