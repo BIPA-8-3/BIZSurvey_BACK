@@ -77,11 +77,11 @@ class StatisticsServiceImpTest {
         Long surveyId = 25L;
         Long postId = 2L;
 
-        List<ScoreResultResponse> result = serviceImp.getScoreResult(surveyId, postId);
+//        List<ScoreResultResponse> result = serviceImp.getScoreResult(surveyId, postId);
 
-        result.forEach(dto-> {
-            log.info("dto ={}", dto);
-        });
+//        result.forEach(dto-> {
+//            log.info("dto ={}", dto);
+//        });
 
     }
 

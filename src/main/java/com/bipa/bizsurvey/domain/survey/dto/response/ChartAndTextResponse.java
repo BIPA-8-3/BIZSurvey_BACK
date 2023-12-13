@@ -13,6 +13,8 @@ import java.util.List;
 public class ChartAndTextResponse {
 
     private Long questionId;
+    //추가
+    private String title;
 
     private AnswerType questionType;
 

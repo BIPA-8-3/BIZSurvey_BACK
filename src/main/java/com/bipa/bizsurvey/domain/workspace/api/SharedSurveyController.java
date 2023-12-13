@@ -27,7 +27,6 @@ public class SharedSurveyController {
                                   @RequestBody SharedSurveyDto.SharedRequest request) {
 
         sharedSurveyService.share(request);
-
         return ResponseEntity.ok().body("성공적으로 전송하였습니다.");
     }
 

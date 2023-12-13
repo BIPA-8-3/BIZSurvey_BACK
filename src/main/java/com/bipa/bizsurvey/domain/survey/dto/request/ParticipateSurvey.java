@@ -1,4 +1,5 @@
-package com.bipa.bizsurvey.domain.survey.dto.response;
+package com.bipa.bizsurvey.domain.survey.dto.request;
+
 
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import lombok.AllArgsConstructor;
@@ -8,16 +9,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonalResultResponse {
+public class ParticipateSurvey {
 
-    private Long questionId;
 
     private String answer;
 
-    private String url;
-
-//    private AnswerType questionType;
-
     private AnswerType answerType;
+
+    private Long questionId;
+
+
 
 }

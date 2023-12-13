@@ -97,7 +97,8 @@ public class SurveyCommunityService {
                         ((Number) result[0]).longValue(),
                         (String) result[1],
                         result[2] != null ? (String) result[2] : "",
-                        WorkspaceType.valueOf((String) result[3])
+                        WorkspaceType.valueOf((String) result[3]),
+                        (String) result[4]
                 ))
                 .collect(Collectors.toList());
 
