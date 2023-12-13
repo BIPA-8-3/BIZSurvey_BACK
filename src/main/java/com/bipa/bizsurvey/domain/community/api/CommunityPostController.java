@@ -1,13 +1,16 @@
 package com.bipa.bizsurvey.domain.community.api;
 
+import com.bipa.bizsurvey.domain.community.application.CommentService;
 import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
 import com.bipa.bizsurvey.domain.community.application.PostService;
+import com.bipa.bizsurvey.domain.community.dto.response.post.PostTableResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostTitleResponse;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,23 +30,29 @@ import java.util.List;
 public class CommunityPostController {
 
     private final PostService postService;
+    private final CommentService commentService;
     private final RedisService redisService;
 
      //CREATE
     @PostMapping("/createPost")
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest createPostRequest,
                                         @AuthenticationPrincipal LoginUser loginUser){
-
-        postService.createPost(loginUser.getId(), createPostRequest);
-        return ResponseEntity.ok().body("게시물 등록이 완료되었습니다."); // 200 OK
+        
+        return ResponseEntity.ok().body(postService.createPost(1L, createPostRequest)); // TODO : 생성된 게시물 ID 리턴
     }
 
      //게시물 전체 조회
     @GetMapping("")
-    public ResponseEntity<?> getPostList(@PageableDefault(size = 15) Pageable pageable
-                                         ){
+    public ResponseEntity<?> getPostList(@PageableDefault(size = 15) Pageable pageable){
+        CustomPageImpl<?> postPage = postService.getPostList(pageable);
+        List<?> content = postPage.getContent();
+        for (Object o : content) {
+            PostTableResponse postTableResponse = (PostTableResponse) o;
+            postTableResponse.setCommentSize(commentService.getCommentList(postTableResponse.getPostId()).size());
+            postTableResponse.setCount(postService.getPostCount(postTableResponse.getPostId()));
+        }
 
-        return ResponseEntity.ok().body(postService.getPostList(pageable)); // 200 OK
+        return ResponseEntity.ok().body(postPage); // 200 OK
     }
 
     // 게시물 상세 조회
