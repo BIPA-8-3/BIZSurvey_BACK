@@ -62,9 +62,8 @@ public class AdminController {
 
     //설문 커뮤니티 목록
     @GetMapping("/s-community")
-    public ResponseEntity<?> getSurveyPost(@PageableDefault(size = 10) Pageable pageable,
-                                           @RequestParam(required = false) String fieldName){
-        return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable, fieldName));
+    public ResponseEntity<?> getSurveyPost(@PageableDefault(size = 10) Pageable pageable){
+        return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable));
     }
 
     //미처리 신고 목록

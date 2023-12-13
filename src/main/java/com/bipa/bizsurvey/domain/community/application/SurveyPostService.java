@@ -18,12 +18,15 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +52,7 @@ public class SurveyPostService {
     private final CommentService commentService;
     private final QPost p = QPost.post;
     private final QSurveyPost sp = QSurveyPost.surveyPost;
-
+    @CacheEvict(value = "postSurveyListCache", allEntries = true)
     public void createSurveyPost(Long userId, CreateSurveyPostRequest createSurveyPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.builder()
@@ -118,7 +121,8 @@ public class SurveyPostService {
     }
 
     // 전체 조회
-    public Page<?> getSurveyPostList(Pageable pageable, String fieldName){
+    @Cacheable(value = "postSurveyListCache", key = "#pageable.pageNumber", cacheManager = "jdkCacheManager")
+    public CustomPageImpl<?> getSurveyPostList(Pageable pageable){
 
         long totalCount = jpaQueryFactory
                 .select(p)
@@ -167,7 +171,6 @@ public class SurveyPostService {
                     .postId(tuple.get(p.id))
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
-                    .count(tuple.get(p.count))
                     .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .nickname(tuple.get(p.user.nickname))
                     .maxMember(tuple.get(sp.maxMember))
@@ -179,7 +182,7 @@ public class SurveyPostService {
 
             results.add(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse));
         }
-        return new PageImpl<>(results, pageable, totalCount);
+        return new CustomPageImpl<>(results, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
     }
 
 
@@ -248,7 +251,7 @@ public class SurveyPostService {
         return new PageImpl<>(results, pageable, totalCount);
 
     }
-
+    @CacheEvict(value = "postSurveyListCache", allEntries = true)
     public void updateSurveyPost(Long userId, Long postId, UpdateSurveyPostRequest updateSurveyPostRequest){
         postService.checkPermission(userId, postId);
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);

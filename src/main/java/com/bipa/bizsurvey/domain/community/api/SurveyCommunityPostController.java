@@ -1,16 +1,20 @@
 package com.bipa.bizsurvey.domain.community.api;
 
+import com.bipa.bizsurvey.domain.community.application.PostService;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.CreateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.application.SurveyPostService;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostTitleResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostResponse;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,7 @@ import java.util.List;
 public class SurveyCommunityPostController {
 
     private final SurveyPostService surveyPostService;
+    private final PostService postService;
     private final RedisService redisService;
 
     @PostMapping("/createPost")
@@ -39,11 +44,19 @@ public class SurveyCommunityPostController {
     }
 
     // 전체 조회
+    // TODO : 참여 가능 여부 캐싱된 데이터가 아니겠끔
+    // TODO : 댓글 갯수 캐싱된 데이터가 아니겠끔
     @GetMapping("")
-    public ResponseEntity<?> getSurveyPostList(@PageableDefault(size = 8) Pageable pageable,
-                                               @RequestParam(required = false) String fieldName
-    ) {
-        return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable, fieldName));
+    public ResponseEntity<?> getSurveyPostList(@PageableDefault(size = 8) Pageable pageable) {
+
+        CustomPageImpl<?> surveyPostPage = surveyPostService.getSurveyPostList(pageable);
+        List<?> content = surveyPostPage.getContent();
+        for(Object o : content){
+            SurveyPostResponse surveyPostResponse = (SurveyPostResponse) o;
+            surveyPostResponse.setCount(postService.getPostCount(surveyPostResponse.getPostId()));
+        }
+
+        return ResponseEntity.ok().body(surveyPostPage);
     }
 
     ///s-community/showSPost/{post_id}
