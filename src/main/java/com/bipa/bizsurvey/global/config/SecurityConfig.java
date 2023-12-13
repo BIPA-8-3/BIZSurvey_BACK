@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.global.config;
 
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.RedisService;
+import com.bipa.bizsurvey.global.config.jwt.AdminJwtAuthenticationFilter;
 import com.bipa.bizsurvey.global.config.jwt.JwtAuthenticationFilter;
 import com.bipa.bizsurvey.global.config.jwt.JwtAuthorizationFilter;
 import com.bipa.bizsurvey.global.util.CustomResponseUtil;
@@ -37,6 +38,8 @@ public class SecurityConfig {
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
             builder.addFilter(new JwtAuthenticationFilter(authenticationManager, redisService, userRepository));
             builder.addFilter(new JwtAuthorizationFilter(authenticationManager));
+            //admin login
+            builder.addFilter(new AdminJwtAuthenticationFilter(authenticationManager, redisService, userRepository));
             super.configure(builder);
         }
     }
@@ -62,9 +65,9 @@ public class SecurityConfig {
 
         http.authorizeRequests(
                 authorize -> authorize.antMatchers("/user/**").authenticated()
-                        .antMatchers("/plan/**", "/admin/**").authenticated()
+                        .antMatchers("/plan/**").authenticated()
 //                        .antMatchers("/admin/**").access("hasRole('ADMIN')")
-                        .antMatchers("/signup/**", "/login/**", "/refresh/**", "/oauth2/**").permitAll()
+                        .antMatchers("/signup/**", "/login/**", "/refresh/**", "/oauth2/**", "/admin/**").permitAll()
         );
 
 //        http.oauth2Login()

@@ -18,4 +18,6 @@ public class SurveyListInCommunityResponse {
     private String workspaceName;
 
     private WorkspaceType workspaceType;
+
+    private String nickname;
 }

@@ -17,6 +17,8 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,8 +39,8 @@ public class AdminClaimService {
 
 
     //처리/미처리 신고 목록
-    public List<ClaimListResponse> getProcessed(boolean processing){
-        return claimRepository.findAllByWithUser(processing);
+    public Page<ClaimListResponse> getProcessed(boolean processing, Pageable pageable){
+        return claimRepository.findAllByWithUser(processing, pageable);
     }
 
     //신고 상세(신고 테이블)

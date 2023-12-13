@@ -11,6 +11,4 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByDelFlagIsFalseAndReportedIsFalse(Pageable pageable);
-
-    Page<Post> findByUserIdAndPostTypeAndDelFlagIsFalseAndReportedIsFalse(Long userId, PostType postType, Pageable pageable);
 }
