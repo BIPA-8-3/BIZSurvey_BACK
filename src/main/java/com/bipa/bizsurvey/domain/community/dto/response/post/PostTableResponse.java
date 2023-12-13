@@ -1,14 +1,17 @@
 package com.bipa.bizsurvey.domain.community.dto.response.post;
 
-import com.bipa.bizsurvey.domain.community.dto.response.comment.CommentResponse;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.io.Serializable;
+
 
 @Data
-@Builder
-public class PostTableResponse {
+@NoArgsConstructor
+public class PostTableResponse implements Serializable {
     private Long postId;
     private String title;
     private int count;
@@ -25,4 +28,17 @@ public class PostTableResponse {
 
     //조회수 기준 Best 게시물인지 아닌지
     private String isBest;
+
+    @Builder
+    public PostTableResponse(Long postId, String title, int count, String nickname, String createTime, int commentSize, Long voteId, String createType, String isBest) {
+        this.postId = postId;
+        this.title = title;
+        this.count = count;
+        this.nickname = nickname;
+        this.createTime = createTime;
+        this.commentSize = commentSize;
+        this.voteId = voteId;
+        this.createType = createType;
+        this.isBest = isBest;
+    }
 }

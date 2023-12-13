@@ -19,19 +19,19 @@ public class CommonScheduler {
     private final PostService postService;
     private final SurveyPostService surveyPostService;
 
-    @Scheduled(cron = "0 0 18 ? * THU")
+    @Scheduled(cron = "0 5 23 ? * WED")
     public void autoUpdatePostTitles() {
         List<String> postTitles = postService.findPostTitle();
         redisService.saveData("searchTitles", postTitles);
         log.info("스케줄러 동작");
     }
 
-    @Scheduled(cron = "0 30 15 ? * SAT")
+    @Scheduled(cron = "0 5 23 ? * WED")
     public void bestCommunityPostId(){
         redisService.saveData("bestCommunityPostId", postService.choseBestCommunityPostId());
     }
 
-    @Scheduled(cron = "0 25 20 ? * SAT")
+    @Scheduled(cron = "0 5 23 ? * WED")
     public void autoUpdateSurveyPostTitles(){
         List<String> postTitles = surveyPostService.findSurveyPostTitle();
         redisService.saveData("SearchSurveyTitles", postTitles);
