@@ -48,4 +48,12 @@ public class WorkspaceDto {
         LocalDateTime regDate;
         LocalDateTime modDate;
     }
+
+
+    @Data
+    @Builder
+    public static class UpdateSurveyTitle {
+        Long surveyId;
+        String title;
+    }
 }

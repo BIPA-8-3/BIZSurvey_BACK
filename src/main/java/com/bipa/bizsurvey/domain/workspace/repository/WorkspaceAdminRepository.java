@@ -14,5 +14,4 @@ public interface WorkspaceAdminRepository extends JpaRepository<WorkspaceAdmin, 
     Optional<WorkspaceAdmin> findByIdAndDelFlagFalse(Long id);
     Optional<WorkspaceAdmin> findByWorkspaceIdAndUserId(Long userId, Long workspaceId);
     List<WorkspaceAdmin> findByWorkspaceIdAndDelFlagFalse(Long workspaceId);
-
 }
