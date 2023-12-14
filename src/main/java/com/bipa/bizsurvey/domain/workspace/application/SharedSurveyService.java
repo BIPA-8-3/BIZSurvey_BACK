@@ -57,6 +57,9 @@ public class SharedSurveyService {
     @Value("${domain.backend}")
     private String backendAddress;
 
+    @Value("${domain.frontend}")
+    private String frontendAddress;
+
     // 연락처로 공유
     public void share(SharedSurveyDto.SharedRequest request) {
         Long surveyId = request.getSurveyId();
@@ -111,7 +114,7 @@ public class SharedSurveyService {
 
             emailMessage.put("msg", "참여를 원하신다면 링크를 클릭해주세요. (링크는 3일간 유효합니다.)");
             emailMessage.put("hasLink", true);
-            emailMessage.put("link", backendAddress + sharedSurveyId + "/" + token);
+            emailMessage.put("link", frontendAddress + "/authorization/shared/" + sharedSurveyId + "_" + token);
             emailMessage.put("linkText", "입장하기");
 
             return emailMessage;

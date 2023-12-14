@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.workspace.api;
 
+import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.workspace.application.WorkspaceService;
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceDto;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.util.List;
 
@@ -57,5 +59,21 @@ public class WorkspaceController {
     public ResponseEntity<String> remove(@PathVariable Long id) {
         workspaceService.delete(id);
         return ResponseEntity.ok().body("삭제가 완료되었습니다.");
+    }
+
+    @PatchMapping("/survey")
+    public ResponseEntity<?> modifySurveyName(@RequestBody WorkspaceDto.UpdateSurveyTitle request) {
+        workspaceService.updateSurveyName(request);
+        return ResponseEntity.ok().body("수정이 완료되었습니다.");
+
+    }
+    @GetMapping("/personal")
+    public ResponseEntity<Boolean> readPersonalWorkspace(@AuthenticationPrincipal LoginUser loginUser) {
+        try {
+            workspaceService.getPersonalWorkspace(loginUser.getId());
+            return ResponseEntity.ok().body(true);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.ok().body(false);
+        }
     }
 }

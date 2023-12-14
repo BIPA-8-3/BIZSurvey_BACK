@@ -24,4 +24,6 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
     List<Object[]> getSurveyList(@Param("userId") Long userId);
 
     Optional<Survey> findByIdAndDelFlagFalse(Long id);
+
+
 }

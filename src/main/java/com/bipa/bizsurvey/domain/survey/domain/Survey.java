@@ -65,4 +65,8 @@ public class Survey extends BaseEntity {
         this.surveyType = updateSurveyRequest.getSurveyType();
     }
 
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
 }

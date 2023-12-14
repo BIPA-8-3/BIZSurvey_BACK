@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,9 +68,11 @@ public class RedisService {
         return (String) valueOperations.get(key);
     }
 
-    public void validateDataExists(String key) {
+    public boolean validateDataExists(String key) {
         if(!redisTemplate.hasKey(key)) {
-            throw new RuntimeException("유효하지 않은 key값 입니다.");
+            return true;
+        } else {
+            return false;
         }
     }
     public void deleteData(String key) {

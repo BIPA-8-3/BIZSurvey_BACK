@@ -90,4 +90,14 @@ public class SharedSurveyController {
                                                                                                  @PathVariable Long sharedSurveyId) {
         return ResponseEntity.ok().body(sharedSurveyService.readShareScoreResults(surveyId, sharedSurveyId));
     }
+
+    // 공유 토큰 확인
+//    @GetMapping("/invite/{token}")
+//    public ResponseEntity<String> checkInvitationCode(@PathVariable String token) {
+//        if(!redisService.validateDataExists("INVITE-" + token)) {
+//            return ResponseEntity.ok().body(token);
+//        }else {
+//            return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
+//        }
+//    }
 }
