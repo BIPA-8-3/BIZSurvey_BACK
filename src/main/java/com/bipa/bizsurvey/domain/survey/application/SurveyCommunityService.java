@@ -104,6 +104,10 @@ public class SurveyCommunityService {
 
     }
 
+    // 참가 인원수 조회
+    public int getParticipants(Long surveyPostId){
+        return userSurveyResponseRepository.findParticipants(surveyPostId);
+    }
 
 
 }
