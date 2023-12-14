@@ -3,9 +3,13 @@ package com.bipa.bizsurvey.domain.admin.application;
 import com.bipa.bizsurvey.domain.admin.dto.childComment.ClaimChileCommentResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimDetailResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse;
+import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimUnProcessingRequest;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimUserResponse;
 import com.bipa.bizsurvey.domain.admin.dto.comment.ClaimCommentResponse;
 import com.bipa.bizsurvey.domain.admin.dto.post.ClaimPostResponse;
+import com.bipa.bizsurvey.domain.community.application.ChildCommentService;
+import com.bipa.bizsurvey.domain.community.application.CommentService;
+import com.bipa.bizsurvey.domain.community.application.PostService;
 import com.bipa.bizsurvey.domain.community.domain.*;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
@@ -14,6 +18,7 @@ import com.bipa.bizsurvey.domain.community.repository.CommentRepository;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.user.domain.Claim;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.enums.ClaimType;
 import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +42,13 @@ public class AdminClaimService {
     private final ChildCommentRepository childCommentRepository;
     private final UserRepository userRepository;
 
+    private final PostService postService;
+    private final CommentService commentService;
+    private final ChildCommentService childCommentService;
+
 
     //처리/미처리 신고 목록
-    public Page<ClaimListResponse> getProcessed(boolean processing, Pageable pageable){
+    public Page<ClaimListResponse> getProcessed(int processing, Pageable pageable){
         return claimRepository.findAllByWithUser(processing, pageable);
     }
 
@@ -50,7 +59,11 @@ public class AdminClaimService {
                 .id(data.getId())
                 .claimType(String.valueOf(data.getClaimType()))
                 .logicalKey(data.getLogicalKey())
-                .claimReason(String.valueOf(data.getClaimReason()))
+                .claimReason(data.getClaimReason().getValue())
+                .userid(data.getUser().getId())
+                .nickname(data.getUser().getNickname())
+                .email(data.getUser().getEmail())
+                .createTime(String.valueOf(data.getRegDate()))
                 .build();
     }
 
@@ -67,6 +80,7 @@ public class AdminClaimService {
                 .nickname(post.getUser().getNickname())
                 .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyyMMdd HH:mm")))
                 .userId(post.getUser().getId())
+                .email(post.getUser().getEmail())
                 .build();
     }
 
@@ -104,7 +118,7 @@ public class AdminClaimService {
         claim.claimProcessing();
         Claim result = claimRepository.save(claim);
         //같은 사유로 등록된 신고 갯수
-        int claimCount = claimRepository.countByPenalizedAndClaimReason(result.getPenalized(), result.getClaimReason());
+        int claimCount = claimRepository.countByPenalizedAndClaimReasonAndProcessing(result.getPenalized(), result.getClaimReason(), 1);
         int plus = calculatePlus(String.valueOf(result.getClaimReason()), claimCount);
         User user = userRepository.findById(result.getPenalized()).orElseThrow();
         if(plus != 99) {
@@ -113,10 +127,30 @@ public class AdminClaimService {
                 user.forbiddenDateUpdate(nowPlusDateTime(plus));
             } else {
                 //정지 기간에서 플러스
-                plusDateTime(plus, user.getForbiddenDate());
+                user.forbiddenDateUpdate(plusDateTime(plus, user.getForbiddenDate()));
             }
         }else {
             user.forbiddenDateUpdate("forbidden");
+        }
+    }
+    public void claimUnprocessing(ClaimUnProcessingRequest request){
+        System.out.println("testestsetste!!!!");
+        //신고 반려 처리
+        Claim claim = claimRepository.findById(request.getClaimId()).orElseThrow();
+        claim.claimUnProcessing();
+
+        // 게시물을 신고했을 경우
+        if(claim.getClaimType() == ClaimType.POST){
+            Post post = postService.findPost(request.getPostId());
+            post.setReported(false); // 신고된 게시물
+            // 댓글이 신고된 경우
+        }else if(claim.getClaimType() == ClaimType.COMMENT){
+            Comment comment = commentService.findComment(request.getPostId());
+            comment.updateReportedFalse(); // 신고된 댓글
+            // 대댓글이 신고된 경우
+        } else if (claim.getClaimType() == ClaimType.CHILD_COMMENT) {
+            ChildComment childComment = childCommentService.findChildComment(request.getPostId());
+            childComment.updateReportedFalse(); // 신고된 대댓글
         }
     }
 

@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.domain.admin.application.AdminClaimService;
 import com.bipa.bizsurvey.domain.admin.application.AdminUserService;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimDetailResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse;
+import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimUnProcessingRequest;
 import com.bipa.bizsurvey.domain.admin.dto.user.AdminUserSignupCountResponse;
 import com.bipa.bizsurvey.domain.admin.dto.user.UserSearchRequest;
 import com.bipa.bizsurvey.domain.community.application.PostService;
@@ -71,13 +72,13 @@ public class AdminController {
     //미처리 신고 목록
     @GetMapping("/claim/unprocessed")
     public ResponseEntity<?> claimUnprocessed(@PageableDefault(size = 20) Pageable pageable){
-        return ResponseEntity.ok().body(adminClaimService.getProcessed(false, pageable));
+        return ResponseEntity.ok().body(adminClaimService.getProcessed(0, pageable));
     }
 
     //처리 신고 목록
     @GetMapping("/claim/processed")
     public ResponseEntity<?> claimProcessed(@PageableDefault(size = 20) Pageable pageable){
-        return ResponseEntity.ok().body(adminClaimService.getProcessed(true, pageable));
+        return ResponseEntity.ok().body(adminClaimService.getProcessed(1, pageable));
     }
 
     //신고내역 상세 조회
@@ -91,7 +92,7 @@ public class AdminController {
         Map<String, Object> data = new HashMap<>();
         data.put("claim", claim);
 
-        if ("POST".equals(claimType)) {
+        if ("POST".equals(claim.getClaimType())) {
             data.put("child", adminClaimService.getClaimPost(key));
         } else if ("COMMENT".equals(claimType)) {
             data.put("child", adminClaimService.getClaimComment(key));
@@ -106,6 +107,13 @@ public class AdminController {
     @GetMapping("/claim/processing/{id}")
     public ResponseEntity<?> claimProcessing(@PathVariable Long id){
         adminClaimService.claimProcessing(id);
+        return ResponseEntity.ok().body("");
+    }
+
+    //신고 반려 처리
+    @PatchMapping ("/claim/unprocessing")
+    public ResponseEntity<?> claimUnprocessing(@RequestBody ClaimUnProcessingRequest request){
+        adminClaimService.claimUnprocessing(request);
         return ResponseEntity.ok().body("");
     }
 
