@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class SurveyPostResponse {
     private Long postId;
     private String title;
@@ -25,4 +25,18 @@ public class SurveyPostResponse {
     private List<CommentResponse> commentList;
     private String canAccess;
 
+    @Builder
+    public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate, int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList, String canAccess) {
+        this.postId = postId;
+        this.title = title;
+        this.content = content;
+        this.count = count;
+        this.nickname = nickname;
+        this.createDate = createDate;
+        this.maxMember = maxMember;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.commentList = commentList;
+        this.canAccess = canAccess;
+    }
 }

@@ -24,7 +24,7 @@ public class CommunityChildCommentController {
                                                 @Valid @RequestBody CreateChildCommentRequest createChildCommentRequest,
                                                 @AuthenticationPrincipal LoginUser loginUser
                                                 ){
-        childCommentService.createChildComment(loginUser.getId(), commentId, createChildCommentRequest);
+        childCommentService.createChildComment(1L, commentId, createChildCommentRequest);
         return ResponseEntity.ok().body("대댓글이 생성되었습니다.");
     }
 

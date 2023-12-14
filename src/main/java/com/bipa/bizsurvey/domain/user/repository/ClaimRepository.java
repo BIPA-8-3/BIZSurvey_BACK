@@ -22,9 +22,9 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
             "join c.user " +
             "where c.delFlag = false and c.processing = :processing "+
             "order by c.regDate desc")
-    Page<ClaimListResponse> findAllByWithUser(@Param("processing") boolean processing, Pageable pageable);
+    Page<ClaimListResponse> findAllByWithUser(@Param("processing") int processing, Pageable pageable);
 
-    int countByPenalizedAndClaimReason(Long penalized, ClaimReason claimReason);
+    int countByPenalizedAndClaimReasonAndProcessing(Long penalized, ClaimReason claimReason, int processing);
 
 
 //    @Query("SELECT new com.bipa.bizsurvey.domain.admin.dto.claim.ClaimDetailResponse" +

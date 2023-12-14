@@ -18,14 +18,16 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +52,8 @@ public class PostService {
     public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
-    public void createPost(Long userId, CreatePostRequest createPostRequest){
+    @CacheEvict(value = "postListCache", allEntries = true)
+    public Long createPost(Long userId, CreatePostRequest createPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.toEntity(user, PostType.COMMUNITY, createPostRequest);
 
@@ -63,6 +66,8 @@ public class PostService {
         if(createPostRequest.getImageUrlList() != null){
             postImageService.createPostImages(save.getId() , createPostRequest.getImageUrlList());
         }
+
+        return save.getId();
     }
 
     // 게시물 전체 조회
@@ -72,7 +77,8 @@ public class PostService {
 
     // TODO : 신고된 게시물 띄우지 않기로(추가해야함)
     // TODO : QueryDSL 로 업데이트
-    public Page<?> getPostList(Pageable pageable){
+    @Cacheable(value = "postListCache", key = "#pageable.pageNumber", cacheManager = "jdkCacheManager")
+    public CustomPageImpl<?> getPostList(Pageable pageable){
 
         long totalCount = jpaQueryFactory
                 .select(p)
@@ -111,7 +117,8 @@ public class PostService {
             result.add(postTableResponse);
         }
 
-        return new PageImpl<>(result, pageable, totalCount);
+
+        return new CustomPageImpl<>(result, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
     }
 
 
@@ -173,6 +180,8 @@ public class PostService {
 
     // 게시물 상세 조회
     // /community/updatePost/{post_id}
+
+
     public PostResponse getPost(Long postId){
         Post post = findPost(postId);
         checkAvailable(post);
@@ -195,6 +204,7 @@ public class PostService {
 
     // 게시물 수정
     // /community/updatePost/{post_id}
+    @CacheEvict(value = "postListCache", allEntries = true)
     public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
 
         if(updatePostRequest.getAddImgUrlList() != null){
@@ -213,10 +223,12 @@ public class PostService {
 
     // 게시물 삭제
     // /community/deletePost/{postId}
+    @CacheEvict(value = "postListCache", allEntries = true)
     public void deletePost(Long userId, Long postId){
         Post post = checkPermission(userId, postId);
         checkAvailable(post);
-        post.updateDelFlag();
+        post.setDelFlag(true);
+        postRepository.save(post);
     }
 
 
@@ -260,15 +272,17 @@ public class PostService {
 
 
     public String checkIsBest(Long postId){
-//        List<Integer> postIdList = redisService.getData("bestCommunityPostId", ArrayList.class)
-//                .orElseThrow( () -> new PostException(PostExceptionType.NO_RESULT));
-//
-//
-//        log.info("잘 갖고 오니? {}", postIdList);
-//
-//        if(postIdList.contains(postId.intValue())){
-//            return "best";
-//        }
+
+        List<Integer> postIdList = null;
+        try {
+            postIdList = redisService.getData("bestCommunityPostId", ArrayList.class).get();
+        }catch (Exception e){
+            return null;
+        }
+
+        if(postIdList.contains(postId.intValue())){
+            return "best";
+        }
         return null;
     }
 
@@ -312,6 +326,10 @@ public class PostService {
                 .fetch();
     }
 
+    public int getPostCount(Long postId){
+        Post post = postRepository.findById(postId).get();
+        return post.getCount();
+    }
 
 
 

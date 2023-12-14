@@ -46,6 +46,4 @@ public class SurveyCommunityController {
 
         return ResponseEntity.ok().body(surveyCommunityService.getSurveyList(loginUser));
     }
-
-
 }
