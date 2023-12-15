@@ -39,8 +39,7 @@ public class SurveyCommunityPostController {
     public ResponseEntity<?> createSurveyPost(@AuthenticationPrincipal LoginUser loginUser,
                                               @Valid @RequestBody CreateSurveyPostRequest createSurveyPostRequest
     ) {
-        surveyPostService.createSurveyPost(1L, createSurveyPostRequest); // TODO : 잠깐 수정
-        return ResponseEntity.ok().body("설문 게시물이 생성되었습니다.");
+        return ResponseEntity.ok().body(surveyPostService.createSurveyPost(loginUser.getId(), createSurveyPostRequest));
     }
 
     // 전체 조회
