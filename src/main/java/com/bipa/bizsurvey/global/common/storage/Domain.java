@@ -3,7 +3,9 @@ package com.bipa.bizsurvey.global.common.storage;
 public enum Domain {
     SURVEY("survey/"),
     USER("user/"),
-    COMMUNITY("community/");
+    COMMUNITY("community/"),
+    SURVEY_THUMB("thumb/");
+
     private final String domainName;
 
     Domain(String domainName) {

@@ -53,7 +53,7 @@ public class SurveyPostService {
     private final QPost p = QPost.post;
     private final QSurveyPost sp = QSurveyPost.surveyPost;
     @CacheEvict(value = "postSurveyListCache", allEntries = true)
-    public void createSurveyPost(Long userId, CreateSurveyPostRequest createSurveyPostRequest){
+    public Long createSurveyPost(Long userId, CreateSurveyPostRequest createSurveyPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.builder()
                 .user(user)
@@ -77,6 +77,8 @@ public class SurveyPostService {
         createScore(surveyPost);
 
         surveyPostRepository.save(surveyPost);
+
+        return save.getId();
     }
 
     // 상세 조회
