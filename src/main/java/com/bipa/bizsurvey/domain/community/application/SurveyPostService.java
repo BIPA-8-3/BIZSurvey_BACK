@@ -7,6 +7,8 @@ import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.CreateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
+import com.bipa.bizsurvey.domain.community.dto.response.comment.CommentResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostCardResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostResponse;
 import com.bipa.bizsurvey.domain.community.enums.AccessType;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
@@ -50,6 +52,7 @@ public class SurveyPostService {
     private final PostRepository postRepository;
     private final PostService postService;
     private final CommentService commentService;
+    private final PostImageService postImageService;
     private final QPost p = QPost.post;
     private final QSurveyPost sp = QSurveyPost.surveyPost;
     @CacheEvict(value = "postSurveyListCache", allEntries = true)
@@ -62,6 +65,11 @@ public class SurveyPostService {
                 .content(createSurveyPostRequest.getContent())
                 .build();
         Post save = postRepository.save(post);
+
+        if(createSurveyPostRequest.getImageUrlList() != null){
+            postImageService.createPostImages(save.getId(),
+                    createSurveyPostRequest.getImageUrlList());
+        }
 
         Survey survey = surveyService.findSurvey(createSurveyPostRequest.getSurveyId());
 
@@ -105,8 +113,10 @@ public class SurveyPostService {
          Post post = postService.findPost(postId);
          post.addCount(); // 조회수 증가
 
+        List<CommentResponse> commentList = commentService.getCommentList(postId);
 
-        SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
+
+        return SurveyPostResponse.builder()
                 .postId(tuple.get(p.id))
                 .title(tuple.get(p.title))
                 .content(tuple.get(p.content))
@@ -116,13 +126,15 @@ public class SurveyPostService {
                 .maxMember(tuple.get(sp.maxMember))
                 .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
-                .commentList(commentService.getCommentList(postId))
+                .commentList(commentList)
+                .commentSize(commentList.size())
+                .imageResponseList(postImageService.getImageList(postId))
+                .canAccess(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime)))
                 .build();
-
-        return checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse);
     }
 
     // 전체 조회
+    // 맥스 멤버 추가
     @Cacheable(value = "postSurveyListCache", key = "#pageable.pageNumber", cacheManager = "jdkCacheManager")
     public CustomPageImpl<?> getSurveyPostList(Pageable pageable){
 
@@ -143,9 +155,11 @@ public class SurveyPostService {
                         p.count,
                         p.user.nickname,
                         p.regDate,
-                        sp.maxMember,
+                        sp.id,
                         sp.startDateTime,
-                        sp.endDateTime
+                        sp.endDateTime,
+                        sp.maxMember,
+                        sp.thumbImgUrl
                 )
                 .from(p)
                 .innerJoin(sp).on(p.id.eq(sp.post.id))
@@ -156,7 +170,7 @@ public class SurveyPostService {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<SurveyPostResponse> results = new ArrayList<>();
+        List<SurveyPostCardResponse> results = new ArrayList<>();
 
         for(Tuple tuple : tupleList){
 
@@ -169,20 +183,17 @@ public class SurveyPostService {
             // 점수 생성
             createScore(surveyPost);
 
-            SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
+            SurveyPostCardResponse surveyPostResponse = SurveyPostCardResponse.builder()
                     .postId(tuple.get(p.id))
+                    .surveyPostId(tuple.get(sp.id))
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
-                    .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .nickname(tuple.get(p.user.nickname))
                     .maxMember(tuple.get(sp.maxMember))
-                    .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
-                    .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                    .thumbImageUrl(tuple.get(sp.thumbImgUrl))
                     .build();
 
-            checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse);
-
-            results.add(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse));
+            results.add(surveyPostResponse);
         }
         return new CustomPageImpl<>(results, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
     }
@@ -223,7 +234,8 @@ public class SurveyPostService {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<SurveyPostResponse> results = new ArrayList<>();
+
+        List<SurveyPostCardResponse> results = new ArrayList<>();
 
         for(Tuple tuple : tupleList){
 
@@ -236,23 +248,21 @@ public class SurveyPostService {
             // 점수 생성
             createScore(surveyPost);
 
-            SurveyPostResponse surveyPostResponse = SurveyPostResponse.builder()
+            SurveyPostCardResponse surveyPostResponse = SurveyPostCardResponse.builder()
                     .postId(tuple.get(p.id))
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
-                    .count(tuple.get(p.count))
-                    .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .nickname(tuple.get(p.user.nickname))
                     .maxMember(tuple.get(sp.maxMember))
-                    .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
-                    .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                    .thumbImageUrl(tuple.get(sp.thumbImgUrl))
                     .build();
 
-            results.add(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime), surveyPostResponse));
+            results.add(surveyPostResponse);
         }
         return new PageImpl<>(results, pageable, totalCount);
-
     }
+
+
     @CacheEvict(value = "postSurveyListCache", allEntries = true)
     public void updateSurveyPost(Long userId, Long postId, UpdateSurveyPostRequest updateSurveyPostRequest){
         postService.checkPermission(userId, postId);
@@ -262,16 +272,27 @@ public class SurveyPostService {
         surveyPostRepository.save(surveyPost);
     }
 
-    private SurveyPostResponse checkAccess(LocalDateTime start, LocalDateTime close, SurveyPostResponse surveyPostResponse){
+    public String checkAccess(LocalDateTime start, LocalDateTime close){
         LocalDateTime localDateTime = LocalDateTime.now();
         if(localDateTime.isBefore(start)){
-            surveyPostResponse.setCanAccess(AccessType.CAN_NOT_START.getIsAccess());
+            return AccessType.CAN_NOT_START.getIsAccess();
         }else if(localDateTime.isAfter(close)){
-            surveyPostResponse.setCanAccess(AccessType.CLOSED.getIsAccess());
-        }else{
-            surveyPostResponse.setCanAccess(AccessType.CAN_START.getIsAccess());
+            return AccessType.CLOSED.getIsAccess();
+        }else {
+            return AccessType.CAN_START.getIsAccess();
         }
-        return surveyPostResponse;
+    }
+
+    public String checkAccess(Long surveyPostId){
+        SurveyPost surveyPost = surveyPostRepository.findById(surveyPostId).get();
+        LocalDateTime localDateTime = LocalDateTime.now();
+        if(localDateTime.isBefore(surveyPost.getStartDateTime())){
+            return AccessType.CAN_NOT_START.getIsAccess();
+        }else if(localDateTime.isAfter(surveyPost.getEndDateTime())){
+            return AccessType.CLOSED.getIsAccess();
+        }else {
+            return AccessType.CAN_START.getIsAccess();
+        }
     }
 
     private void createScore(SurveyPost surveyPost){

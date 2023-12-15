@@ -42,8 +42,10 @@ public class Claim extends BaseEntity {
     @Column(insertable = false)
     private int processing;
 
+
     @Column(nullable = false)
     private Long penalized;//신고대상자
+
 
     @Builder
     public Claim(ClaimType claimType, Long logicalKey, ClaimReason claimReason, User user) {
