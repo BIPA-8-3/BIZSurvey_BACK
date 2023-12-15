@@ -1,9 +1,11 @@
 package com.bipa.bizsurvey.domain.workspace.application;
 
+import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.survey.domain.QAnswer;
 import com.bipa.bizsurvey.domain.survey.domain.QQuestion;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
+import com.bipa.bizsurvey.domain.survey.dto.response.*;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
@@ -20,8 +22,10 @@ import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyResponseRepository;
 import com.bipa.bizsurvey.global.common.email.EmailMessage;
 import com.bipa.bizsurvey.global.common.email.MailUtil;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -33,11 +37,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.ObjectInputFilter;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 @Log4j2
@@ -115,7 +121,7 @@ public class SharedSurveyService {
             emailMessage.put("msg", "참여를 원하신다면 링크를 클릭해주세요. (링크는 3일간 유효합니다.)");
             emailMessage.put("hasLink", true);
             emailMessage.put("link", frontendAddress + "/authorization/shared/" + sharedSurveyId + "_" + token);
-            emailMessage.put("linkText", "입장하기");
+            emailMessage.put("linkText", "참여하기");
 
             return emailMessage;
         }).collect(Collectors.toList());
@@ -129,42 +135,78 @@ public class SharedSurveyService {
     }
 
     // 설문 참여
-    public void participateSurvey(SharedSurveyDto.SharedSurveyAnswerResponse response) {
-        Long sharedSurveyId = response.getSharedSurveyId();
-        Long sharedListId = response.getSharedListId();
+    public void participateSurvey(SharedSurveyDto.SharedSurveyAnswerRequest request) throws Exception {
+        // 요청에서 필요한 정보 추출
+        Long surveyId = request.getSurveyId();
 
-        response.sortSharedAnswerListByQuestionId();
-        List<SharedSurveyDto.SharedAnswer> saveRequestList = response.getSharedAnswerList();
+        Long sharedListId = Long.parseLong(mailUtil.decrypt(request.getToken()));
+        request.sortSharedAnswerListByQuestionId();
 
-        SharedSurvey sharedSurvey = getShredSurvey(sharedListId);
-        SharedList sharedList = getSurveyList(sharedListId);
+        // 공유 목록 및 답변 리스트 초기화
+        SharedList sharedList = getSharedList(sharedListId);
+        List<SharedSurveyDto.SharedAnswer> saveRequestList = request.getSharedAnswerList();
 
-        Long surveyId = sharedSurvey.getSurvey().getId();
+        // 설문 질문 목록 조회
+        List<Question> questionList = questionRepository
+                .findByIdInAndDelFlagFalseOrderById(saveRequestList.stream()
+                        .map(SharedSurveyDto.SharedAnswer::getQuestionId)
+                        .collect(Collectors.toList()));
 
-        List<Question> questionList = questionRepository.findAllBySurveyIdAndDelFlagFalseOrderByStep(surveyId);
-        List<SharedSurveyResponse> answerList = new ArrayList<>();
+        // 유효성 체크를 위한 필수 질문 목록 조회
+        List<Long> requiredList = questionRepository
+                .findIdByDelFlagFalseAndSurveyIdAndIsRequiredTrue(surveyId);
 
+        // 유효성 체크
+        validateSurveyData(saveRequestList, questionList, requiredList);
 
-        for (int i = 0; i < saveRequestList.size(); i++) {
-            Question question = questionList.get(i);
-            SharedSurveyDto.SharedAnswer answer = saveRequestList.get(i);
-            Boolean b = question.getIsRequired();
+        // 답변 저장을 위한 리스트 초기화
+        List<SharedSurveyResponse> saveList = new ArrayList<>();
 
-            if (b != null && b && (answer.getSurveyAnswer() == null || answer.getSurveyAnswer().isEmpty())) {
-                throw new SurveyException(SurveyExceptionType.MISSING_REQUIRED_VALUE);
-            }
+        // 각 답변에 대한 처리
+        IntStream.range(0, saveRequestList.size())
+                .forEach(i -> processAnswer(saveRequestList.get(i), questionList.get(i), sharedList, saveList));
 
-            answerList.add(SharedSurveyResponse.builder()
-                    .surveyAnswer(answer.getSurveyAnswer())
-                    .sharedSurvey(sharedSurvey)
+        // 답변 저장
+        sharedSurveyResponseRepository.saveAll(saveList);
+    }
+
+    // 설문 데이터 유효성 체크
+    private void validateSurveyData(List<SharedSurveyDto.SharedAnswer> answerList, List<Question> questionList, List<Long> requiredList) {
+        if (answerList.size() != questionList.size()) {
+            throw new RuntimeException("데이터가 변경되었습니다. 다시 시도해 주세요");
+        }
+
+        boolean containsAll = questionList.stream()
+                .map(Question::getId)
+                .collect(Collectors.toList())
+                .containsAll(requiredList);
+
+        if (!containsAll) {
+            throw new RuntimeException("필수 질문을 포함하지 않습니다. 다시 시도해 주세요");
+        }
+    }
+
+    // 답변 처리
+    private void processAnswer(SharedSurveyDto.SharedAnswer answer, Question question,
+                               SharedList sharedList, List<SharedSurveyResponse> saveList) {
+        Boolean isRequired = question.getIsRequired();
+        List<String> responseList = answer.getSurveyAnswer();
+
+        // 필수 응답인 경우 응답이 비어 있을 경우 예외 처리
+        if (Boolean.TRUE.equals(isRequired) && (responseList == null || responseList.size() == 0)) {
+            throw new SurveyException(SurveyExceptionType.MISSING_REQUIRED_VALUE);
+        }
+
+        // 답변 저장
+        for (String response : responseList) {
+            saveList.add(SharedSurveyResponse.builder()
+                    .surveyAnswer(response)
+                    .answerType(answer.getAnswerType())
                     .sharedList(sharedList)
                     .question(question)
                     .url(answer.getUrl())
-                    .fileName(answer.getFilaName())
                     .build());
         }
-
-        sharedSurveyResponseRepository.saveAll(answerList);
     }
 
     // 링크 유효성 검사
@@ -182,13 +224,13 @@ public class SharedSurveyService {
         try {
             sharedListId = Long.parseLong(mailUtil.decrypt(token));
         } catch (Exception e) {
-            throw new RuntimeException("만료된 링크입니다.");
+            throw new RuntimeException("유요하지 않는 링크입니다.");
         }
 
-        boolean exists = sharedSurveyResponseRepository.existsByIdAndDelFlagFalseAndSharedSurveyIdAndSharedListId(sharedListId, sharedSurvey.getId(), sharedListId);
+        boolean exists = sharedSurveyResponseRepository.existsByDelFlagFalseAndSharedListId(sharedListId);
 
         if (exists) {
-            throw new RuntimeException("이미 참가한 설문입니다.");
+            throw new RuntimeException("이미 참여한 설문입니다.");
         }
         return sharedSurvey.getSurvey().getId();
     }
@@ -212,8 +254,8 @@ public class SharedSurveyService {
     }
 
     // 설문참여 목록 조회
-    private SharedList getSurveyList(Long surveyListId) {
-        return sharedListRepository.findByIdAndDelFlagFalse(surveyListId).orElseThrow(() ->
+    private SharedList getSharedList(Long sharedListId) {
+        return sharedListRepository.findByIdAndDelFlagFalse(sharedListId).orElseThrow(() ->
                 new EntityNotFoundException("잘못된 설문지입니다."));
     }
 
@@ -244,7 +286,6 @@ public class SharedSurveyService {
     // 공유단위 목록 조회
     public List<SharedSurveyDto.SharedSurveysResponse> readSharedSurveyHistory(Long surveyId) {
         List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalseOrderByModDateDesc(surveyId);
-
         return sharedSurveys.stream().map(e -> {
             LocalDateTime dueDate = e.getRegDate().plusDays(e.getDeadline());
             return SharedSurveyDto.SharedSurveysResponse.builder()
@@ -279,117 +320,21 @@ public class SharedSurveyService {
     }
 
     // 개인 결과
-    public List<SharedSurveyResponseDto.QuestionResponse> readSharedSurveyListResult(Long surveyId, Long sharedSurveyId, Long sharedListId) {
-        return jpaQueryFactory
-                .select(Projections.constructor(SharedSurveyResponseDto.QuestionResponse.class,
-                        question.id,
-                        question.surveyQuestion,
-                        question.answerType,
+//    public List<SharedSurveyResponseDto.QuestionResponse> readSharedSurveyListResult(Long surveyId, Long sharedSurveyId, Long sharedListId) {
+    public List<SharedSurveyResponseDto.QuestionResponse> readSharedSurveyListResult(Long sharedListId) {
+        return jpaQueryFactory.select(Projections.constructor(SharedSurveyResponseDto.QuestionResponse.class,
+                        ssr.question.id,
+                        ssr.answerType,
                         ssr.surveyAnswer,
-                        ssr.fileName,
-                        ssr.url
-                ))
-                .from(question)
-                .leftJoin(ssr)
-                .on(ssr.sharedList.id.eq(sharedListId)
-                        .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
-                        .and(question.eq(ssr.question)))
-                .where(question.delFlag.eq(false)
-                        .and(ssr.delFlag.eq(false))
-                        .and(question.survey.id.eq(surveyId)))
+                        ssr.url))
+                .from(ssr)
+                .where(ssr.delFlag.eq(false).and(ssr.sharedList.id.eq(sharedListId)))
                 .fetch();
     }
 
     // 외부공유 통계
-    public List<SharedSurveyResponseDto.QuestionTotalResponse> readSharedSurveyResult(Long surveyId, Long sharedSurveyId) {
-        List<SharedSurveyResponseDto.QuestionResultResponse> result1 =
-                jpaQueryFactory.select(
-                                Projections.constructor(SharedSurveyResponseDto.QuestionResultResponse.class,
-                                        question.id.as("questionId"),
-                                        Projections.list(Projections.constructor(String.class, ssr.surveyAnswer.as("answer")))))
-                        .from(question)
-                        .leftJoin(ssr)
-                        .on(question.eq(ssr.question))
-                        .where(question.delFlag.isFalse()
-                                .and(ssr.delFlag.isFalse())
-                                .and(question.survey.id.eq(surveyId))
-                                .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
-                                .and(question.answerType.notIn(AnswerType.valueOf("FILE"), AnswerType.valueOf("SINGLE_CHOICE"), AnswerType.valueOf("MULTIPLE_CHOICE"))))
-                        .fetch();
-
-        List<SharedSurveyResponseDto.ChartResultResponse> result2 =
-                jpaQueryFactory.select(
-                                Projections.constructor(SharedSurveyResponseDto.ChartResultResponse.class,
-                                        question.id,
-                                        Projections.list(
-                                                Projections.constructor(
-                                                        SharedSurveyResponseDto.ChartInfo.class,
-                                                        ssr.surveyAnswer.as("answer"),
-                                                        ssr.surveyAnswer.count().as("count")))
-                                )
-                        ).from(question)
-                        .leftJoin(ssr)
-                        .on(question.eq(ssr.question))
-                        .where(question.delFlag.isFalse()
-                                .and(ssr.delFlag.isFalse())
-                                .and(question.survey.id.eq(surveyId))
-                                .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
-                                .and(question.answerType.in(AnswerType.valueOf("SINGLE_CHOICE"), AnswerType.valueOf("MULTIPLE_CHOICE"))))
-                        .groupBy(question.id, ssr.surveyAnswer)
-                        .fetch();
-
-        List<SharedSurveyResponseDto.FileResultResponse> result3 =
-                jpaQueryFactory.select(
-                                Projections.constructor(SharedSurveyResponseDto.FileResultResponse.class,
-                                        question.id,
-                                        Projections.list(Projections.constructor(SharedSurveyResponseDto.FileInfo.class,
-                                                ssr.fileName,
-                                                ssr.url))
-                                )
-                        ).from(question)
-                        .leftJoin(ssr)
-                        .on(question.eq(ssr.question))
-                        .where(question.delFlag.isFalse()
-                                .and(ssr.delFlag.isFalse())
-                                .and(question.survey.id.eq(surveyId))
-                                .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
-                                .and(question.answerType.eq(AnswerType.valueOf("FILE"))))
-                        .fetch();
-
-
-        List<Question> questionList = questionRepository.findAllBySurveyIdAndDelFlagFalseOrderByStep(surveyId);
-
-        List<SharedSurveyResponseDto.QuestionTotalResponse> result =
-                questionList.stream().map(e -> {
-                    AnswerType type = e.getAnswerType();
-
-                    SharedSurveyResponseDto.QuestionTotalResponse response =
-                            SharedSurveyResponseDto.QuestionTotalResponse.builder()
-                                    .questionId(e.getId())
-                                    .question(e.getSurveyQuestion())
-                                    .questionType(e.getAnswerType())
-                                    .build();
-
-                    switch (type) {
-                        case SINGLE_CHOICE:
-                        case MULTIPLE_CHOICE:
-                            SharedSurveyResponseDto.ChartResultResponse temp2 = result2.stream().filter(r -> r.getQuestionId().equals(response.getQuestionId())).findFirst().get();
-                            response.setChartInfo(temp2.getChartInfo());
-                            break;
-                        case FILE:
-                            SharedSurveyResponseDto.FileResultResponse temp3 = result3.stream().filter(r -> r.getQuestionId().equals(response.getQuestionId())).findFirst().get();
-                            response.setFileInfo(temp3.getFileInfos());
-                            break;
-                        default:
-                            SharedSurveyResponseDto.QuestionResultResponse temp1 = result1.stream().filter(r -> r.getQuestionId().equals(response.getQuestionId())).findFirst().get();
-                            response.setAnswerList(temp1.getAnswer());
-                            break;
-                    }
-
-                    return response;
-                }).collect(Collectors.toList());
-
-        return result;
+    public StatisticsResponse readSharedSurveyResult(Long sharedSurveyId) {
+        return new StatisticsResponse(processChartAndText(sharedSurveyId), processFile(sharedSurveyId));
     }
 
     // 개별 점수형 설문 정답
@@ -418,7 +363,7 @@ public class SharedSurveyService {
                 .leftJoin(ssr)
                 .on(ssr.sharedList.id.eq(sharedListId).and(question.eq(ssr.question)))
                 .where(question.survey.id.eq(surveyId)
-                        .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
+//                        .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
                         .and(answer.delFlag.isFalse())
                         .and(question.delFlag.isFalse()))
                 .fetch();
@@ -446,7 +391,7 @@ public class SharedSurveyService {
                         .leftJoin(answer)
                         .on(answer.delFlag.isFalse().and(question.eq(answer.question)))
                         .leftJoin(ssr)
-                        .on(ssr.delFlag.isFalse().and(ssr.sharedSurvey.id.eq(sharedSurveyId)).and(ssr.question.eq(question)))
+//                        .on(ssr.delFlag.isFalse().and(ssr.sharedSurvey.id.eq(sharedSurveyId)).and(ssr.question.eq(question)))
                         .where(question.delFlag.isFalse()
                                 .and(question.survey.id.eq(surveyId)))
                         .fetch();
@@ -465,5 +410,85 @@ public class SharedSurveyService {
         }
 
         return result;
+    }
+
+
+    private BooleanBuilder createStatisticalConditions(Long sharedSurveyId, AnswerType answerType) {
+        BooleanBuilder whereClause = new BooleanBuilder()
+                .and(ssr.delFlag.isFalse())
+                .and(ssr.question.delFlag.isFalse());
+
+        if (answerType != AnswerType.FILE) {
+            whereClause.and(ssr.question.answerType.ne(AnswerType.FILE))
+                    .and(ssr.answerType.ne(AnswerType.FILE));
+        } else {
+            whereClause.and(ssr.question.answerType.eq(AnswerType.FILE))
+                    .and(ssr.answerType.eq(AnswerType.FILE));
+        }
+
+        whereClause.and(ssr.sharedList.id.in(
+                JPAExpressions.select(sl.id)
+                        .from(sl)
+                        .where(sl.delFlag.isFalse()
+                                .and(sl.sharedSurvey.id.eq(sharedSurveyId)))));
+
+        return whereClause;
+    }
+
+    private List<ChartAndTextResponse> processChartAndText(Long sharedSurveyId) {
+        List<ChartAndTextResponse> chartResult = jpaQueryFactory.select(Projections.constructor(ChartAndTextResponse.class,
+                        ssr.question.id,
+                        ssr.question.surveyQuestion,
+                        ssr.question.answerType.as("questionType"),
+                        Projections.list(Projections.constructor(ChartAndTextResult.class, ssr.surveyAnswer.as("answer"),
+                                ssr.count()))
+                ))
+                .from(ssr)
+                .where(createStatisticalConditions(sharedSurveyId, null))
+                .groupBy(ssr.question, ssr.surveyAnswer)
+                .orderBy(ssr.question.step.asc())
+                .fetch();
+
+        chartResult.stream()
+                .collect(Collectors.groupingByConcurrent(ChartAndTextResponse::getQuestionId))
+                .values();
+
+        return chartResult.stream()
+                .collect(Collectors.groupingByConcurrent(ChartAndTextResponse::getQuestionId))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    Long questionId = entry.getKey();
+                    List<ChartAndTextResponse> chartResultResponse = entry.getValue();
+
+                    AnswerType answerType = chartResultResponse.get(0).getQuestionType();
+                    List<ChartAndTextResult> answers = chartResultResponse.stream().flatMap(chartResponse -> chartResponse.getAnswers().stream())
+                            .collect(Collectors.toList());
+
+                    return new ChartAndTextResponse(questionId, null, answerType, answers);
+                }).collect(Collectors.toList());
+    }
+
+    private List<FileResultResponse> processFile(Long sharedSurveyId) {
+        List<FileResultResponse> fileResult = jpaQueryFactory.select(Projections.constructor(FileResultResponse.class,
+                        ssr.question.id,
+                        ssr.question.surveyQuestion,
+                        ssr.question.answerType.as("questionType"),
+                        Projections.list(Projections.constructor(FileInfo.class, ssr.surveyAnswer.as("fileName"),
+                                ssr.url))
+                ))
+                .from(ssr)
+                .where(createStatisticalConditions(sharedSurveyId, AnswerType.FILE))
+                .fetch();
+
+        return fileResult.stream().collect(Collectors.groupingByConcurrent(FileResultResponse::getQuestionId))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    Long questionId = entry.getKey();
+                    List<FileResultResponse> fileResultResponses =  entry.getValue();
+                    List<FileInfo> resultFileInfo = fileResultResponses.stream().flatMap(fileResultResponse -> fileResultResponse.getFileInfos().stream()).collect(Collectors.toList());
+                    return new FileResultResponse(questionId, null, AnswerType.FILE, resultFileInfo);
+                }).collect(Collectors.toList());
     }
 }
