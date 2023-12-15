@@ -49,6 +49,9 @@ public class WorkspaceAdminService {
     @Value("${domain.backend}")
     private String backendAddress;
 
+    @Value("${domain.frontend}")
+    private String frontendAddrss;
+
     public WorkspaceAdminDto.Response invite(WorkspaceAdminDto.InviteRequest request) throws Exception {
         Workspace workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(request.getWorkspaceId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스 입니다."));
@@ -98,7 +101,7 @@ public class WorkspaceAdminService {
 
         emailMessage.put("msg", "초대를 수락하신다면 다음 링크를 눌러주세요. (링크는 3일간 유효합니다.)");
         emailMessage.put("hasLink", true);
-        emailMessage.put("link", backendAddress + fullToken);
+        emailMessage.put("link", frontendAddrss + "/authorization/invite/" + fullToken);
         emailMessage.put("linkText", "입장하기");
 
         mailUtil.sendTemplateMail(emailMessage);
@@ -120,7 +123,10 @@ public class WorkspaceAdminService {
 
     public WorkspaceAdminDto.Response acceptInvite(WorkspaceAdminDto.AcceptRequest request) {
         String fullToken = TOKEN_PREFIX + request.getToken();
-        redisService.validateDataExists(fullToken);
+
+        if(redisService.validateDataExists(fullToken)) {
+            throw new RuntimeException("유효하지 않은 key값 입니다.");
+        }
 
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Long adminId = Long.parseLong(request.getToken().split("_")[0]);

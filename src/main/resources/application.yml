@@ -84,8 +84,10 @@ AES:
   PRIVATE_KEY: ${PRIVATE_KEY}
 
 domain:
-  backend: bizsurvey.shop/api/
-  frontend: bizsurvey.shop
+#  backend: bizsurvey.shop/api/
+#  frontend: bizsurvey.shop
+  backend: localhost:8080
+  frontend: http://localhost:3000
   
 ---
 

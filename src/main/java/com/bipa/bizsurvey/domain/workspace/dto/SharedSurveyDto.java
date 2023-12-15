@@ -39,6 +39,7 @@ public class SharedSurveyDto {
     @Builder
     public static class SharedSurveysResponse {
         private Long id;
+        private LocalDateTime regDate;
         private LocalDateTime dueDate;
         private Long surveyId;
         private Boolean deadline;

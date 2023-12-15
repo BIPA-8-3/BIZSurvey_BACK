@@ -16,7 +16,8 @@ public interface UserSurveyResponseRepository extends JpaRepository<UserSurveyRe
     @Query(value = "SELECT DISTINCT u.user.nickname FROM UserSurveyResponse u WHERE u.surveyPost = :surveyPostId")
     List<String> findNicknamesBySurveyPostId(@Param("surveyPostId") SurveyPost surveyPost);
 
-    UserSurveyResponse findBySurveyPostIdAndUserId(Long surveyPostId, Long userId);
+    @Query(value = "SELECT COUNT(DISTINCT u.user) FROM UserSurveyResponse u INNER JOIN u.surveyPost s WHERE s.id = :surveyPostId")
+    int findParticipants(@Param("surveyPostId") Long surveyPostId);
 
     boolean existsBySurveyPostIdAndUserId(Long surveyPostId, Long userId);
 }

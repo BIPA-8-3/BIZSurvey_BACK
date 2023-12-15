@@ -21,7 +21,7 @@ public class ContactServiceTests {
         request.setWorkspaceId(1L);
         request.setEmail("test@naver.com");
         request.setName("test");
-        request.setRemark("test");
+//        request.setRemark("test");
         log.info(contactService.create(request));
     }
 
@@ -31,7 +31,7 @@ public class ContactServiceTests {
         Long id = 2L;
         request.setName("testUpdate");
         request.setEmail("testUpdate@naver.com");
-        request.setRemark("testUpdate");
+//        request.setRemark("testUpdate");
 
         contactService.update(id, request);
         log.info(contactService.readOne(id));
