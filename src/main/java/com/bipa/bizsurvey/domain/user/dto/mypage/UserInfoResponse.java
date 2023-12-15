@@ -18,4 +18,5 @@ public class UserInfoResponse {
     private String name;
     private Gender gender;
     private String birthdate;
+    private String profile;
 }

@@ -13,7 +13,6 @@ import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.community.application.CommentService;
 import com.bipa.bizsurvey.domain.user.domain.Claim;
 import com.bipa.bizsurvey.domain.user.dto.mypage.*;
-import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.repository.ClaimRepository;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
@@ -78,6 +77,7 @@ public class UserService {
                 .name(user.getName())
                 .gender(user.getGender())
                 .birthdate(user.getBirthdate())
+                .profile(user.getProfile())
                 .build();
     }
 
@@ -289,7 +289,10 @@ public class UserService {
         return tokenMap;
     }
 
-
+    public void profileUpdate (UserProfileRequest profileRequest){
+        User user = userRepository.findById(profileRequest.getUserId()).orElseThrow();
+        user.profileUpdate(profileRequest.getProfile());
+    }
 
 
 

@@ -185,6 +185,14 @@ public class UserController {
         }
     }
 
+
+    //프로필 수정
+    @PatchMapping ("/user/profile")
+    public ResponseEntity<?> profileUpdate(@RequestBody UserProfileRequest request){
+        userService.profileUpdate(request);
+        return ResponseEntity.ok().body("");
+    }
+
 //    public void getAccessToken(String autorize_code) {
 //
 //        final String RequestUrl = "https://kauth.kakao.com/oauth/token";

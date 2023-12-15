@@ -85,5 +85,9 @@ public class User extends BaseEntity {
     public void forbiddenDateUpdate(String date){
         this.forbiddenDate = date;
     }
+
+    public void profileUpdate(String profile){
+        this.profile = profile;
+    }
 }
 

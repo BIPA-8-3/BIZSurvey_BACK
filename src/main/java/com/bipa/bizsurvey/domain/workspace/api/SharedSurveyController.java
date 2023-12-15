@@ -24,7 +24,7 @@ public class SharedSurveyController {
 
     @PostMapping
     public ResponseEntity<String> share(@AuthenticationPrincipal LoginUser loginUser,
-                                  @RequestBody SharedSurveyDto.SharedRequest request) {
+                                        @RequestBody SharedSurveyDto.SharedRequest request) {
 
         sharedSurveyService.share(request);
         return ResponseEntity.ok().body("성공적으로 전송하였습니다.");
@@ -32,14 +32,18 @@ public class SharedSurveyController {
 
     @GetMapping("/link/{sharedSurveyId}/{token}")
     public ResponseEntity<Long> getSurveyInfo(@PathVariable Long sharedSurveyId,
-                                            @PathVariable String token) {
+                                              @PathVariable String token) {
         return ResponseEntity.ok().body(sharedSurveyService.linkValidation(sharedSurveyId, token));
     }
 
     @PostMapping("/survey")
-    public ResponseEntity<String> participateSurvey(SharedSurveyDto.SharedSurveyAnswerResponse response) {
-        sharedSurveyService.participateSurvey(response);
-        return ResponseEntity.ok().body("설문 참여를 완료하였습니다.");
+    public ResponseEntity<String> participateSurvey(@RequestBody SharedSurveyDto.SharedSurveyAnswerRequest response) {
+        try {
+            sharedSurveyService.participateSurvey(response);
+            return ResponseEntity.ok().body("설문 참여를 완료하였습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("설문 참여에 실패하셨습니다.");
+        }
     }
 
     @PutMapping("/{sharedSurveyId}")
@@ -66,16 +70,20 @@ public class SharedSurveyController {
     }
 
     // 집계
-    @GetMapping("/{surveyId}/{sharedSurveyId}/{sharedListId}")
-    public ResponseEntity<List<SharedSurveyResponseDto.QuestionResponse>> readSharedSurveyListResult(@PathVariable Long surveyId, @PathVariable Long sharedSurveyId, @PathVariable Long sharedListId) {
-         return ResponseEntity.ok().body(sharedSurveyService.readSharedSurveyListResult(surveyId, sharedSurveyId, sharedListId));
+    @GetMapping("/personal/result/{sharedListId}")
+    public ResponseEntity<List<SharedSurveyResponseDto.QuestionResponse>> readSharedSurveyListResult(
+            @AuthenticationPrincipal LoginUser loginUser,
+            @PathVariable Long sharedListId) {
+        return ResponseEntity.ok().body(sharedSurveyService.readSharedSurveyListResult(sharedListId));
     }
 
     // 외부공유 통계
-    @GetMapping("/{surveyId}/{sharedSurveyId}")
-    public ResponseEntity<List<SharedSurveyResponseDto.QuestionTotalResponse>> readSharedSurveyResult(@PathVariable Long surveyId,
-                                                                                      @PathVariable Long sharedSurveyId) {
-        return ResponseEntity.ok().body(sharedSurveyService.readSharedSurveyResult(surveyId, sharedSurveyId));
+//    @GetMapping("/{surveyId}/{sharedSurveyId}")
+//    public ResponseEntity<List<SharedSurveyResponseDto.QuestionTotalResponse>> readSharedSurveyResult(@PathVariable Long surveyId,
+//                                                                                      @PathVariable Long sharedSurveyId) {
+    @GetMapping("/external/{sharedSurveyId}")
+    public ResponseEntity<?> readSharedSurveyResult(@PathVariable Long sharedSurveyId) {
+        return ResponseEntity.ok().body(sharedSurveyService.readSharedSurveyResult(sharedSurveyId));
     }
 
     @GetMapping("/score/{surveyId}/{sharedSurveyId}/{sharedListId}")
