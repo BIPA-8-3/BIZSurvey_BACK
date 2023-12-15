@@ -76,11 +76,9 @@ public class AdminJwtAuthenticationFilter extends UsernamePasswordAuthentication
         User user = userRepository.findById(loginUser.getId())
                 .orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
 
-        System.out.println("test : "+user.getPlanSubscribe());
-        if (!"NORMAL_SUBSCRIBE".equalsIgnoreCase(String.valueOf(user.getPlanSubscribe()))) {
-            System.out.println("맞다");
-//            CustomResponseUtil.forbidden(response, "영구 정지");
-//            return;
+        if (!"ADMIN".equalsIgnoreCase(String.valueOf(user.getPlanSubscribe()))) {
+            CustomResponseUtil.fail(response, "로그인 실패");
+            return;
         }
 
         String jwtToken = JwtProcess.create(loginUser);

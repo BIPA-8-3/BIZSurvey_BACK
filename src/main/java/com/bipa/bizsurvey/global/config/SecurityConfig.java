@@ -66,8 +66,8 @@ public class SecurityConfig {
         http.authorizeRequests(
                 authorize -> authorize.antMatchers("/user/**").authenticated()
                         .antMatchers("/plan/**").authenticated()
-//                        .antMatchers("/admin/**").access("hasRole('ADMIN')")
-                        .antMatchers("/signup/**", "/login/**", "/refresh/**", "/oauth2/**", "/admin/**").permitAll()
+                        .antMatchers("/admin/**").access("hasRole('ADMIN')")
+                        .antMatchers("/signup/**", "/login/**", "/refresh/**", "/oauth2/**").permitAll()
         );
 
 //        http.oauth2Login()

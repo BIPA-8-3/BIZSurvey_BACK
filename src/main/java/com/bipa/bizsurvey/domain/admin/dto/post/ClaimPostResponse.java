@@ -16,5 +16,6 @@ public class ClaimPostResponse {
     private String nickname;
     private String createTime;
     private Long userId;
+    private String email;
 
 }

@@ -38,13 +38,12 @@ public class Claim extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Setter
-    @ColumnDefault("false")
+    @ColumnDefault("0")
     @Column(insertable = false)
-    private Boolean processing;
+    private int processing;
 
     @Column(nullable = false)
-    private Long penalized;
+    private Long penalized;//신고대상자
 
     @Builder
     public Claim(ClaimType claimType, Long logicalKey, ClaimReason claimReason, User user) {
@@ -55,6 +54,10 @@ public class Claim extends BaseEntity {
     }
 
     public void claimProcessing(){
-        this.processing = true;
+        this.processing = 1;
+    }
+
+    public void claimUnProcessing(){
+        this.processing = 2;
     }
 }

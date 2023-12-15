@@ -54,6 +54,9 @@ public class Comment extends BaseEntity {
 
     public void updateReported(){
         this.reported = true;
-        this.content = "신고된 댓글입니다.";
+    }
+
+    public void updateReportedFalse(){
+        this.reported = false;
     }
 }

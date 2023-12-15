@@ -1,7 +1,5 @@
 package com.bipa.bizsurvey.domain.admin.dto.claim;
 
-import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
-import com.bipa.bizsurvey.domain.user.enums.ClaimType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,4 +10,8 @@ public class ClaimDetailResponse {
     private String claimType;
     private Long logicalKey;
     private String claimReason;
+    private Long userid;
+    private String nickname;
+    private String email;
+    private String createTime;
 }
