@@ -43,7 +43,7 @@ public class Claim extends BaseEntity {
     @Column(insertable = false)
     private Boolean processing;
 
-    @Column(nullable = false)
+
     private Long penalized;
 
     @Builder

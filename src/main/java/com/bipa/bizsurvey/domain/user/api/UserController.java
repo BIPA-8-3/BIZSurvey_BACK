@@ -1,25 +1,15 @@
 package com.bipa.bizsurvey.domain.user.api;
 
-import com.bipa.bizsurvey.domain.user.application.ClaimService;
 import com.bipa.bizsurvey.domain.user.application.EmailSendService;
 import com.bipa.bizsurvey.domain.user.application.UserService;
 import com.bipa.bizsurvey.domain.user.dto.*;
-import com.bipa.bizsurvey.domain.user.dto.claim.ClaimListResponse;
 import com.bipa.bizsurvey.domain.user.dto.mypage.*;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.global.common.storage.Domain;
 import com.bipa.bizsurvey.global.common.storage.StorageService;
 import com.bipa.bizsurvey.global.config.jwt.JwtVO;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -29,15 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.client.methods.HttpPost;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
