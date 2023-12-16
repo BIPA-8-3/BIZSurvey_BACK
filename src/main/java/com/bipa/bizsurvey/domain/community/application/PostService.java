@@ -22,6 +22,7 @@ import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -232,6 +233,8 @@ public class PostService {
     }
 
 
+
+
     public Post findPost(Long postId){
         return postRepository.findById(postId).orElseThrow(
                 () -> new PostException(PostExceptionType.NON_EXIST_POST)
@@ -331,6 +334,7 @@ public class PostService {
         return post.getCount();
     }
 
+     //신고 게시물 체크
 
 
 

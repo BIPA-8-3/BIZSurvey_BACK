@@ -7,6 +7,7 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.cache.annotation.CacheEvict;
 
 import javax.persistence.*;
 
@@ -77,9 +78,8 @@ public class Post extends BaseEntity {
         this.content = content;
     }
 
-    public void updateDelFlag(){
-        setDelFlag(true);
-    }
+
+
 
 
     // 추 후 redis caching
