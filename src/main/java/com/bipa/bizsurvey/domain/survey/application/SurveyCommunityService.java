@@ -3,6 +3,7 @@ package com.bipa.bizsurvey.domain.survey.application;
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
+import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
 import com.bipa.bizsurvey.domain.survey.dto.request.ParticipateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListInCommunityResponse;
@@ -14,6 +15,7 @@ import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
 import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,16 +94,34 @@ public class SurveyCommunityService {
     // 설문 게시글 등록 시 본인 설문지 목록
     public List<SurveyListInCommunityResponse> getSurveyList(LoginUser loginUser){
         Long userId = loginUser.getId();
-        List<Object[]> list = surveyRepository.getSurveyList(userId);
-        return list.stream()
-                .map(result -> new SurveyListInCommunityResponse(
-                        ((Number) result[0]).longValue(),
-                        (String) result[1],
-                        result[2] != null ? (String) result[2] : "",
-                        WorkspaceType.valueOf((String) result[3]),
-                        (String) result[4]
-                ))
-                .collect(Collectors.toList());
+        String plan = loginUser.getPlan();
+
+        List<Survey> list = surveyRepository.getSurveyList(userId);
+        List<SurveyListInCommunityResponse> response = new ArrayList<>();
+
+        for(Survey survey : list){
+            response.add(
+                    new SurveyListInCommunityResponse(
+                            survey.getId(),
+                            survey.getTitle(),
+                            survey.getWorkspace().getWorkspaceName(),
+                            survey.getWorkspace().getWorkspaceType(),
+                            survey.getUser().getNickname()
+                    )
+            );
+        }
+
+
+        return response;
+//        return list.stream()
+//                .map(result -> new SurveyListInCommunityResponse(
+//                        ((Number) result[0]).longValue(),
+//                        (String) result[1],
+//                        result[2] != null ? (String) result[2] : "",
+//                        WorkspaceType.valueOf((String) result[3]),
+//                        (String) result[4]
+//                ))
+//                .collect(Collectors.toList());
 
     }
 
