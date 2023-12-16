@@ -85,12 +85,7 @@ public class SharedSurveyResponseDto {
     @AllArgsConstructor
     public static class PersonalScoreSurveyResults {
         private Long questionId;
-        private String question;
-        private Integer score;
-        private List<String> correctAnswer;
-        private List<String> answer;
-        private Integer myScore;
-
+        private List<String> userAnswer;
     }
 
     @Data
@@ -108,8 +103,7 @@ public class SharedSurveyResponseDto {
         private Long questionId;
         private List<String> answer;
     }
-
-    /////
+    
     @Data
     @AllArgsConstructor
     public static class ShareScoreResults {
