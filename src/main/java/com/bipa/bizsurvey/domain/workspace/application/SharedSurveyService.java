@@ -1,12 +1,10 @@
 package com.bipa.bizsurvey.domain.workspace.application;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
-import com.bipa.bizsurvey.domain.survey.domain.QAnswer;
-import com.bipa.bizsurvey.domain.survey.domain.QQuestion;
-import com.bipa.bizsurvey.domain.survey.domain.Question;
-import com.bipa.bizsurvey.domain.survey.domain.Survey;
+import com.bipa.bizsurvey.domain.survey.domain.*;
 import com.bipa.bizsurvey.domain.survey.dto.response.*;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
+import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
 import com.bipa.bizsurvey.domain.survey.repository.QuestionRepository;
@@ -23,8 +21,11 @@ import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyResponseReposi
 import com.bipa.bizsurvey.global.common.email.EmailMessage;
 import com.bipa.bizsurvey.global.common.email.MailUtil;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.QTuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -300,6 +301,23 @@ public class SharedSurveyService {
 
     // 공유 단위별 참여자 목록
     public List<SharedListDto.Response> readSharedContactList(Long sharedSurveyId) {
+//        return jpaQueryFactory.select(Projections.fields(SharedListDto.Response.class,
+//                        sl.id,
+//                        sl.sharedSurvey.id.as("sharedSurveyId"),
+//                        ct.id.as("contactId"),
+//                        ct.email,
+//                        ct.name
+//                ))
+//                .from(sl)
+//                .leftJoin(ct).on(sl.contact.eq(ct))
+//                .where(sl.sharedSurvey.id.eq(sharedSurveyId).and(sl.delFlag.isFalse())
+//                        .and(JPAExpressions
+//                                .select(ssr.count())
+//                                .from(ssr)
+//                                .where(ssr.sharedList.eq(sl)).gt(0L)ScoreResultResponse))
+//                .fetch();
+
+
         return jpaQueryFactory.select(Projections.fields(SharedListDto.Response.class,
                         sl.id,
                         sl.sharedSurvey.id.as("sharedSurveyId"),
@@ -320,7 +338,6 @@ public class SharedSurveyService {
     }
 
     // 개인 결과
-//    public List<SharedSurveyResponseDto.QuestionResponse> readSharedSurveyListResult(Long surveyId, Long sharedSurveyId, Long sharedListId) {
     public List<SharedSurveyResponseDto.QuestionResponse> readSharedSurveyListResult(Long sharedListId) {
         return jpaQueryFactory.select(Projections.constructor(SharedSurveyResponseDto.QuestionResponse.class,
                         ssr.question.id,
@@ -332,86 +349,74 @@ public class SharedSurveyService {
                 .fetch();
     }
 
+
     // 외부공유 통계
     public StatisticsResponse readSharedSurveyResult(Long sharedSurveyId) {
         return new StatisticsResponse(processChartAndText(sharedSurveyId), processFile(sharedSurveyId));
     }
 
-    // 개별 점수형 설문 정답
-    public List<SharedSurveyResponseDto.PersonalScoreSurveyResults> readPersonalScoreResults(Long surveyId, Long sharedSurveyId, Long sharedListId) {
-        QQuestion question = QQuestion.question;
-        QAnswer answer = QAnswer.answer;
-        QSharedSurveyResponse ssr = QSharedSurveyResponse.sharedSurveyResponse;
 
-        return jpaQueryFactory.select(Projections.constructor(
-                        SharedSurveyResponseDto.PersonalScoreSurveyResults.class,
-                        question.id,
-                        question.surveyQuestion,
-                        question.score,
-                        Projections.list(Projections.constructor(String.class, answer.surveyAnswer)),
-                        Projections.list(Projections.constructor(String.class, ssr.surveyAnswer)),
-                        new CaseBuilder()
-                                .when(Expressions.booleanTemplate("?1 = ?2",
-                                        Expressions.list(Projections.constructor(String.class, answer.surveyAnswer)),
-                                        Expressions.list(Projections.constructor(String.class, ssr.surveyAnswer))))
-                                .then(question.score)
-                                .otherwise(0).as("myScore")
-                ))
-                .from(question)
-                .leftJoin(answer)
-                .on(question.eq(answer.question))
-                .leftJoin(ssr)
-                .on(ssr.sharedList.id.eq(sharedListId).and(question.eq(ssr.question)))
-                .where(question.survey.id.eq(surveyId)
-//                        .and(ssr.sharedSurvey.id.eq(sharedSurveyId))
-                        .and(answer.delFlag.isFalse())
-                        .and(question.delFlag.isFalse()))
+    // 개별 점수형 설문 정답
+    public List<SharedSurveyResponseDto.PersonalScoreSurveyResults> readPersonalScoreResults(Long sharedListId) {
+        return jpaQueryFactory.select(
+                        Projections.constructor(SharedSurveyResponseDto.PersonalScoreSurveyResults.class,
+                                ssr.question.id,
+                                Projections.list(ssr.surveyAnswer)
+                        ))
+                .from(ssr)
+                .where(ssr.delFlag.eq(false)
+                        .and(ssr.sharedList.id.eq(sharedListId)))
                 .fetch();
     }
 
-
     // 공유 단위 점수 통계
-    public List<SharedSurveyResponseDto.ShareScoreResults> readShareScoreResults(Long surveyId, Long sharedSurveyId) {
+    public List<ScoreResultResponse> readShareScoreResults(Long surveyId, Long sharedSurveyId) {
+        List<Long> sharedListIds = jpaQueryFactory.select(sl.id)
+                .from(sl)
+                .where(sl.sharedSurvey.id.eq(sharedSurveyId)).fetch();
 
+        List<Question> questionList = jpaQueryFactory
+                .select(question)
+                .from(question)
+                .where(question.delFlag.isFalse().and(question.survey.id.eq(surveyId))).fetch();
 
-        List<SharedSurveyResponseDto.ShareScoreResults> result =
-                jpaQueryFactory.select(
-                                Projections.constructor(SharedSurveyResponseDto.ShareScoreResults.class,
-                                        question.id,
-                                        question.surveyQuestion,
-                                        Projections.list(Projections.constructor(String.class, answer.surveyAnswer)),
-                                        question.score,
-                                        Projections.list(Projections.constructor(SharedSurveyResponseDto.ShareScoreAnswer.class,
-                                                ssr.sharedList.id,
-                                                Projections.list(Projections.constructor(String.class, ssr.surveyAnswer))
-                                        ))
+        List<ScoreResultResponse> result = jpaQueryFactory.select(
+                        Projections.constructor(ScoreResultResponse.class,
+                                answer.question.id,
+                                answer.question.surveyQuestion,
+                                Projections.list(
+                                        Projections.constructor(
+                                                ScoreAnswerCount.class,
+                                                answer.surveyAnswer,
+                                                JPAExpressions.select(ssr.count())
+                                                        .from(ssr)
+                                                        .where(ssr.question.eq(answer.question)
+                                                                .and(ssr.surveyAnswer.eq(answer.surveyAnswer))
+                                                                .and(ssr.sharedList.id.in(sharedListIds))),
+                                                answer.correct
+                                        )
                                 )
                         )
-                        .from(question)
-                        .leftJoin(answer)
-                        .on(answer.delFlag.isFalse().and(question.eq(answer.question)))
-                        .leftJoin(ssr)
-//                        .on(ssr.delFlag.isFalse().and(ssr.sharedSurvey.id.eq(sharedSurveyId)).and(ssr.question.eq(question)))
-                        .where(question.delFlag.isFalse()
-                                .and(question.survey.id.eq(surveyId)))
-                        .fetch();
+                )
+                .from(answer)
+                .where(answer.delFlag.isFalse().and(answer.question.in(questionList)))
+                .fetch();
 
+        Map<Long, List<ScoreResultResponse>> groupResults = result
+                        .stream()
+                        .collect(Collectors.groupingByConcurrent(ScoreResultResponse::getQuestionId));
 
-        for (int i = 0; i < result.size(); i++) {
-            SharedSurveyResponseDto.ShareScoreResults temp = result.get(i);
-            List<String> correctAnswer = temp.getCorrectAnswer();
-            List<SharedSurveyResponseDto.ShareScoreAnswer> sharedAnswer = temp.getAnswer();
-            AtomicInteger cnt = new AtomicInteger();
-            sharedAnswer.stream().filter(e -> e.getQuestion().stream().allMatch(correctAnswer::contains)).forEach(e -> {
-                cnt.getAndIncrement();
-                e.setScore(temp.getScore());
-            });
-            temp.setCorrectCnt(cnt.get());
-        }
+        return groupResults.entrySet().stream().map(entry -> {
+            Long questionId = entry.getKey();
+            List<ScoreResultResponse> scoreList = entry.getValue();
+            String title = scoreList.get(0).getTitle();
 
-        return result;
+            List<ScoreAnswerCount> mergedAnswers = scoreList.stream()
+                    .flatMap(score -> score.getAnswers().stream()).collect(Collectors.toList());
+
+            return new ScoreResultResponse(questionId, title, mergedAnswers);
+        }).collect(Collectors.toList());
     }
-
 
     private BooleanBuilder createStatisticalConditions(Long sharedSurveyId, AnswerType answerType) {
         BooleanBuilder whereClause = new BooleanBuilder()
@@ -486,7 +491,7 @@ public class SharedSurveyService {
                 .stream()
                 .map(entry -> {
                     Long questionId = entry.getKey();
-                    List<FileResultResponse> fileResultResponses =  entry.getValue();
+                    List<FileResultResponse> fileResultResponses = entry.getValue();
                     List<FileInfo> resultFileInfo = fileResultResponses.stream().flatMap(fileResultResponse -> fileResultResponse.getFileInfos().stream()).collect(Collectors.toList());
                     return new FileResultResponse(questionId, null, AnswerType.FILE, resultFileInfo);
                 }).collect(Collectors.toList());

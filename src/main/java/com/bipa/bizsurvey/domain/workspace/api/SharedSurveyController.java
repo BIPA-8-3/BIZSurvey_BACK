@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.workspace.api;
 
 
+import com.bipa.bizsurvey.domain.survey.dto.response.StatisticsResponse;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.workspace.application.SharedSurveyService;
 import com.bipa.bizsurvey.domain.workspace.dto.SharedListDto;
@@ -65,7 +66,9 @@ public class SharedSurveyController {
     }
 
     @GetMapping("/survey/{sharedSurveyId}")
-    public ResponseEntity<List<SharedListDto.Response>> readSharedContactList(@PathVariable Long sharedSurveyId) {
+    public ResponseEntity<List<SharedListDto.Response>> readSharedContactList(
+            @AuthenticationPrincipal LoginUser loginUser,
+            @PathVariable Long sharedSurveyId) {
         return ResponseEntity.ok().body(sharedSurveyService.readSharedContactList(sharedSurveyId));
     }
 
@@ -78,24 +81,23 @@ public class SharedSurveyController {
     }
 
     // 외부공유 통계
-//    @GetMapping("/{surveyId}/{sharedSurveyId}")
-//    public ResponseEntity<List<SharedSurveyResponseDto.QuestionTotalResponse>> readSharedSurveyResult(@PathVariable Long surveyId,
-//                                                                                      @PathVariable Long sharedSurveyId) {
     @GetMapping("/external/{sharedSurveyId}")
-    public ResponseEntity<?> readSharedSurveyResult(@PathVariable Long sharedSurveyId) {
+    public ResponseEntity<StatisticsResponse> readSharedSurveyResult(
+            @AuthenticationPrincipal LoginUser loginUser,
+            @PathVariable Long sharedSurveyId) {
         return ResponseEntity.ok().body(sharedSurveyService.readSharedSurveyResult(sharedSurveyId));
     }
 
-    @GetMapping("/score/{surveyId}/{sharedSurveyId}/{sharedListId}")
-    public ResponseEntity<List<SharedSurveyResponseDto.PersonalScoreSurveyResults>> readPersonalScoreResults(@PathVariable Long surveyId,
-                                                                                                             @PathVariable Long sharedSurveyId,
-                                                                                                             @PathVariable Long sharedListId) {
-        return ResponseEntity.ok().body(sharedSurveyService.readPersonalScoreResults(surveyId, sharedSurveyId, sharedListId));
+    // 점수형 통계
+    @GetMapping("/personal/score/result/{sharedSurveyId}")
+    public ResponseEntity<List<SharedSurveyResponseDto.PersonalScoreSurveyResults>> readPersonalScoreResults(@PathVariable Long sharedSurveyId) {
+        return ResponseEntity.ok().body(sharedSurveyService.readPersonalScoreResults(sharedSurveyId));
     }
 
-    @GetMapping("/score/{surveyId}/{sharedSurveyId}")
-    public ResponseEntity<List<SharedSurveyResponseDto.ShareScoreResults>> readShareScoreResults(@PathVariable Long surveyId,
-                                                                                                 @PathVariable Long sharedSurveyId) {
+    @GetMapping("/score/result/{surveyId}/{sharedSurveyId}")
+    public ResponseEntity<?> readShareScoreResults(
+            @PathVariable Long surveyId,
+            @PathVariable Long sharedSurveyId) {
         return ResponseEntity.ok().body(sharedSurveyService.readShareScoreResults(surveyId, sharedSurveyId));
     }
 
