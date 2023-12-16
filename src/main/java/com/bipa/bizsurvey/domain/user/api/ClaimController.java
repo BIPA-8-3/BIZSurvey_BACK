@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.user.api;
 
 import com.bipa.bizsurvey.domain.user.application.ClaimService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.dto.claim.ClaimReasonResponse;
 import com.bipa.bizsurvey.domain.user.dto.claim.ClaimRequest;
 import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,12 @@ public class ClaimController {
 
     @GetMapping("/list")
     public ResponseEntity<?> getClaimList(){
-        List<String> stringClaimList = new ArrayList<>();
+        List<ClaimReasonResponse> stringClaimList = new ArrayList<>();
         for(ClaimReason claimReason : ClaimReason.values()){
-            stringClaimList.add(claimReason.getValue());
+            ClaimReasonResponse claimReasonResponse = ClaimReasonResponse.builder()
+                    .claimReason(claimReason.getValue())
+                    .build();
+            stringClaimList.add(claimReasonResponse);
        }
         return ResponseEntity.ok().body(stringClaimList);
     }

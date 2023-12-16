@@ -1,14 +1,19 @@
 package com.bipa.bizsurvey.domain.community.api;
 
+import com.bipa.bizsurvey.domain.community.application.CommentService;
 import com.bipa.bizsurvey.domain.community.application.PostService;
+import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.CreateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.UpdateSurveyPostRequest;
 import com.bipa.bizsurvey.domain.community.application.SurveyPostService;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostTitleResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostCardResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.surveyPost.SurveyPostResponse;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
+import com.bipa.bizsurvey.domain.survey.application.SurveyCommunityService;
+import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
@@ -33,14 +38,16 @@ public class SurveyCommunityPostController {
 
     private final SurveyPostService surveyPostService;
     private final PostService postService;
+    private final CommentService commentService;
+    private final SurveyCommunityService surveyCommunityService;
     private final RedisService redisService;
+
 
     @PostMapping("/createPost")
     public ResponseEntity<?> createSurveyPost(@AuthenticationPrincipal LoginUser loginUser,
                                               @Valid @RequestBody CreateSurveyPostRequest createSurveyPostRequest
     ) {
-        surveyPostService.createSurveyPost(1L, createSurveyPostRequest); // TODO : 잠깐 수정
-        return ResponseEntity.ok().body("설문 게시물이 생성되었습니다.");
+        return ResponseEntity.ok().body(surveyPostService.createSurveyPost(loginUser.getId(), createSurveyPostRequest));
     }
 
     // 전체 조회
@@ -51,9 +58,14 @@ public class SurveyCommunityPostController {
 
         CustomPageImpl<?> surveyPostPage = surveyPostService.getSurveyPostList(pageable);
         List<?> content = surveyPostPage.getContent();
+
         for(Object o : content){
-            SurveyPostResponse surveyPostResponse = (SurveyPostResponse) o;
-            surveyPostResponse.setCount(postService.getPostCount(surveyPostResponse.getPostId()));
+            SurveyPostCardResponse surveyPostCardResponse = (SurveyPostCardResponse) o;
+            System.out.println("컨트롤러 객체 : "+surveyPostCardResponse.toString());
+            surveyPostCardResponse.setCount(postService.getPostCount(surveyPostCardResponse.getPostId()));
+            surveyPostCardResponse.setCommentSize(commentService.getCommentList(surveyPostCardResponse.getPostId()).size());
+            surveyPostCardResponse.setParticipateCount(surveyCommunityService.getParticipants(surveyPostCardResponse.getSurveyPostId()));
+            surveyPostCardResponse.setCanAccess(surveyPostService.checkAccess(surveyPostCardResponse.getSurveyPostId()));
         }
 
         return ResponseEntity.ok().body(surveyPostPage);

@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.community.dto.response.surveyPost;
 
 import com.bipa.bizsurvey.domain.community.dto.response.comment.CommentResponse;
+import com.bipa.bizsurvey.domain.community.dto.response.post.PostImageResponse;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,10 +24,15 @@ public class SurveyPostResponse {
     private String startDateTime;
     private String endDateTime;
     private List<CommentResponse> commentList;
+    private int commentSize;
+    private List<PostImageResponse> imageResponseList;
+    private int participateCount;
     private String canAccess;
 
     @Builder
-    public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate, int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList, String canAccess) {
+    public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
+                              int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
+                              int commentSize, List<PostImageResponse> imageResponseList, int participateCount, String canAccess) {
         this.postId = postId;
         this.title = title;
         this.content = content;
@@ -37,6 +43,9 @@ public class SurveyPostResponse {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.commentList = commentList;
+        this.commentSize = commentSize;
+        this.imageResponseList = imageResponseList;
+        this.participateCount = participateCount;
         this.canAccess = canAccess;
     }
 }
