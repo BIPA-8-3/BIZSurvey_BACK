@@ -102,6 +102,7 @@ public class SurveyPostService {
                          p.reported,
                          sp.survey.id,
                          sp.maxMember,
+                         sp.thumbImgUrl,
                          sp.startDateTime,
                          sp.endDateTime
 
@@ -140,6 +141,7 @@ public class SurveyPostService {
                 .canAccess(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime)))
                 .reported(isReported(tuple.get(p.reported)))
                 .surveyId(tuple.get(sp.survey.id))
+                .thumbImageUrl(tuple.get(sp.thumbImgUrl))
                 .build();
     }
 
