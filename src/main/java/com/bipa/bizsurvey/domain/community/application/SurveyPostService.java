@@ -101,7 +101,8 @@ public class SurveyPostService {
                          p.regDate,
                          sp.maxMember,
                          sp.startDateTime,
-                         sp.endDateTime
+                         sp.endDateTime,
+                         sp.survey.id
                  )
                  .from(p)
                  .innerJoin(sp).on(p.eq(sp.post))
@@ -130,6 +131,7 @@ public class SurveyPostService {
                 .commentSize(commentList.size())
                 .imageResponseList(postImageService.getImageList(postId))
                 .canAccess(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime)))
+                .surveyId(tuple.get(sp.survey.id))
                 .build();
     }
 
