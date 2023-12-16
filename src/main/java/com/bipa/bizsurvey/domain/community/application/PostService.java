@@ -181,8 +181,6 @@ public class PostService {
 
     // 게시물 상세 조회
     // /community/updatePost/{post_id}
-
-
     public PostResponse getPost(Long postId){
         Post post = findPost(postId);
         checkAvailable(post);
@@ -199,6 +197,7 @@ public class PostService {
                 .imageResponseList(postImageService.getImageList(postId))
                 .voteId(post.getVoteId())
                 .commentSize(commentService.getCommentList(postId).size())
+                .reported(isReported(post.getReported()))
                 .build();
     }
 
@@ -311,6 +310,14 @@ public class PostService {
     public void checkAvailable(Post post){
         if(post.getDelFlag()){
             throw new PostException(PostExceptionType.ALREADY_DELETED);
+        }
+    }
+
+    private int isReported(Boolean check){
+        if(check == false){
+            return 0;
+        }else{
+            return 1;
         }
     }
 
