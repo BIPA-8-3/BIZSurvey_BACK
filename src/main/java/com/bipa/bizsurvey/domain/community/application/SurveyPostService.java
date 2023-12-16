@@ -99,19 +99,29 @@ public class SurveyPostService {
                          p.count,
                          p.user.nickname,
                          p.regDate,
+                         p.reported,
+                         sp.survey.id,
                          sp.maxMember,
+                         sp.thumbImgUrl,
                          sp.startDateTime,
-                         sp.endDateTime
+                         sp.endDateTime,
+                         sp.survey.id
+
                  )
                  .from(p)
                  .innerJoin(sp).on(p.eq(sp.post))
                  .where(p.id.eq(postId))
                  .where(p.delFlag.eq(false))
-                 .where(p.reported.eq(false))
+                 // (신고 당한 게시물도 리턴
                  .fetchOne();
+
+
+
 
          Post post = postService.findPost(postId);
          post.addCount(); // 조회수 증가
+
+
 
         List<CommentResponse> commentList = commentService.getCommentList(postId);
 
@@ -130,6 +140,9 @@ public class SurveyPostService {
                 .commentSize(commentList.size())
                 .imageResponseList(postImageService.getImageList(postId))
                 .canAccess(checkAccess(tuple.get(sp.startDateTime), tuple.get(sp.endDateTime)))
+                .reported(isReported(tuple.get(p.reported)))
+                .surveyId(tuple.get(sp.survey.id))
+                .thumbImageUrl(tuple.get(sp.thumbImgUrl))
                 .build();
     }
 
@@ -164,8 +177,9 @@ public class SurveyPostService {
                 .from(p)
                 .innerJoin(sp).on(p.id.eq(sp.post.id))
                 .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
                 .orderBy(sp.score.desc())
-                .orderBy(p.reported.desc())
+                .orderBy(p.count.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -326,6 +340,14 @@ public class SurveyPostService {
         return new ArrayList<String>(set);
     }
 
+
+    private int isReported(Boolean check){
+        if(check == false){
+            return 0;
+        }else{
+            return 1;
+        }
+    }
 
 
 //    private OrderSpecifier<?> sortByField(String filedName){
