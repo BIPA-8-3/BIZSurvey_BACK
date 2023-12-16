@@ -440,7 +440,7 @@ public class SharedSurveyService {
         return whereClause;
     }
 
-    private List<ChartAndTextResponse> processChartAndText(Long sharedSurveyId) {
+    public List<ChartAndTextResponse> processChartAndText(Long sharedSurveyId) {
         List<ChartAndTextResponse> chartResult = jpaQueryFactory.select(Projections.constructor(ChartAndTextResponse.class,
                         ssr.question.id,
                         ssr.question.surveyQuestion,
