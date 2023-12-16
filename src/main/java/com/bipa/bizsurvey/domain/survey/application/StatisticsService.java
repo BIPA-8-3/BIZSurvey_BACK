@@ -18,9 +18,20 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -292,6 +303,76 @@ public class StatisticsService {
                     return new FileResultResponse(questionId, title, answerType, combinedAnswers);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public void downloadExcelResult(HttpServletResponse response, Long postId) throws IOException {
+
+        SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
+        Survey survey = surveyPost.getSurvey();
+
+//        Workbook workbook = new HSSFWorkbook();
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("통계결과");
+        int rowNo = 0;
+
+        Row headerRow = sheet.createRow(rowNo++);
+
+        headerRow.createCell(0).setCellValue("질문");
+        headerRow.createCell(1).setCellValue("유형");
+        headerRow.createCell(2).setCellValue("답변");
+        headerRow.createCell(3).setCellValue("응답자 수");
+
+        List<ChartAndTextResponse> result = processChartAndText(survey, surveyPost);
+
+        for(ChartAndTextResponse list : result){
+            for (ChartAndTextResult answerCount : list.getAnswers()) {
+                Row dataRow = sheet.createRow(rowNo++);
+                dataRow.createCell(0).setCellValue(list.getTitle());
+                dataRow.createCell(1).setCellValue(list.getQuestionType().getValue());
+                dataRow.createCell(2).setCellValue(answerCount.getAnswer());
+                dataRow.createCell(3).setCellValue(answerCount.getCount());
+            }
+
+        }
+
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//        response.setHeader("Content-Disposition", "attachment;filename=studentList.xls");
+
+//        workbook.write(response.getOutputStream());
+//        workbook.close();
+
+//        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+//        workbook.write(bout);
+//        bout.close();
+//        response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+//        response.setHeader("Content-Disposition", String.format("attachment; filename=" + "excelName.xlsx"));
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+////        response.setContentLength(bout.size());
+////        response.setHeader("Content-Disposition", String.format("attachment;filename=%s.xlsx", "test"));
+//        response.setContentLength(bout.size());
+        String filename = "안전보건관리비.xlsx";
+
+
+        response.setContentType("application/octet-stream;");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + new String(filename.getBytes("UTF-8"), "ISO-8859-1"));
+        response.setHeader("Pragma", "no-cache;");
+        response.setHeader("Expires", "-1;");
+        // excel 파일 저장
+        try {
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            workbook.write(response.getOutputStream());
+            fileOut.close();
+            workbook.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
     }
 }
 
