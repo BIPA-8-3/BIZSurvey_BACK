@@ -42,21 +42,24 @@ public class ClaimService {
         if(claimRequest.getClaimType() == ClaimType.POST){
             Post post = postService.findPost(claimRequest.getId());
             post.setReported(true); // 신고된 게시물
-            saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
+            saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(),
+                    claimRequest.getClaimReason(), post.getUser().getId());
 
 
             // 댓글이 신고된 경우
         }else if(claimRequest.getClaimType() == ClaimType.COMMENT){
             Comment comment = commentService.findComment(claimRequest.getId());
             comment.updateReported(); // 신고된 댓글
-            saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
+            saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(),
+                    claimRequest.getClaimReason(), comment.getUser().getId());
 
 
             // 대댓글이 신고된 경우
         } else if (claimRequest.getClaimType() == ClaimType.CHILD_COMMENT) {
             ChildComment childComment = childCommentService.findChildComment(claimRequest.getId());
             childComment.updateReported(); // 신고된 대댓글
-            saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(), claimRequest.getClaimReason());
+            saveClaim(user, claimRequest.getId(), claimRequest.getClaimType(),
+                    claimRequest.getClaimReason(), childComment.getUser().getId());
         }
     }
 
@@ -64,12 +67,13 @@ public class ClaimService {
 
 
 
-    private void saveClaim(User user, Long id, ClaimType claimType, ClaimReason claimReason){
+    private void saveClaim(User user, Long id, ClaimType claimType, ClaimReason claimReason, Long penalized){
         Claim claim = Claim.builder()
                 .user(user)
                 .claimType(claimType)
                 .claimReason(claimReason)
                 .logicalKey(id)
+                .penalized(penalized)
                 .build();
         claimRepository.save(claim);
     }
