@@ -22,6 +22,7 @@ import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.BooleanPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -180,8 +181,6 @@ public class PostService {
 
     // 게시물 상세 조회
     // /community/updatePost/{post_id}
-
-
     public PostResponse getPost(Long postId){
         Post post = findPost(postId);
         checkAvailable(post);
@@ -198,6 +197,7 @@ public class PostService {
                 .imageResponseList(postImageService.getImageList(postId))
                 .voteId(post.getVoteId())
                 .commentSize(commentService.getCommentList(postId).size())
+                .reported(isReported(post.getReported()))
                 .build();
     }
 
@@ -230,6 +230,8 @@ public class PostService {
         post.setDelFlag(true);
         postRepository.save(post);
     }
+
+
 
 
     public Post findPost(Long postId){
@@ -311,6 +313,14 @@ public class PostService {
         }
     }
 
+    private int isReported(Boolean check){
+        if(check == false){
+            return 0;
+        }else{
+            return 1;
+        }
+    }
+
     // redis에 캐싱함(스케줄러 사용)
     public List<Long> choseBestCommunityPostId(){
 
@@ -331,6 +341,7 @@ public class PostService {
         return post.getCount();
     }
 
+     //신고 게시물 체크
 
 
 

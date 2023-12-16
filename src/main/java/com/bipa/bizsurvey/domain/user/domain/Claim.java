@@ -48,11 +48,12 @@ public class Claim extends BaseEntity {
 
 
     @Builder
-    public Claim(ClaimType claimType, Long logicalKey, ClaimReason claimReason, User user) {
+    public Claim(ClaimType claimType, Long logicalKey, ClaimReason claimReason, User user, Long penalized) {
         this.claimType = claimType;
         this.logicalKey = logicalKey;
         this.claimReason = claimReason;
         this.user = user;
+        this.penalized = penalized;
     }
 
     public void claimProcessing(){

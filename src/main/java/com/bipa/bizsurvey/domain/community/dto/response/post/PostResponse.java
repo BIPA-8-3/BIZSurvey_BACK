@@ -24,4 +24,7 @@ public class PostResponse {
     // 댓글 사이즈
     private int commentSize;
 
+    // 신고당한 여부
+    private int reported; // 0 ->신고 X, 1 -> 신고 O
+
 }

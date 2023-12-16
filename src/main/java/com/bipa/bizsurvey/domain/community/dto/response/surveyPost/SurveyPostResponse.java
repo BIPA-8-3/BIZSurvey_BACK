@@ -26,15 +26,21 @@ public class SurveyPostResponse {
     private List<CommentResponse> commentList;
     private int commentSize;
     private List<PostImageResponse> imageResponseList;
+    private String thumbImageUrl;
     private int participateCount;
     private String canAccess;
-    private Long surveyId;
+    private int reported; // 0 ->신고 X, 1 -> 신고 O
+    private Long surveyId; // 설문 ID 리턴
+
+
 
     @Builder
     public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
                               int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
                               int commentSize, List<PostImageResponse> imageResponseList, int participateCount, String canAccess,
-                              Long surveyId) {
+                              Long surveyId, String thumbImageUrl) {
+
+
         this.postId = postId;
         this.title = title;
         this.content = content;
@@ -47,8 +53,10 @@ public class SurveyPostResponse {
         this.commentList = commentList;
         this.commentSize = commentSize;
         this.imageResponseList = imageResponseList;
+        this.thumbImageUrl = thumbImageUrl;
         this.participateCount = participateCount;
         this.canAccess = canAccess;
+        this.reported = reported;
         this.surveyId = surveyId;
     }
 }
