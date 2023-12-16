@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface SharedSurveyResponseRepository extends JpaRepository<SharedSurveyResponse, Long> {
 
-    boolean existsByIdAndDelFlagFalseAndSharedSurveyIdAndSharedListId(Long id, Long sharedSurveyId, Long sharedListId);
+    boolean existsByDelFlagFalseAndSharedListId(Long sharedListId);
     List<SharedSurveyResponse> findBySharedListIdAndDelFlagFalse(Long id);
 
 }

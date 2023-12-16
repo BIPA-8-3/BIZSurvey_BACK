@@ -1,5 +1,6 @@
 package com.bipa.bizsurvey.domain.workspace.dto;
 
+import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,9 +17,9 @@ public class SharedSurveyDto {
     }
 
     @Data
-    public static class SharedSurveyAnswerResponse {
-        private Long sharedSurveyId;
-        private Long sharedListId;
+    public static class SharedSurveyAnswerRequest {
+        private Long surveyId;
+        private String token;
         private List<SharedAnswer> sharedAnswerList;
 
         public void sortSharedAnswerListByQuestionId() {
@@ -30,9 +31,9 @@ public class SharedSurveyDto {
     @Data
     public static class SharedAnswer {
         private Long questionId;
-        private String surveyAnswer;
+        private List<String> surveyAnswer;
+        private AnswerType answerType;
         private String url;
-        private String filaName;
     }
 
     @Data

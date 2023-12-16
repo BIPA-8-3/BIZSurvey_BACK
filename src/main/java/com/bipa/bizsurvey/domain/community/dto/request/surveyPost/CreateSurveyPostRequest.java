@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class CreateSurveyPostRequest {
@@ -38,4 +39,6 @@ public class CreateSurveyPostRequest {
     private Long surveyId;
 
     private String thumbImageUrl;
+
+    private List<String> imageUrlList;
 }
