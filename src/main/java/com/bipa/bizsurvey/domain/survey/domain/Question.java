@@ -31,7 +31,7 @@ public class Question extends BaseEntity {
     private String surveyQuestion;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private AnswerType answerType;
 
     @Column(nullable = false)

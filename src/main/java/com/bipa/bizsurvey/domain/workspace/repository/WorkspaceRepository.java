@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import javax.swing.text.html.Option;
 import java.util.List;
@@ -24,7 +25,7 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
                         "from WorkspaceAdmin wa " +
                         "where wa.delFlag = false " +
                         "and wa.user.id = :userId))")
-    List<Workspace> findWorkspaceByDelFlagFalseAndUserId(Long userId);
+    List<Workspace> findWorkspaceByDelFlagFalseAndUserId(@Param("userId") Long userId);
 
 // select * from workspace where user_id = 1 and workspace_type = 'PERSONAL';
     Optional<Workspace> findByDelFlagFalseAndUserIdAndWorkspaceType(Long userId, WorkspaceType workspaceType);

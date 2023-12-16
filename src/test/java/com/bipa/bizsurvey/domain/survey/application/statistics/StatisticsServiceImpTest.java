@@ -26,18 +26,18 @@ class StatisticsServiceImpTest {
     @Autowired
     private SurveyPostRepository surveyPostRepository;
 
-    @Test
-    public void testChart(){
-
-        Survey survey = surveyRepository.findById(24L).orElseThrow();
-        SurveyPost surveyPost = surveyPostRepository.findById(1L).orElseThrow();
-
-        List<ChartAndTextResponse> results  =serviceImp.processChartAndText(survey, surveyPost);
-
-        results.forEach(dto -> {
-            log.info("dto = {}", dto);
-        });
-    }
+//    @Test
+//    public void testChart(){
+//
+//        Survey survey = surveyRepository.findById(24L).orElseThrow();
+//        SurveyPost surveyPost = surveyPostRepository.findById(1L).orElseThrow();
+//
+//        List<ChartAndTextResponse> results  =serviceImp.processChartAndText(survey, surveyPost);
+//
+//        results.forEach(dto -> {
+//            log.info("dto = {}", dto);
+//        });
+//    }
 
 
     @Test

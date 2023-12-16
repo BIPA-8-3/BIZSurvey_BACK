@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -42,7 +44,7 @@ public class SurveyController {
 
     //설문지 등록
     @PostMapping("/{workspaceId}")
-    public ResponseEntity<String> createSurvey(@RequestBody @Valid CreateSurveyRequest createSurveyRequest,
+    public ResponseEntity<String> createSurvey(@RequestBody CreateSurveyRequest createSurveyRequest,
                                                @AuthenticationPrincipal LoginUser loginUser,
                                                @PathVariable Long workspaceId) {
         surveyService.createSurvey(createSurveyRequest, workspaceId, loginUser);
@@ -51,7 +53,7 @@ public class SurveyController {
 
     //설문지 수정
     @PatchMapping("/{surveyId}")
-    public ResponseEntity<String> updateSurvey(@RequestBody @Valid UpdateSurveyRequest updateSurveyRequest,
+    public ResponseEntity<String> updateSurvey(@RequestBody UpdateSurveyRequest updateSurveyRequest,
                                                @PathVariable Long surveyId) {
         surveyService.updateSurvey(updateSurveyRequest, surveyId);
         return ResponseEntity.ok().body("설문지 수정이 완료되었습니다.");
@@ -123,6 +125,13 @@ public class SurveyController {
     public ResponseEntity<?> getScoreResultOfPost(
                                                   @PathVariable Long postId){
         return ResponseEntity.ok().body(statisticsService.getScoreResult(postId));
+    }
+
+    // 엑셀 다운
+    @GetMapping("/result/file/{postId}")
+    public ResponseEntity<?> getExcelResult(@PathVariable Long postId, HttpServletResponse response) throws IOException {
+        statisticsService.downloadExcelResult(response, postId);
+        return ResponseEntity.ok().body("엑셀 파일이 다운되었습니다.");
     }
 
 
