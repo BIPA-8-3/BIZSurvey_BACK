@@ -14,6 +14,8 @@ import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
 import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.domain.workspace.application.SharedSurveyService;
+import com.bipa.bizsurvey.global.common.storage.ShareType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +52,7 @@ public class StatisticsService {
     private final UserSurveyResponseRepository userSurveyResponseRepository;
     private final SurveyRepository surveyRepository;
     private final UserRepository userRepository;
-
+    private final SharedSurveyService sharedSurveyService;
     public QUserSurveyResponse u = new QUserSurveyResponse("u");
     public QSurveyPost sp = new QSurveyPost("sp");
     public QAnswer a = new QAnswer("a");
@@ -305,9 +307,9 @@ public class StatisticsService {
                 .collect(Collectors.toList());
     }
 
-    public void downloadExcelResult(HttpServletResponse response, Long postId) throws IOException {
+    public void downloadExcelResult(HttpServletResponse response, Long sharedId, ShareType shareType) throws IOException {
 
-        SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
+        SurveyPost surveyPost = surveyPostRepository.findByPostId(sharedId);
         Survey survey = surveyPost.getSurvey();
 
 //        Workbook workbook = new HSSFWorkbook();
@@ -322,7 +324,7 @@ public class StatisticsService {
         headerRow.createCell(2).setCellValue("답변");
         headerRow.createCell(3).setCellValue("응답자 수");
 
-        List<ChartAndTextResponse> result = processChartAndText(survey, surveyPost);
+        List<ChartAndTextResponse> result = ShareType.INTERNAL.equals(shareType) ? processChartAndText(survey, surveyPost) : sharedSurveyService.processChartAndText(sharedId);
 
         for(ChartAndTextResponse list : result){
             for (ChartAndTextResult answerCount : list.getAnswers()) {

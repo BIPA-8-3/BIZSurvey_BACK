@@ -104,7 +104,8 @@ public class SurveyPostService {
                          sp.maxMember,
                          sp.thumbImgUrl,
                          sp.startDateTime,
-                         sp.endDateTime
+                         sp.endDateTime,
+                         sp.survey.id
 
                  )
                  .from(p)

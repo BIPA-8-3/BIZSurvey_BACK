@@ -9,6 +9,7 @@ import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
 import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListResponse;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.global.common.storage.ShareType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -128,9 +129,9 @@ public class SurveyController {
     }
 
     // 엑셀 다운
-    @GetMapping("/result/file/{postId}")
-    public ResponseEntity<?> getExcelResult(@PathVariable Long postId, HttpServletResponse response) throws IOException {
-        statisticsService.downloadExcelResult(response, postId);
+    @GetMapping("/result/file/{sharedType}/{sharedId}")
+    public ResponseEntity<?> getExcelResult(@PathVariable Long sharedId, @PathVariable ShareType sharedType, HttpServletResponse response) throws IOException {
+        statisticsService.downloadExcelResult(response, sharedId, sharedType);
         return ResponseEntity.ok().body("엑셀 파일이 다운되었습니다.");
     }
 
