@@ -72,6 +72,7 @@ public class SurveyPost extends BaseEntity {
         this.endDateTime = updateSurveyPostRequest.getEndDateTime();
         this.maxMember = updateSurveyPostRequest.getMaxMember();
         this.survey = survey;
+        this.thumbImgUrl = updateSurveyPostRequest.getThumbImgUrl();
     }
 
 
