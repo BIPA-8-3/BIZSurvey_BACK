@@ -80,8 +80,7 @@ public class SurveyCommunityPostController {
     // 검색
     @GetMapping("/search")
     public ResponseEntity<?> searchSurveyPost(@RequestParam String keyword,
-                                              @PageableDefault(size = 8) Pageable pageable
-    ) {
+                                              @PageableDefault(size = 8) Pageable pageable) {
         log.info("키워드 : " + keyword);
         return ResponseEntity.ok().body(surveyPostService.searchSurveyPost(keyword, pageable));
     }
