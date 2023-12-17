@@ -308,10 +308,6 @@ public class StatisticsService {
     }
 
     public void downloadExcelResult(HttpServletResponse response, Long sharedId, ShareType shareType) throws IOException {
-
-        SurveyPost surveyPost = surveyPostRepository.findByPostId(sharedId);
-        Survey survey = surveyPost.getSurvey();
-
 //        Workbook workbook = new HSSFWorkbook();
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("통계결과");
@@ -324,7 +320,16 @@ public class StatisticsService {
         headerRow.createCell(2).setCellValue("답변");
         headerRow.createCell(3).setCellValue("응답자 수");
 
-        List<ChartAndTextResponse> result = ShareType.INTERNAL.equals(shareType) ? processChartAndText(survey, surveyPost) : sharedSurveyService.processChartAndText(sharedId);
+        List<ChartAndTextResponse> result = null;
+
+        if(ShareType.INTERNAL.equals(shareType)) {
+            SurveyPost surveyPost = surveyPostRepository.findByPostId(sharedId);
+            Survey survey = surveyPost.getSurvey();
+            result = processChartAndText(survey, surveyPost);
+
+        } else {
+            result = sharedSurveyService.processChartAndText(sharedId);
+        }
 
         for(ChartAndTextResponse list : result){
             for (ChartAndTextResult answerCount : list.getAnswers()) {
