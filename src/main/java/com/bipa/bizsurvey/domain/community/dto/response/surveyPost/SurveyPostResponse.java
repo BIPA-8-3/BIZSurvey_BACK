@@ -32,13 +32,11 @@ public class SurveyPostResponse {
     private int reported; // 0 ->신고 X, 1 -> 신고 O
     private Long surveyId; // 설문 ID 리턴
 
-
     @Builder
     public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
-                              int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
-                              int commentSize, List<PostImageResponse> imageResponseList, int participateCount, String canAccess,
-                              Long surveyId, String thumbImageUrl, int reported) {
-
+            int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
+            int commentSize, List<PostImageResponse> imageResponseList, int participateCount, String canAccess,
+            Long surveyId, String thumbImageUrl, int reported) {
 
         this.postId = postId;
         this.title = title;
