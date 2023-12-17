@@ -33,4 +33,6 @@ public class UpdateSurveyPostRequest {
 
     @NotNull(message = "설문지를 지정해줘야 합니다.")
     private Long surveyId;
+
+    private String thumbImgUrl;
 }
