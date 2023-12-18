@@ -14,6 +14,7 @@ import com.bipa.bizsurvey.domain.community.enums.AccessType;
 import com.bipa.bizsurvey.domain.community.enums.PostType;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
+import com.bipa.bizsurvey.domain.survey.application.SurveyCommunityService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.user.domain.User;
@@ -48,6 +49,7 @@ public class SurveyPostService {
     private final SurveyPostRepository surveyPostRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final SurveyService surveyService;
+    private final SurveyCommunityService surveyCommunityService;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostService postService;
@@ -115,13 +117,8 @@ public class SurveyPostService {
                  // (신고 당한 게시물도 리턴
                  .fetchOne();
 
-
-
-
          Post post = postService.findPost(postId);
          post.addCount(); // 조회수 증가
-
-
 
         List<CommentResponse> commentList = commentService.getCommentList(postId);
 
@@ -221,7 +218,7 @@ public class SurveyPostService {
                 .from(p)
                 .where(p.delFlag.eq(false))
                 .where(p.reported.eq(false))
-                .where(p.postType.eq(PostType.COMMUNITY))
+                .where(p.postType.eq(PostType.SURVEY))
                 .where(p.content.like("%" + keyword + "%")
                         .or(p.title.like("%" + keyword + "%")))
                 .stream().count();
@@ -234,12 +231,15 @@ public class SurveyPostService {
                         p.count,
                         p.user.nickname,
                         p.regDate,
-                        sp.maxMember,
+                        sp.id,
                         sp.startDateTime,
-                        sp.endDateTime
+                        sp.endDateTime,
+                        sp.maxMember,
+                        sp.thumbImgUrl
                 )
                 .from(p)
                 .innerJoin(sp).on(p.eq(sp.post))
+                .where(p.postType.eq(PostType.SURVEY))
                 .where(p.delFlag.eq(false))
                 .where(p.content.like("%" + keyword + "%")
                         .or(p.title.like("%" + keyword + "%")))
@@ -266,8 +266,12 @@ public class SurveyPostService {
                     .postId(tuple.get(p.id))
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
+                    .count(tuple.get(p.count))
                     .nickname(tuple.get(p.user.nickname))
                     .maxMember(tuple.get(sp.maxMember))
+                    .commentSize(commentService.getCommentList(tuple.get(p.id)).size())
+                    .participateCount(surveyCommunityService.getParticipants(tuple.get(sp.id)))
+                    .canAccess(checkAccess(tuple.get(sp.id)))
                     .thumbImageUrl(tuple.get(sp.thumbImgUrl))
                     .build();
 
@@ -284,6 +288,12 @@ public class SurveyPostService {
         Survey survey = surveyService.findSurvey(updateSurveyPostRequest.getSurveyId());
         surveyPost.updateSurveyPost(updateSurveyPostRequest, survey);
         surveyPostRepository.save(surveyPost);
+    }
+    @CacheEvict(value = "postSurveyListCache", allEntries = true)
+    public void deleteSurveyPost(Long userId, Long postId){
+        postService.checkPermission(userId, postId);
+        Post post = postService.findPost(postId);
+        post.setDelFlag(true);
     }
 
     public String checkAccess(LocalDateTime start, LocalDateTime close){

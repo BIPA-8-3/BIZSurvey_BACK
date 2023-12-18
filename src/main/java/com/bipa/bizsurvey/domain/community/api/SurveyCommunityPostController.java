@@ -80,8 +80,7 @@ public class SurveyCommunityPostController {
     // 검색
     @GetMapping("/search")
     public ResponseEntity<?> searchSurveyPost(@RequestParam String keyword,
-                                              @PageableDefault(size = 8) Pageable pageable
-    ) {
+                                              @PageableDefault(size = 8) Pageable pageable) {
         log.info("키워드 : " + keyword);
         return ResponseEntity.ok().body(surveyPostService.searchSurveyPost(keyword, pageable));
     }
@@ -94,6 +93,14 @@ public class SurveyCommunityPostController {
         surveyPostService.updateSurveyPost(loginUser.getId(), postId, updateSurveyPostRequest);
         return ResponseEntity.ok().body("게시물이 수정되었습니다.");
     }
+
+    @DeleteMapping("/deleteSurveyPost/{postId}")
+    public ResponseEntity<?> deleteSurveyPost(@AuthenticationPrincipal LoginUser loginUser,
+                                              @PathVariable Long postId){
+        surveyPostService.deleteSurveyPost(loginUser.getId(), postId);
+        return ResponseEntity.ok().body("설문 게시물이 삭제되었습니다.");
+    }
+
 
     @PostMapping("/findSurveyPostTitle")
     public ResponseEntity<?> findPostTitle(@RequestBody SearchPostRequest searchPostRequest) {

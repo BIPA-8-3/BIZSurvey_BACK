@@ -17,8 +17,7 @@ public class UpdatePostRequest {
     @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String content;
 
-    private List<String> addImgUrlList;
+    private List<String> imgUrlList;
 
-    private List<String> deleteImgUrlList;
 
 }
