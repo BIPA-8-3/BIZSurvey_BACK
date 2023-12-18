@@ -29,8 +29,12 @@ public class PostTableResponse implements Serializable {
     //조회수 기준 Best 게시물인지 아닌지
     private String isBest;
 
+    // 유저 이미지
+    private String profile;
+
     @Builder
-    public PostTableResponse(Long postId, String title, int count, String nickname, String createTime, int commentSize, Long voteId, String createType, String isBest) {
+    public PostTableResponse(Long postId, String title, int count, String nickname, String createTime, int commentSize,
+                             Long voteId, String createType, String isBest, String profile) {
         this.postId = postId;
         this.title = title;
         this.count = count;
@@ -40,5 +44,6 @@ public class PostTableResponse implements Serializable {
         this.voteId = voteId;
         this.createType = createType;
         this.isBest = isBest;
+        this.profile = profile;
     }
 }

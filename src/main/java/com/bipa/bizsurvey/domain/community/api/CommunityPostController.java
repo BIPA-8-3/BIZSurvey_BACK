@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.application.CommentService;
+import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
@@ -9,6 +10,7 @@ import com.bipa.bizsurvey.domain.community.dto.response.post.PostTableResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostTitleResponse;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostException;
 import com.bipa.bizsurvey.domain.community.exception.postException.PostExceptionType;
+import com.bipa.bizsurvey.domain.user.application.UserService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
@@ -49,7 +51,11 @@ public class CommunityPostController {
         for (Object o : content) {
             PostTableResponse postTableResponse = (PostTableResponse) o;
             postTableResponse.setCommentSize(commentService.getCommentList(postTableResponse.getPostId()).size());
-            postTableResponse.setCount(postService.getPostCount(postTableResponse.getPostId()));
+
+            Post post = postService.findPost(postTableResponse.getPostId());
+
+            postTableResponse.setCount(post.getCount());
+            postTableResponse.setProfile(post.getUser().getProfile());
         }
 
         return ResponseEntity.ok().body(postPage); // 200 OK

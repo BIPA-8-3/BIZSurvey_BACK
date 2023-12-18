@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.community.api;
 
 import com.bipa.bizsurvey.domain.community.application.CommentService;
 import com.bipa.bizsurvey.domain.community.application.PostService;
+import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.surveyPost.CreateSurveyPostRequest;
@@ -62,10 +63,15 @@ public class SurveyCommunityPostController {
         for(Object o : content){
             SurveyPostCardResponse surveyPostCardResponse = (SurveyPostCardResponse) o;
             System.out.println("컨트롤러 객체 : "+surveyPostCardResponse.toString());
+
             surveyPostCardResponse.setCount(postService.getPostCount(surveyPostCardResponse.getPostId()));
             surveyPostCardResponse.setCommentSize(commentService.getCommentList(surveyPostCardResponse.getPostId()).size());
             surveyPostCardResponse.setParticipateCount(surveyCommunityService.getParticipants(surveyPostCardResponse.getSurveyPostId()));
             surveyPostCardResponse.setCanAccess(surveyPostService.checkAccess(surveyPostCardResponse.getSurveyPostId()));
+            surveyPostCardResponse.setProfile(surveyPostService.findSurveyPost(surveyPostCardResponse.getSurveyPostId())
+                    .getPost()
+                    .getUser()
+                    .getProfile());
         }
 
         return ResponseEntity.ok().body(surveyPostPage);

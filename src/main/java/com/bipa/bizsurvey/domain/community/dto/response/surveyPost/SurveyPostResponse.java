@@ -31,6 +31,7 @@ public class SurveyPostResponse {
     private String canAccess;
     private int reported; // 0 ->신고 X, 1 -> 신고 O
     private Long surveyId; // 설문 ID 리턴
+    private String profile;
 
     @Builder
     public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
@@ -55,5 +56,6 @@ public class SurveyPostResponse {
         this.canAccess = canAccess;
         this.reported = reported;
         this.surveyId = surveyId;
+        this.profile = profile;
     }
 }

@@ -168,6 +168,7 @@ public class PostService {
                     .voteId(post.getVoteId())
                     .createType(checkCreateType(post))
                     .isBest(checkIsBest(post.getId()))
+                    .profile(post.getUser().getProfile())
                     .build();
 
             result.add(postTableResponse);
