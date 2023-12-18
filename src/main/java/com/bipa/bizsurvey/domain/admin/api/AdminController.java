@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.admin.api;
 
 import com.bipa.bizsurvey.domain.admin.application.AdminClaimService;
+import com.bipa.bizsurvey.domain.admin.application.AdminCommunityService;
 import com.bipa.bizsurvey.domain.admin.application.AdminUserService;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimDetailResponse;
 import com.bipa.bizsurvey.domain.admin.dto.claim.ClaimListResponse;
@@ -33,6 +34,7 @@ public class AdminController {
     private final PostService postService;
     private final UserService userService;
     private final SurveyPostService surveyPostService;
+    private final AdminCommunityService adminCommunityService;
 
     //회원목록
     @GetMapping("/users")
@@ -63,10 +65,8 @@ public class AdminController {
 
     //설문 커뮤니티 목록
     @GetMapping("/s-community")
-
-
     public ResponseEntity<?> getSurveyPost(@PageableDefault(size = 20) Pageable pageable){
-        return ResponseEntity.ok().body(surveyPostService.getSurveyPostList(pageable));
+        return ResponseEntity.ok().body(adminCommunityService.getSurveyPostList(pageable));
     }
 
     //미처리 신고 목록
