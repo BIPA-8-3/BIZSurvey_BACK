@@ -18,16 +18,15 @@ import com.bipa.bizsurvey.domain.survey.application.SurveyCommunityService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.CustomPageImpl;
-import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -140,6 +139,7 @@ public class SurveyPostService {
                 .reported(isReported(tuple.get(p.reported)))
                 .surveyId(tuple.get(sp.survey.id))
                 .thumbImageUrl(tuple.get(sp.thumbImgUrl))
+                .profile(post.getUser().getProfile())
                 .build();
     }
 
@@ -202,6 +202,7 @@ public class SurveyPostService {
                     .nickname(tuple.get(p.user.nickname))
                     .maxMember(tuple.get(sp.maxMember))
                     .thumbImageUrl(tuple.get(sp.thumbImgUrl))
+
                     .build();
 
             results.add(surveyPostResponse);
@@ -273,6 +274,7 @@ public class SurveyPostService {
                     .participateCount(surveyCommunityService.getParticipants(tuple.get(sp.id)))
                     .canAccess(checkAccess(tuple.get(sp.id)))
                     .thumbImageUrl(tuple.get(sp.thumbImgUrl))
+                    .profile(surveyPost.getPost().getUser().getProfile())
                     .build();
 
             results.add(surveyPostResponse);
@@ -358,6 +360,12 @@ public class SurveyPostService {
             return 1;
         }
     }
+
+    public SurveyPost findSurveyPost(Long id){
+        return surveyPostRepository.findById(id).get();
+    }
+
+
 
 
 //    private OrderSpecifier<?> sortByField(String filedName){

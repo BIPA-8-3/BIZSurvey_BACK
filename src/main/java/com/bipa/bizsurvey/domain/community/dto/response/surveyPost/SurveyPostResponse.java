@@ -31,13 +31,14 @@ public class SurveyPostResponse {
     private String canAccess;
     private int reported; // 0 ->신고 X, 1 -> 신고 O
     private Long surveyId; // 설문 ID 리턴
+    private String profile;
 
 
     @Builder
     public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
                               int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
                               int commentSize, List<PostImageResponse> imageResponseList, int participateCount, String canAccess,
-                              int reported, Long surveyId, String thumbImageUrl) {
+                              int reported, Long surveyId, String thumbImageUrl, String profile) {
 
 
         this.postId = postId;
@@ -57,5 +58,6 @@ public class SurveyPostResponse {
         this.canAccess = canAccess;
         this.reported = reported;
         this.surveyId = surveyId;
+        this.profile = profile;
     }
 }

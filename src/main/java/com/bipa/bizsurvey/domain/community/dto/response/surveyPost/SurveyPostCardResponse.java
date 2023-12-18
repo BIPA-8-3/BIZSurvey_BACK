@@ -23,11 +23,12 @@ public class SurveyPostCardResponse {
     private int participateCount; // 컨트롤러 리턴
     private String canAccess; // 컨트롤러 리턴
     private String thumbImageUrl;
+    private String profile; // 유저 섬네일 이미지
 
     @Builder
     public SurveyPostCardResponse(Long postId, Long surveyPostId, String title, String content, int count, String nickname,
                                   int maxMember, int commentSize, int participateCount, String canAccess,
-                                  String thumbImageUrl) {
+                                  String thumbImageUrl, String profile) {
         this.postId = postId;
         this.surveyPostId = surveyPostId;
         this.title = title;
@@ -39,5 +40,6 @@ public class SurveyPostCardResponse {
         this.participateCount = participateCount;
         this.canAccess = canAccess;
         this.thumbImageUrl = thumbImageUrl;
+        this.profile = profile;
     }
 }
