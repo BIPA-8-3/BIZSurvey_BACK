@@ -27,13 +27,13 @@ public class PostImageService {
         List<PostImages> postImages = new ArrayList<>();
 
         for (String s : createUrlList) {
-            if(!checkAlreadyExist(s)){
+
                 PostImages image = PostImages.builder()
                         .imgName(s)
                         .post(postRepository.findById(postId).get())
                         .build();
                 postImages.add(image);
-            }
+
         }
          postImagesRepository.saveAll(postImages);
     }
@@ -58,7 +58,7 @@ public class PostImageService {
 
     public void deletePostImages(Long postId, List<String> deleteUrlList){
         for(String s : deleteUrlList){
-            if(checkAlreadyExist(s)){
+
 
                 List<PostImages> postImages = jpaQueryFactory
                         .select(pi)
@@ -73,16 +73,10 @@ public class PostImageService {
                     postImage.setDelFlag(true);
                     postImagesRepository.save(postImage);
                 }
-            }
+
         }
     }
 
-
-
-
-    public boolean checkAlreadyExist(String imageUrl){
-        return postImagesRepository.existsByImgName(imageUrl);
-    }
 
 
 
