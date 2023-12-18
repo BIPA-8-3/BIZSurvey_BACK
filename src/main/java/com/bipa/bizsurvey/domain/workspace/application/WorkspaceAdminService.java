@@ -46,10 +46,10 @@ public class WorkspaceAdminService {
     private static final String TOKEN_PREFIX = "INVITE-";
     private static final Long TOKEN_VALID_TIME_SECONDS = 60 * 60 * 24 * 3L;
 
-    @Value("${domain.backend}")
+    @Value("${spring.domain.backend}")
     private String backendAddress;
 
-    @Value("${domain.frontend}")
+    @Value("${spring.domain.frontend}")
     private String frontendAddrss;
 
     public WorkspaceAdminDto.Response invite(WorkspaceAdminDto.InviteRequest request) throws Exception {
