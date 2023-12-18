@@ -34,6 +34,7 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final SurveyRepository surveyRepository;
+    private final WorkspaceAdminRepository workspaceAdminRepository;
 
     public WorkspaceDto.ListResponse create(Long userId, WorkspaceDto.CreateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
@@ -104,6 +105,20 @@ public class WorkspaceService {
 
     public void getPersonalWorkspace(Long userId) {
         workspaceRepository.findByDelFlagFalseAndUserIdAndWorkspaceType(userId, WorkspaceType.PERSONAL).orElseThrow(() -> new EntityNotFoundException("개인 워크스페이스가 존재하지 않습니다."));
+    }
+
+    public boolean permissionCheck(Long userId) {
+        List<Workspace> list =  workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
+        if(list != null && list.size() > 0) {
+            return true;
+        }
+
+        List<WorkspaceAdmin> adminList = workspaceAdminRepository.findByUserIdAndDelFlagFalse(userId);
+        if(adminList != null && adminList.size() > 0) {
+            return true;
+        }
+
+        return false;
     }
 }
 
