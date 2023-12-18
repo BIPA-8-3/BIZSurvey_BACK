@@ -467,10 +467,12 @@ public class SharedSurveyService {
                     List<ChartAndTextResponse> chartResultResponse = entry.getValue();
 
                     AnswerType answerType = chartResultResponse.get(0).getQuestionType();
+                    String title = chartResultResponse.get(0).getTitle();
+
                     List<ChartAndTextResult> answers = chartResultResponse.stream().flatMap(chartResponse -> chartResponse.getAnswers().stream())
                             .collect(Collectors.toList());
 
-                    return new ChartAndTextResponse(questionId, null, answerType, answers);
+                    return new ChartAndTextResponse(questionId, title, answerType, answers);
                 }).collect(Collectors.toList());
     }
 

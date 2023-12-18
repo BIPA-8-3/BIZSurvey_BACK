@@ -65,6 +65,7 @@ public class ContactService {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         booleanBuilder.and(qContact.delFlag.eq(false));
+        booleanBuilder.and(qContact.workspace.id.eq(request.getWorkspaceId()));
         booleanBuilder.and(qContact.name.contains(keyword).or(qContact.email.contains(keyword)));
 
         List<Contact> list = jpaQueryFactory.select(qContact)

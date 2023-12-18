@@ -161,6 +161,7 @@ public class WorkspaceAdminService {
                         .adminType(e.getAdminType())
                         .nickName(e.getUser().getNickname())
                         .inviteFlag(e.getInviteFlag())
+                        .profileUrl(e.getUser().getProfile())
                         .build())
                 .collect(Collectors.toList());
 
@@ -173,6 +174,7 @@ public class WorkspaceAdminService {
                         .nickName(e.getRemark())
                         .inviteFlag(e.getInviteFlag())
                         .hasToken(e.getToken() != null)
+                        .profileUrl(null)
                         .build())
                 .collect(Collectors.toList());
 
@@ -194,7 +196,7 @@ public class WorkspaceAdminService {
                 .inviteFlag(true)
                 .adminType(AdminType.INVITE)
                 .nickName(u.getNickname())
-                .profileUrl(null)
+                .profileUrl(u.getProfile())
                 .build();
 
         WorkspaceAdminDto.ListResponse response = WorkspaceAdminDto.ListResponse.builder()
