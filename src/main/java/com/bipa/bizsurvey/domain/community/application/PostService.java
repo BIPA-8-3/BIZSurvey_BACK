@@ -6,6 +6,7 @@ import com.bipa.bizsurvey.domain.community.domain.QPost;
 import com.bipa.bizsurvey.domain.community.dto.request.post.CreatePostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.SearchPostRequest;
 import com.bipa.bizsurvey.domain.community.dto.request.post.UpdatePostRequest;
+import com.bipa.bizsurvey.domain.community.dto.response.post.PostImageResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostResponse;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostTableResponse;
 import com.bipa.bizsurvey.domain.community.enums.CreateType;
@@ -207,17 +208,18 @@ public class PostService {
     @CacheEvict(value = "postListCache", allEntries = true)
     public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
 
-        if(updatePostRequest.getAddImgUrlList() != null){
-            postImageService.createPostImages(postId, updatePostRequest.getAddImgUrlList());
+        List<PostImageResponse> postImageResponses = postImageService.getImageList(postId); // DB에 저장되어 있던 값들
+        List<String> exist = new ArrayList<>(); // DB에 저장되어 있던 값들
+        for (PostImageResponse postImageResponse : postImageResponses) {
+           exist.add(postImageResponse.getPostImageUrl());
         }
 
-        if(updatePostRequest.getDeleteImgUrlList() != null){
-            postImageService.deletePostImages(postId, updatePostRequest.getDeleteImgUrlList());
-        }
-
+        postImageService.deletePostImages(postId, exist); // 전부 삭제
+        postImageService.createPostImages(postId, updatePostRequest.getImgUrlList()); // 새로 생성
 
         Post post = checkPermission(userId, postId);
         post.updatePost(updatePostRequest);
+
         postRepository.save(post);
     }
 
