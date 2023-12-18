@@ -94,6 +94,14 @@ public class SurveyCommunityPostController {
         return ResponseEntity.ok().body("게시물이 수정되었습니다.");
     }
 
+    @DeleteMapping("/deleteSurveyPost/{postId}")
+    public ResponseEntity<?> deleteSurveyPost(@AuthenticationPrincipal LoginUser loginUser,
+                                              @PathVariable Long postId){
+        surveyPostService.deleteSurveyPost(loginUser.getId(), postId);
+        return ResponseEntity.ok().body("설문 게시물이 삭제되었습니다.");
+    }
+
+
     @PostMapping("/findSurveyPostTitle")
     public ResponseEntity<?> findPostTitle(@RequestBody SearchPostRequest searchPostRequest) {
 

@@ -289,6 +289,12 @@ public class SurveyPostService {
         surveyPost.updateSurveyPost(updateSurveyPostRequest, survey);
         surveyPostRepository.save(surveyPost);
     }
+    @CacheEvict(value = "postSurveyListCache", allEntries = true)
+    public void deleteSurveyPost(Long userId, Long postId){
+        postService.checkPermission(userId, postId);
+        Post post = postService.findPost(postId);
+        post.setDelFlag(true);
+    }
 
     public String checkAccess(LocalDateTime start, LocalDateTime close){
         LocalDateTime localDateTime = LocalDateTime.now();

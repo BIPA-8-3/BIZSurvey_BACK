@@ -33,7 +33,6 @@ public class SurveyPostResponse {
     private Long surveyId; // 설문 ID 리턴
 
 
-
     @Builder
     public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
                               int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
