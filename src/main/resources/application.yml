@@ -82,12 +82,6 @@ logging:
 
 AES:
   PRIVATE_KEY: ${PRIVATE_KEY}
-
-domain:
-#  backend: bizsurvey.shop/api/
-#  frontend: bizsurvey.shop
-  backend: localhost:8080
-  frontend: http://localhost:3000
   
 ---
 
@@ -116,7 +110,9 @@ spring:
     port: 6379
     topic:
       expired: __keyevent@*__:expired
-
+  domain:
+    backend: localhost:8080
+    frontend: http://localhost:3000
 
 bizLog:
   logging:
@@ -141,7 +137,9 @@ spring:
     url: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
-
+  domain:
+    backend: bizsurvey.shop/api/
+    frontend: bizsurvey.shop
 ---
 
 spring:
