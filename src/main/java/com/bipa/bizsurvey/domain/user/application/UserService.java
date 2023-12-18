@@ -121,7 +121,7 @@ public class UserService {
                 .withExpiresAt(new Date(System.currentTimeMillis() + JwtVO.EXPIRATION_TIME))
                 .withClaim("id", loginUser.getLoginInfoRequest().getId())
                 .withClaim("nickname", loginUser.getLoginInfoRequest().getNickname())
-                .withClaim("email", loginUser.getLoginInfoRequest().getEmail())
+                .withClaim("email", loginUser.getLoginInfoRequest().getEmail().replace("\"", ""))
                 .withClaim("role", plan + "")
                 .sign(Algorithm.HMAC512(JwtVO.SECRET));
     }
