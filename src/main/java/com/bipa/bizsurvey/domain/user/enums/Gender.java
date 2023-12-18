@@ -1,11 +1,9 @@
 package com.bipa.bizsurvey.domain.user.enums;
 
-
 import lombok.Getter;
 
 @Getter
 public enum Gender {
-
 
     MALE("남자"),
     FEMALE("여자");
