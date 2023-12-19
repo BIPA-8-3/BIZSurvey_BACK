@@ -44,7 +44,7 @@ public class CommunityVoteController {
     }
 
     @GetMapping("/{voteId}/showPercentage")
-    public ResponseEntity<?> choseAnswer(@PathVariable Long voteId){
+    public ResponseEntity<?> showPercentage(@PathVariable Long voteId){
         return ResponseEntity.ok().body(voteService.calculatePercentage(voteId));
     }
 

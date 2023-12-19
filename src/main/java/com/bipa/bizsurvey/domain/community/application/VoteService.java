@@ -56,6 +56,11 @@ public class VoteService {
         // show vote answer
         public VoteResponse showVoteAnswerList(Long postId, Long voteId){
                 Vote vote = findVote(postId, voteId);
+
+                if(vote == null){
+                        return null;
+                }
+
                 List<VoteAnswer> voteAnswerList = jpaQueryFactory
                         .select(va)
                         .from(va)
@@ -84,7 +89,7 @@ public class VoteService {
 
                 Vote vote = findVote(postId, voteId);
 
-                checkExistOption(voteId, voteAnswerId); // 존재하는 선택란인지 확인
+
 
                 VoteAnswer voteAnswer = voteAnswerRepository.findById(voteAnswerId)
                         .orElseThrow(() -> new VoteException(VoteExceptionType.NON_EXIST_ANSWER));
@@ -124,7 +129,7 @@ public class VoteService {
                 List<VoteAnswer> voteAnswerList = jpaQueryFactory
                         .select(va)
                         .from(va)
-                        .where(va.vote.eq(v))
+                        .where(va.vote.id.eq(voteId))
                         .where(va.delFlag.eq(false))
                         .fetch();
 
@@ -146,14 +151,11 @@ public class VoteService {
         }
 
 
-
-
         private Vote findVote(Long postId, Long voteId){
                 Post post = postService.findPost(postId);
                 Vote vote = null;
                 if(!post.getDelFlag()) {
-                        vote = voteRepository.findById(voteId)
-                                .orElseThrow(() -> new VoteException(VoteExceptionType.NON_EXIST_VOTE));
+                        vote = voteRepository.findByIdAndDelFlagIsFalse(voteId);
                 }
                 return vote;
         }
@@ -179,7 +181,7 @@ public class VoteService {
                         AnswerPercentageResponse response = AnswerPercentageResponse.builder()
                                 .voteAnswerId(voteAnswer.getId())
                                 .answer(voteAnswer.getAnswer())
-                                .percentage((selected.size()/totalCount) * 100)
+                                .percentage(Double.parseDouble(String.format("%.1f", (selected.size() / totalCount) * 100)))
                                 .build();
                         answerPercentageResponses.add(response);
                 }
@@ -194,11 +196,6 @@ public class VoteService {
         }
 
         // TODO : "존재하지 않는 선택지입니다" 만들어야 함
-        private void checkExistOption(Long voteId, Long choseId){
-                List<VoteAnswer> voteAnswerList = voteAnswerRepository.findAllByVoteId(voteId);
-                if(voteAnswerList.size() < choseId){
-                        throw new VoteException(VoteExceptionType.NON_EXIST_ANSWER);
-                }
-        }
+
 
 }
