@@ -13,4 +13,5 @@ public class VoteResponse {
     //
     private String voteTitle;
     private List<VoteAnswerResponse> answerList;
+    private String checked; // 이미 투표했는지 아닌지
 }

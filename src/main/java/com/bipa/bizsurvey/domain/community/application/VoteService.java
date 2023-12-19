@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -84,7 +85,6 @@ public class VoteService {
                 Vote vote = findVote(postId, voteId);
 
                 checkExistOption(voteId, voteAnswerId); // 존재하는 선택란인지 확인
-                checkAlreadyChose(user, vote); // 이미 투표한 유저인지 체크
 
                 VoteAnswer voteAnswer = voteAnswerRepository.findById(voteAnswerId)
                         .orElseThrow(() -> new VoteException(VoteExceptionType.NON_EXIST_ANSWER));
@@ -97,6 +97,19 @@ public class VoteService {
 
                 voteUserAnswerRepository.save(voteUserAnswer);
         }
+
+        // deleteVote
+        public void deleteVote(Long userId, Long voteId){
+                Vote vote = voteRepository.findById(voteId).get();
+                if(!vote.getUser().getId().equals(userId)){
+                    throw new UserException(UserExceptionType.NO_PERMISSION);
+                }else {
+                        vote.setDelFlag(true);
+                }
+        }
+
+
+
 
 
         // 모든 응답에 대한 퍼센테이지 구하는 메소드 제작
@@ -145,9 +158,11 @@ public class VoteService {
                 return vote;
         }
 
-        private void checkAlreadyChose(User user, Vote vote){
-                if(voteUserAnswerRepository.existsByUserIdAndVoteId(user.getId(), vote.getId())){
-                        throw new VoteException(VoteExceptionType.ALREADY_CHECK);
+        public String checkAlreadyChose(Long userId, Long voteId){
+                if(voteUserAnswerRepository.existsByUserIdAndVoteId(userId, voteId)){
+                        return "cheked"; //
+                }else {
+                        return "non_checked"; //
                 }
         }
 
