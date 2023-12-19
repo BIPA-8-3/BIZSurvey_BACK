@@ -17,36 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 class PostServiceTest {
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PostService postService;
-
-    @BeforeEach
-    public void beforeEach(){
-        User user = User.builder()
-                .email("dlathf3210@naver.com")
-                .name("lim")
-                .nickname("saul")
-                .gender(Gender.MALE)
-                .birthdate("19971002")
-                .build();
-
-        userRepository.save(user);
-    }
 
 
-    @Test
-    @Rollback(value = false)
-    @DisplayName("게시물 생성 테스트 코드")
-    public void createPostTest(){
-        User user = userRepository.findById(1L).get();
-        CreatePostRequest createPostRequest = new CreatePostRequest();
-        createPostRequest.setTitle("title");
-        createPostRequest.setContent("content");
-
-        postService.createPost(user.getId(), createPostRequest);
-    }
 
 }

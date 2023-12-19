@@ -18,12 +18,12 @@ public class CommunityVoteController {
 
     private final VoteService voteService;
 
-    @PostMapping("/{postId}/createVote")
-    public ResponseEntity<?> createVote(@PathVariable Long postId,
+    @PostMapping("/createVote")
+    public ResponseEntity<?> createVote(
                                         @Valid @RequestBody CreateVoteRequest createVoteRequest,
                                         @AuthenticationPrincipal LoginUser loginUser){
-        voteService.createVote(loginUser.getId(), createVoteRequest, postId);
-        return ResponseEntity.ok().body("투표가 생성되었습니다.");
+
+        return ResponseEntity.ok().body(voteService.createVote(loginUser.getId(), createVoteRequest));
     }
 
     @GetMapping("/{postId}/showVoteAnswer/{voteId}")

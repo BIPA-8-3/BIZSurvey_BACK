@@ -40,22 +40,16 @@ public class VoteService {
         public final QVoteAnswer va = QVoteAnswer.voteAnswer;
         private final QVoteUserAnswer userAnswer = QVoteUserAnswer.voteUserAnswer;
 
-        public void createVote(Long userId, CreateVoteRequest createVoteRequest, Long postId){
-                Post post = postService.findPost(postId);
-                checkPermission(userId, post);
-
-                // 최대 5개 까지
-                if(createVoteRequest.getVoteAnswer().size() > 4)
-                        throw new VoteException(VoteExceptionType.MAX_COUNT);
-
-
-
+        public Long createVote(Long userId, CreateVoteRequest createVoteRequest){
+                User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
                 Vote vote = Vote.builder()
                         .voteQuestion(createVoteRequest.getVoteQuestion())
+                        .user(user)
                         .build();
                 Vote save = voteRepository.save(vote);
                 saveAllVoteAnswers(save, createVoteRequest.getVoteAnswer());
-                post.setVoteId(save.getId());
+
+                return save.getId();
         }
 
         // show vote answer

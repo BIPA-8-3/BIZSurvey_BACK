@@ -1,6 +1,7 @@
 package com.bipa.bizsurvey.domain.community.domain;
 
 import com.bipa.bizsurvey.domain.community.domain.Post;
+import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.global.common.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,8 +27,13 @@ public class Vote extends BaseEntity {
     @Column(nullable = false)
     private String voteQuestion;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Builder
-    public Vote(String voteQuestion) {
+    public Vote(String voteQuestion, User user) {
         this.voteQuestion = voteQuestion;
+        this.user = user;
     }
 }

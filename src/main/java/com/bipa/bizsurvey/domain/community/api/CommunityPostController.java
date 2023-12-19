@@ -41,7 +41,7 @@ public class CommunityPostController {
     public ResponseEntity<?> createPost(@Valid @RequestBody CreatePostRequest createPostRequest,
                                         @AuthenticationPrincipal LoginUser loginUser){
         
-        return ResponseEntity.ok().body(postService.createPost(1L, createPostRequest)); // TODO : 생성된 게시물 ID 리턴
+        return ResponseEntity.ok().body(postService.createPost(loginUser.getId(), createPostRequest)); // TODO : 생성된 게시물 ID 리턴
     }
 
      //게시물 전체 조회
