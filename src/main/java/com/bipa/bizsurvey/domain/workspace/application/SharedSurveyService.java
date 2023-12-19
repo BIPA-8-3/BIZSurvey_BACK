@@ -61,10 +61,10 @@ public class SharedSurveyService {
     private final MailUtil mailUtil;
 
 
-    @Value("${spring.domain.backend}")
+    @Value("${domain.backend}")
     private String backendAddress;
 
-    @Value("${spring.domain.frontend}")
+    @Value("${domain.frontend}")
     private String frontendAddress;
 
     // 연락처로 공유
