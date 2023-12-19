@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class PostImageResponse {
+
+    //
     private Long postImageId;
     private String postImageUrl;
 }

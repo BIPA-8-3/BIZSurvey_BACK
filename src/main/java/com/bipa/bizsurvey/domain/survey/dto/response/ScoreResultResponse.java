@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ScoreResultResponse {
 
+    //
+
     private Long questionId;
 
     private String title;

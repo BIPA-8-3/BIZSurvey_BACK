@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class VoteExceptionHandler {
+    //
     @ExceptionHandler(VoteException.class)
     public ResponseEntity<?> handleBaseEx(VoteException exception){
         ExceptionDto exceptionDto = new ExceptionDto(

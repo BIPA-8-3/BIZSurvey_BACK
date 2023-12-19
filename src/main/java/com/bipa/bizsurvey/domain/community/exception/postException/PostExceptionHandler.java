@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class PostExceptionHandler {
+    //
     @ExceptionHandler(PostException.class)
     public ResponseEntity<?> handleBaseEx(PostException exception){
         ExceptionDto exceptionDto = new ExceptionDto(

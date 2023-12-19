@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class VoteAnswerResponse {
+
+    //
     private Long voteAnswerId;
     private String answer;
 }

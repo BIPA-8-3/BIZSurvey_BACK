@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SurveyResultResponse {
 
+    //
     List<String> answerUsers;
 
     List<AnswerResultResponse> answerResponses;

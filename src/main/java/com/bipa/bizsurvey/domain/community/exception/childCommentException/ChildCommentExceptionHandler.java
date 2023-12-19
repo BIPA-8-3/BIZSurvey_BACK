@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 public class ChildCommentExceptionHandler {
+     //
     @ExceptionHandler(ChildCommentException.class)
     public ResponseEntity<?> handleBaseEx(PostException exception){
         ExceptionDto exceptionDto = new ExceptionDto(

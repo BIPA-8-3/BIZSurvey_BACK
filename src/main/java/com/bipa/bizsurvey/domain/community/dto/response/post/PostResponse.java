@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 @Builder
 public class PostResponse {
+
+    //
     private Long postId;
     private String title;
     private String content;

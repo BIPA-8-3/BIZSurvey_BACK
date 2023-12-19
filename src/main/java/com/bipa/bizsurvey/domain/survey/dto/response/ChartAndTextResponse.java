@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ChartAndTextResponse {
 
+    //
     private Long questionId;
     //추가
     private String title;

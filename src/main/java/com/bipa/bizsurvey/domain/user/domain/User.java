@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 public class User extends BaseEntity {
+
+    //
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")

@@ -15,6 +15,7 @@ import javax.validation.Valid;
 @RequestMapping("/community")
 @RequiredArgsConstructor
 public class CommunityCommentController {
+    //
 
     private final CommentService commentService;
 

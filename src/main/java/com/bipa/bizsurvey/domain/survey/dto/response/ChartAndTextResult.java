@@ -7,6 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 public class ChartAndTextResult {
 
+    //
+
     private String answer;
 
     private Long count;

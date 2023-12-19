@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum SurveyPostExceptionType implements BaseExceptionType {
+    //
     ;
     private final int errorCode;
     private final HttpStatus httpStatus;

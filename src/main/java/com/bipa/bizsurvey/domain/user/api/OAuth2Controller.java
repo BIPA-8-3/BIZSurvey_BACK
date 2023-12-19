@@ -34,6 +34,8 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 public class OAuth2Controller {
+
+    //
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final UserRepository userRepository;
     private final RedisService redisService;

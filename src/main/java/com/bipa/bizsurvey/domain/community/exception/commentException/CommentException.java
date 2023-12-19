@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 public class CommentException extends BaseException {
 
+    //
     private final BaseExceptionType baseExceptionType;
 
     public CommentException(BaseExceptionType baseExceptionType) {

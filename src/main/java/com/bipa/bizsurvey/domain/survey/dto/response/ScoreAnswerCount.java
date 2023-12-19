@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScoreAnswerCount {
 
+    //
+
     private String answer;
 
     private Long count;

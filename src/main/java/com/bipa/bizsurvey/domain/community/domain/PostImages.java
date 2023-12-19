@@ -15,6 +15,8 @@ import javax.persistence.*;
 @Table(name = "post_images")
 public class PostImages extends BaseEntity {
 
+    //
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

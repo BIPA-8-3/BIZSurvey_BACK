@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public enum VoteExceptionType implements BaseExceptionType {
+    //
 
     MAX_COUNT(400, HttpStatus.BAD_REQUEST, "투표의 선택란은 최대 5개까지 입력가능합니다."),
     NON_EXIST_VOTE(400, HttpStatus.BAD_REQUEST, "존재하지 않는 투표입니다."),

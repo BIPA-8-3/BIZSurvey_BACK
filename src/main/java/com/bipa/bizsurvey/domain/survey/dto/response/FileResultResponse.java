@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class FileResultResponse {
 
+    //
+
     private Long questionId;
 
     //추가

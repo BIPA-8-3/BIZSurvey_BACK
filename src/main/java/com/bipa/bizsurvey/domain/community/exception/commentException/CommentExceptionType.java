@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public enum CommentExceptionType implements BaseExceptionType {
+    //
     NON_EXIST_COMMENT(600, HttpStatus.BAD_REQUEST, "존재하지 않는 댓글입니다."),
     ALREADY_DELETED(600, HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다.")
     ;

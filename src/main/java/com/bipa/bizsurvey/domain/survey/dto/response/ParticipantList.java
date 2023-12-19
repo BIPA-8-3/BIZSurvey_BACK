@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ParticipantList {
 
+    //
+
     private Long userId;
 
     private String nickname;

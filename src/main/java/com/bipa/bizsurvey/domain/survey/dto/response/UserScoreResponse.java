@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserScoreResponse {
 
+    //
     private Long questionId;
 
     private int score;

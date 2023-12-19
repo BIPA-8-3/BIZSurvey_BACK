@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class SurveyExceptionHandler {
 
+    //
+
     @ExceptionHandler(SurveyException.class)
     public ResponseEntity<?> handleBaseEx(SurveyException exception) {
         ExceptionDto exceptionDto = new ExceptionDto(

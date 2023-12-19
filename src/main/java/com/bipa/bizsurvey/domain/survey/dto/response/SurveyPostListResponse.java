@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SurveyPostListResponse {
 
+    //
     private Long id;
 
     private String title;

@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 @Builder
 public class VoteResponse {
+
+    //
     private String voteTitle;
     private List<VoteAnswerResponse> answerList;
 }

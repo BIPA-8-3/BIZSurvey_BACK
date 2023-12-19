@@ -13,6 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 public class QuestionResultResponse {
 
+    //
+
     private Long questionId;
 
     private String title;

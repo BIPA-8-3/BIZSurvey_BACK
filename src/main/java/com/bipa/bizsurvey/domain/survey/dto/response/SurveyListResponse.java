@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SurveyListResponse {
 
+    //
+
     private Long surveyId;
 
     private String title;

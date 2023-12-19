@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Data
 public class UpdateSurveyPostRequest {
 
+    //
+
     @NotBlank(message = "수정할 제목을 입력하셔야 합니다.")
     @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String title;

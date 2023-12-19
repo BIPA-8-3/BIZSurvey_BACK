@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public enum CreateType {
 
+    //
+
     TODAY("new"),
     BEFORE("before")
     ;

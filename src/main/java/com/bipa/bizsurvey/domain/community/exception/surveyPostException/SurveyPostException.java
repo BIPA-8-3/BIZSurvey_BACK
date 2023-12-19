@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.global.exception.BaseException;
 import com.bipa.bizsurvey.global.exception.BaseExceptionType;
 
 public class SurveyPostException extends BaseException {
+    //
     private final BaseExceptionType baseExceptionType;
 
     public SurveyPostException(BaseExceptionType baseExceptionType) {

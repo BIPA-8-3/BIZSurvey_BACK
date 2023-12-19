@@ -27,6 +27,7 @@ import java.util.Base64;
 @Transactional
 public class EmailSendService {
 
+    //
     private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
     private final RedisService redisService;

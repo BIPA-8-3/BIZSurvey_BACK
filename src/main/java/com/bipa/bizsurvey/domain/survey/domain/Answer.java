@@ -20,6 +20,9 @@ import javax.persistence.*;
 @Table(name = "answer")
 public class Answer extends BaseEntity {
 
+
+    //
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "answer_id")

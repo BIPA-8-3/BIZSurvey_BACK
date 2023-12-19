@@ -11,6 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatisticsResponse {
+
+    //
     private List<ChartAndTextResponse> chartAndTextResults = new ArrayList<>();
     private List<FileResultResponse> fileResults = new ArrayList<>();
 }

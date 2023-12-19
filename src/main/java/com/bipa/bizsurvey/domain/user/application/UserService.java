@@ -41,6 +41,8 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 @Transactional
 public class UserService {
+
+    //
     private final UserRepository userRepository;
     private final ClaimRepository claimRepository;
     private final PostRepository postRepository;

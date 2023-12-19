@@ -10,6 +10,8 @@ import java.util.List;
 @Builder
 public class CommentResponse {
 
+    //
+
     private Long commentId;
     private String content;
     private String nickName;

@@ -13,6 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateQuestionRequest {
 
+    //
+
     @NotBlank(message = "질문을 입력해주세요.")
     private String surveyQuestion;
 

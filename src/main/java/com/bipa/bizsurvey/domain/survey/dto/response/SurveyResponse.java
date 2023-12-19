@@ -13,6 +13,8 @@ import java.util.List;
 @Builder
 public class SurveyResponse {
 
+    //
+
     private Long surveyId;
 
     private String title;

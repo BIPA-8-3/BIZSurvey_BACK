@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class ClaimRequest {
+
+    //
     private Long id;
     private ClaimReason claimReason;
     private ClaimType claimType;

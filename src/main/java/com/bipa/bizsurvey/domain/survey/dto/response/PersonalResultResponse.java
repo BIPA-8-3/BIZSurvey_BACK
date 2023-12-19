@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PersonalResultResponse {
 
+    //
     private Long questionId;
 
     private String answer;

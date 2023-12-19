@@ -30,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/community")
 public class CommunityPostController {
+    //
 
     private final PostService postService;
     private final CommentService commentService;

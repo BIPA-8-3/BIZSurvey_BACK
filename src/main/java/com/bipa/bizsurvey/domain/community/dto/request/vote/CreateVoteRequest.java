@@ -11,6 +11,9 @@ import java.util.List;
 @Data
 public class CreateVoteRequest {
 
+
+    //
+
     @NotBlank(message = "투표의 제목을 입력하셔야합니다.")
     private String voteQuestion;
     @NotNull(message = "투표의 항목을 입력해주세요!")

@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScoreAnswerResponse {
 
+    //
+
     private Long questionId;
 
     private String answer;

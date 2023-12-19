@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 public class AnswerResponse {
 
+    //
+
     private Long answerId;
 
     private String surveyAnswer;

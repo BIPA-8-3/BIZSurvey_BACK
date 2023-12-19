@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class AnswerPercentageResponse {
+
+    //
     private Long voteAnswerId;
     private String answer;
     private double percentage;

@@ -16,6 +16,8 @@ import javax.persistence.*;
 @Table(name = "claim")
 public class Claim extends BaseEntity {
 
+    //
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "claim_id")

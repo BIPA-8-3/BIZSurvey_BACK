@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ParticipateSurvey {
 
+    //
 
     private String answer;
 

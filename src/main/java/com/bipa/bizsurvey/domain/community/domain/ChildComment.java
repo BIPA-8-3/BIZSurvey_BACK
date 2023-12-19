@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Getter
 @Table(name = "child_comment")
 public class ChildComment extends BaseEntity {
+    //
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "child_comment_id")

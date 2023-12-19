@@ -36,6 +36,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/s-community")
 public class SurveyCommunityPostController {
+    //
 
     private final SurveyPostService surveyPostService;
     private final PostService postService;

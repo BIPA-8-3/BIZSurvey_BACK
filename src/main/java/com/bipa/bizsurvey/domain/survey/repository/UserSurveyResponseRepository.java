@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface UserSurveyResponseRepository extends JpaRepository<UserSurveyResponse, Long> {
+    //
 
     @Query(value = "SELECT u FROM UserSurveyResponse u JOIN FETCH u.question q WHERE u.surveyPost = :postId ORDER BY q.id ASC")
     List<UserSurveyResponse> findAllByPostId(@Param("postId") SurveyPost surveyPost);

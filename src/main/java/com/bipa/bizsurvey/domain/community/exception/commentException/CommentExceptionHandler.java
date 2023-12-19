@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class CommentExceptionHandler {
+    //
 
     @ExceptionHandler(CommentException.class)
     public ResponseEntity<?> handleBaseEx(PostException exception){

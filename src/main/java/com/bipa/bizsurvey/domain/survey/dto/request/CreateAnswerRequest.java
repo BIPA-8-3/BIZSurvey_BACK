@@ -13,6 +13,8 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class CreateAnswerRequest {
 
+    //
+
     @NotBlank(message = "옵션을 입력해주세요.")
     private String surveyAnswer;
 

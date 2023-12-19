@@ -13,6 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ParticipateSurveyRequest {
 
+    //
+
     private Long questionId;
 
     private List<String> answer;

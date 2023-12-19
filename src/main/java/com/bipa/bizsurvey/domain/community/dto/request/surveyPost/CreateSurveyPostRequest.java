@@ -12,6 +12,8 @@ import java.util.List;
 @Data
 public class CreateSurveyPostRequest {
 
+    //
+
 
     // post
 

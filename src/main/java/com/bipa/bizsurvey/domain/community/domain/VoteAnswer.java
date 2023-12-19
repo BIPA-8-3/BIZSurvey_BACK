@@ -15,6 +15,8 @@ import javax.persistence.*;
 @Table(name = "vote_answer")
 public class VoteAnswer extends BaseEntity {
 
+    //
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

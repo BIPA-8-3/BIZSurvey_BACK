@@ -28,6 +28,7 @@ import java.util.Objects;
 @Transactional
 @RequiredArgsConstructor
 public class VoteService {
+        //
 
         private final UserRepository userRepository;
         private final VoteRepository voteRepository;

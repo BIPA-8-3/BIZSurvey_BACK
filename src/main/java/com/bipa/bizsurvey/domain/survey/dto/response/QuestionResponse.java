@@ -11,6 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class QuestionResponse {
 
+    //
+
     private Long questionId;
 
     private String surveyQuestion;

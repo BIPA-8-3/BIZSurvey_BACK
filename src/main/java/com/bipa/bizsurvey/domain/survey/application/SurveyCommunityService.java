@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SurveyCommunityService {
 
+    //
+
     private final SurveyPostRepository surveyPostRepository;
     private final QuestionRepository questionRepository;
     private final UserSurveyResponseRepository userSurveyResponseRepository;

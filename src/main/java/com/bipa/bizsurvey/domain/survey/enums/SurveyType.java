@@ -7,6 +7,8 @@ import lombok.Getter;
 @Getter
 public enum SurveyType {
 
+    //
+
     NORMAL("기본"),
     SCORE("점수");
 

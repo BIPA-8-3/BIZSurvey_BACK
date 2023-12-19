@@ -16,6 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SurveyCommunityController {
 
+    //
+
     private final SurveyCommunityService surveyCommunityService;
 
     // 설문 참여 페이지 조회

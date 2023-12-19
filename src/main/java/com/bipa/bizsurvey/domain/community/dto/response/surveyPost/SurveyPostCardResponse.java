@@ -12,6 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class SurveyPostCardResponse {
+
+    //
     private Long postId;
     private Long surveyPostId;
     private String title;

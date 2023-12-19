@@ -12,6 +12,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 public class PostTableResponse implements Serializable {
+
+    //
     private Long postId;
     private String title;
     private int count;

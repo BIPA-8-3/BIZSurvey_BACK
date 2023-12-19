@@ -6,5 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class PostTitleResponse {
+
+    //
     private String result;
 }

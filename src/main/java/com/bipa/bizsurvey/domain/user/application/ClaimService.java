@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ClaimService {
 
+    //
     private final ClaimRepository claimRepository;
     private final UserRepository userRepository;
 

@@ -6,6 +6,10 @@ import lombok.Data;
 @Data
 @Builder
 public class ChildCommentResponse {
+
+    //
+
+
     private Long childCommentId;
     private String content;
     private String nickName;

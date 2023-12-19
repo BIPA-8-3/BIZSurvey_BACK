@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 public class CreatePostRequest {
 
+    //
+
     @NotBlank(message = "게시물 제목은 필수 입력값입니다.")
     @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String title;

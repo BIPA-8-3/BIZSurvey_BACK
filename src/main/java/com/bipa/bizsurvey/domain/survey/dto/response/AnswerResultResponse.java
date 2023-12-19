@@ -14,6 +14,8 @@ import lombok.ToString;
 
 public class AnswerResultResponse {
 
+    //
+
     private Long userAnswerId;
 
     private AnswerType answerType;

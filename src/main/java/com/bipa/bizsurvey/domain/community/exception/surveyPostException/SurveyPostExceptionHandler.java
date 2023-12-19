@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class SurveyPostExceptionHandler {
+    //
 
     @ExceptionHandler(SurveyPostException.class)
     public ResponseEntity<?> handleBaseEx(SurveyPostException exception){
