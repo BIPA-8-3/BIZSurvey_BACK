@@ -136,7 +136,7 @@ spring:
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
   redis:
-    host: redis
+    host: ${spring.domain.frontend}
     port: 6379
     topic:
       expired: __keyevent@*__:expired
