@@ -73,6 +73,7 @@ public class Post extends BaseEntity {
     public void updatePost(UpdatePostRequest updatePostRequest){
         this.title = updatePostRequest.getTitle();
         this.content = updatePostRequest.getContent();
+        this.voteId = updatePostRequest.getVoteId();
     }
 
     public void updatePost(String title, String content){
