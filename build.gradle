@@ -97,7 +97,3 @@ compileQuerydsl {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-bootJar {
-	dependsOn compileQuerydsl
-}
