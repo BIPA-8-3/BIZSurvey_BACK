@@ -120,20 +120,28 @@ public class VoteService {
         // 모든 응답에 대한 퍼센테이지 구하는 메소드 제작
         public List<AnswerPercentageResponse> calculatePercentage(Long voteId) {
 
-                List<VoteUserAnswer> voteUserAnswers = jpaQueryFactory
-                        .select(userAnswer)
-                        .from(userAnswer)
-                        .where(userAnswer.vote.id.eq(voteId))
-                        .fetch();
+                List<AnswerPercentageResponse> results = new ArrayList<>();
 
-                List<VoteAnswer> voteAnswerList = jpaQueryFactory
+                List<VoteAnswer> voteAnswers = jpaQueryFactory
                         .select(va)
                         .from(va)
                         .where(va.vote.id.eq(voteId))
-                        .where(va.delFlag.eq(false))
                         .fetch();
 
-                return calculate(voteUserAnswers.size(), voteAnswerList);
+                for (VoteAnswer voteAnswer : voteAnswers) {
+                       long count = jpaQueryFactory
+                               .select(userAnswer)
+                               .from(userAnswer)
+                               .where(userAnswer.answer.eq(voteAnswer.getAnswer()))
+                               .stream().count();
+                       AnswerPercentageResponse answerPercentageResponse = AnswerPercentageResponse.builder()
+                               .voteAnswerId(voteAnswer.getId())
+                               .name(voteAnswer.getAnswer())
+                               .value(count)
+                               .build();
+                       results.add(answerPercentageResponse);
+                }
+                return results;
         }
 
 
@@ -169,24 +177,7 @@ public class VoteService {
         }
 
 
-        private List<AnswerPercentageResponse> calculate(double totalCount, List<VoteAnswer> list){
-                List<AnswerPercentageResponse> answerPercentageResponses = new ArrayList<>();
-                for (VoteAnswer voteAnswer : list) {
-                        List<VoteUserAnswer> selected = jpaQueryFactory
-                                .select(userAnswer)
-                                .from(userAnswer)
-                                .where(userAnswer.answer.eq(voteAnswer.getAnswer()))
-                                .fetch();
 
-                        AnswerPercentageResponse response = AnswerPercentageResponse.builder()
-                                .voteAnswerId(voteAnswer.getId())
-                                .answer(voteAnswer.getAnswer())
-                                .percentage(Double.parseDouble(String.format("%.1f", (selected.size() / totalCount) * 100)))
-                                .build();
-                        answerPercentageResponses.add(response);
-                }
-                return answerPercentageResponses;
-        }
 
         // TODO : 자신이 생성한 게시물에서만 투표를 생성할 수 있음 => 막아주는 메소드 필요
         public void checkPermission(Long userId, Post post) {
