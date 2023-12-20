@@ -1,11 +1,16 @@
 package com.bipa.bizsurvey.global.common.email;
 
+import com.amazonaws.util.IOUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -15,6 +20,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.List;
@@ -33,11 +39,11 @@ public class MailUtil {
     public void sendTemplateMail(EmailMessage emailMessage) throws Exception {
         Context context = new Context();
 
-        ClassPathResource imageResource = new ClassPathResource("/static/img/logo.png");
-        String imagePath = imageResource.getFile().getAbsolutePath();
+        InputStream imageStream = getClass().getClassLoader().getResourceAsStream("static/img/logo.png");
 
-        context.setVariable("logoImage", imagePath);
+        MimeType mimeType = MimeTypeUtils.parseMimeType("image/png");
 
+        context.setVariable("logoImage", "cid:logoImage");
         context.setVariables(emailMessage.getVariables());
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -48,9 +54,36 @@ public class MailUtil {
 
         String htmlTemplate = htmlTemplateEngine.process("mail/mail", context);
         messageHelper.setText(htmlTemplate, true);
-        messageHelper.addInline("logoImage", new File(imagePath));
+
+        // InputStream을 ByteArray로 변환하여 Resource 생성
+        byte[] imageBytes = IOUtils.toByteArray(imageStream);
+        Resource imageResource = new ByteArrayResource(imageBytes);
+
+        // Content ID로 이미지 추가
+        messageHelper.addInline("logoImage", imageResource, mimeType.toString());
 
         javaMailSender.send(mimeMessage);
+
+//        Context context = new Context();
+//
+//        ClassPathResource imageResource = new ClassPathResource("/static/img/logo.png");
+//        String imagePath = imageResource.getFile().getAbsolutePath();
+//
+//        context.setVariable("logoImage", imagePath);
+//
+//        context.setVariables(emailMessage.getVariables());
+//
+//        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+//        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+//
+//        messageHelper.setTo(emailMessage.getTo());
+//        messageHelper.setSubject(emailMessage.getSubject());
+//
+//        String htmlTemplate = htmlTemplateEngine.process("mail/mail", context);
+//        messageHelper.setText(htmlTemplate, true);
+//        messageHelper.addInline("logoImage", new File(imagePath));
+//
+//        javaMailSender.send(mimeMessage);
     }
 
     public void sendTemplateGroupMail(List<EmailMessage> emailMessageList) throws Exception {

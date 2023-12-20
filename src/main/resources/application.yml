@@ -167,6 +167,8 @@ spring:
       on-profile: port_9001
 
 server:
+  servlet:
+    context-path: /api
   port: 9001
 
 ---
@@ -177,4 +179,6 @@ spring:
       on-profile: port_9002
 
 server:
+  servlet:
+    context-path: /api
   port: 9002
