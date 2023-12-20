@@ -20,4 +20,7 @@ public class CommentResponse {
     // 대댓글 리스트 추가
     private List<ChildCommentResponse> childCommentResponses;
 
+    // 유저 이미지
+    private String thumbImageUrl;
+
 }

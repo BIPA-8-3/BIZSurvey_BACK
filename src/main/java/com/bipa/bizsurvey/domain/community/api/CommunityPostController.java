@@ -83,8 +83,8 @@ public class CommunityPostController {
     public ResponseEntity<?> updatePost(@AuthenticationPrincipal LoginUser loginUser,
                                         @PathVariable Long postId,
                                         @Valid @RequestBody UpdatePostRequest updatePostRequest){
-        postService.updatePost(loginUser.getId(), postId, updatePostRequest);
-        return ResponseEntity.ok().body("게시물이 수정되었습니다.");
+
+        return ResponseEntity.ok().body(postService.updatePost(loginUser.getId(), postId, updatePostRequest));
     }
 
     // delete
