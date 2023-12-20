@@ -79,7 +79,6 @@ public class SurveyPostService {
         SurveyPost surveyPost = SurveyPost.builder()
                 .startDateTime(createSurveyPostRequest.getStartDateTime())
                 .endDateTime(createSurveyPostRequest.getEndDateTime())
-                .maxMember(createSurveyPostRequest.getMaxMember())
                 .post(save)
                 .survey(survey)
                 .thumbImgUrl(createSurveyPostRequest.getThumbImageUrl())
@@ -104,7 +103,6 @@ public class SurveyPostService {
                          p.regDate,
                          p.reported,
                          sp.survey.id,
-                         sp.maxMember,
                          sp.thumbImgUrl,
                          sp.startDateTime,
                          sp.endDateTime,
@@ -131,7 +129,6 @@ public class SurveyPostService {
                 .count(tuple.get(p.count))
                 .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .nickname(tuple.get(p.user.nickname))
-                .maxMember(tuple.get(sp.maxMember))
                 .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .commentList(commentList)

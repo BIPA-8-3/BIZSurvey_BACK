@@ -22,7 +22,6 @@ public class SurveyPostResponse {
     private int count;
     private String nickname;
     private String createDate;
-    private int maxMember;
     private String startDateTime;
     private String endDateTime;
     private List<CommentResponse> commentList;
@@ -38,7 +37,7 @@ public class SurveyPostResponse {
 
     @Builder
     public SurveyPostResponse(Long postId, String title, String content, int count, String nickname, String createDate,
-                              int maxMember, String startDateTime, String endDateTime, List<CommentResponse> commentList,
+                              String startDateTime, String endDateTime, List<CommentResponse> commentList,
                               int commentSize, List<PostImageResponse> imageResponseList, int participateCount, String canAccess,
                               int reported, Long surveyId, String thumbImageUrl, String profile) {
 
@@ -49,7 +48,6 @@ public class SurveyPostResponse {
         this.count = count;
         this.nickname = nickname;
         this.createDate = createDate;
-        this.maxMember = maxMember;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.commentList = commentList;

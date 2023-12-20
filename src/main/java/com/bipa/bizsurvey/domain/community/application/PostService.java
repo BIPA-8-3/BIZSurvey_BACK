@@ -44,9 +44,6 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class PostService {
-    
-    // 확인용
-    //
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -216,7 +213,7 @@ public class PostService {
         List<PostImageResponse> postImageResponses = postImageService.getImageList(postId); // DB에 저장되어 있던 값들
         List<String> exist = new ArrayList<>(); // DB에 저장되어 있던 값들
         for (PostImageResponse postImageResponse : postImageResponses) {
-           exist.add(postImageResponse.getPostImageUrl());
+            exist.add(postImageResponse.getPostImageUrl());
         }
 
         postImageService.deletePostImages(postId, exist); // 전부 삭제
@@ -348,7 +345,7 @@ public class PostService {
         return post.getCount();
     }
 
-     //신고 게시물 체크
+    //신고 게시물 체크
 
 
 
