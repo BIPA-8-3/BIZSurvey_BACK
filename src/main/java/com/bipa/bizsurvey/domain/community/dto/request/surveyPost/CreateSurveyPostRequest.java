@@ -12,11 +12,6 @@ import java.util.List;
 @Data
 public class CreateSurveyPostRequest {
 
-    //
-
-
-    // post
-
     @NotBlank(message = "게시물 제목은 필수 입력값입니다.")
     @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String title;
@@ -33,9 +28,6 @@ public class CreateSurveyPostRequest {
     @NotNull(message = "설문지의 종료일을 입력하셔야 합니다.")
     private LocalDateTime endDateTime;
 
-    @NotNull(message = "최대 몇 명의 인원이 설문에 참여할 수 있는지 지정해줘야 합니다.")
-    @Min(value = 5, message = "최소 다섯 명 이상 설문에 참여해야 합니다.")
-    private int maxMember;
 
     @NotNull(message = "설문지를 지정해줘야 합니다.")
     private Long surveyId;
