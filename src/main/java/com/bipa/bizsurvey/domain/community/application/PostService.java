@@ -203,6 +203,7 @@ public class PostService {
                 .voteId(post.getVoteId())
                 .commentSize(commentService.getCommentList(postId).size())
                 .reported(isReported(post.getReported()))
+                .thumbImageUrl(post.getUser().getProfile())
                 .build();
     }
 

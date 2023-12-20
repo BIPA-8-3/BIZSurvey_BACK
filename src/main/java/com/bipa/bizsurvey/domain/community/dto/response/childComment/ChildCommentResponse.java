@@ -14,4 +14,8 @@ public class ChildCommentResponse {
     private String content;
     private String nickName;
     private String createTime;
+
+    // 유저 이미지 URL
+    private String thumbImageUrl;
+
 }
