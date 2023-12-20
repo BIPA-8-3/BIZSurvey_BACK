@@ -360,7 +360,7 @@ public class StatisticsService {
 ////        response.setContentLength(bout.size());
 ////        response.setHeader("Content-Disposition", String.format("attachment;filename=%s.xlsx", "test"));
 //        response.setContentLength(bout.size());
-        String filename = "안전보건관리비.xlsx";
+        String filename = "통계.xlsx";
 
 
         response.setContentType("application/octet-stream;");
