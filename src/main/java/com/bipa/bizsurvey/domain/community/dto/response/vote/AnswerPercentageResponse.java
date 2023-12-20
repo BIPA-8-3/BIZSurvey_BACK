@@ -9,6 +9,6 @@ public class AnswerPercentageResponse {
 
     //
     private Long voteAnswerId;
-    private String answer;
-    private double percentage;
+    private String name;
+    private long value;
 }

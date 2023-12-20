@@ -56,6 +56,11 @@ public class VoteService {
         // show vote answer
         public VoteResponse showVoteAnswerList(Long postId, Long voteId){
                 Vote vote = findVote(postId, voteId);
+
+                if(vote == null){
+                        return null;
+                }
+
                 List<VoteAnswer> voteAnswerList = jpaQueryFactory
                         .select(va)
                         .from(va)
@@ -84,7 +89,7 @@ public class VoteService {
 
                 Vote vote = findVote(postId, voteId);
 
-                checkExistOption(voteId, voteAnswerId); // 존재하는 선택란인지 확인
+
 
                 VoteAnswer voteAnswer = voteAnswerRepository.findById(voteAnswerId)
                         .orElseThrow(() -> new VoteException(VoteExceptionType.NON_EXIST_ANSWER));
@@ -115,20 +120,28 @@ public class VoteService {
         // 모든 응답에 대한 퍼센테이지 구하는 메소드 제작
         public List<AnswerPercentageResponse> calculatePercentage(Long voteId) {
 
-                List<VoteUserAnswer> voteUserAnswers = jpaQueryFactory
-                        .select(userAnswer)
-                        .from(userAnswer)
-                        .where(userAnswer.vote.id.eq(voteId))
-                        .fetch();
+                List<AnswerPercentageResponse> results = new ArrayList<>();
 
-                List<VoteAnswer> voteAnswerList = jpaQueryFactory
+                List<VoteAnswer> voteAnswers = jpaQueryFactory
                         .select(va)
                         .from(va)
-                        .where(va.vote.eq(v))
-                        .where(va.delFlag.eq(false))
+                        .where(va.vote.id.eq(voteId))
                         .fetch();
 
-                return calculate(voteUserAnswers.size(), voteAnswerList);
+                for (VoteAnswer voteAnswer : voteAnswers) {
+                       long count = jpaQueryFactory
+                               .select(userAnswer)
+                               .from(userAnswer)
+                               .where(userAnswer.answer.eq(voteAnswer.getAnswer()))
+                               .stream().count();
+                       AnswerPercentageResponse answerPercentageResponse = AnswerPercentageResponse.builder()
+                               .voteAnswerId(voteAnswer.getId())
+                               .name(voteAnswer.getAnswer())
+                               .value(count)
+                               .build();
+                       results.add(answerPercentageResponse);
+                }
+                return results;
         }
 
 
@@ -146,14 +159,11 @@ public class VoteService {
         }
 
 
-
-
         private Vote findVote(Long postId, Long voteId){
                 Post post = postService.findPost(postId);
                 Vote vote = null;
                 if(!post.getDelFlag()) {
-                        vote = voteRepository.findById(voteId)
-                                .orElseThrow(() -> new VoteException(VoteExceptionType.NON_EXIST_VOTE));
+                        vote = voteRepository.findByIdAndDelFlagIsFalse(voteId);
                 }
                 return vote;
         }
@@ -167,24 +177,7 @@ public class VoteService {
         }
 
 
-        private List<AnswerPercentageResponse> calculate(double totalCount, List<VoteAnswer> list){
-                List<AnswerPercentageResponse> answerPercentageResponses = new ArrayList<>();
-                for (VoteAnswer voteAnswer : list) {
-                        List<VoteUserAnswer> selected = jpaQueryFactory
-                                .select(userAnswer)
-                                .from(userAnswer)
-                                .where(userAnswer.answer.eq(voteAnswer.getAnswer()))
-                                .fetch();
 
-                        AnswerPercentageResponse response = AnswerPercentageResponse.builder()
-                                .voteAnswerId(voteAnswer.getId())
-                                .answer(voteAnswer.getAnswer())
-                                .percentage((selected.size()/totalCount) * 100)
-                                .build();
-                        answerPercentageResponses.add(response);
-                }
-                return answerPercentageResponses;
-        }
 
         // TODO : 자신이 생성한 게시물에서만 투표를 생성할 수 있음 => 막아주는 메소드 필요
         public void checkPermission(Long userId, Post post) {
@@ -194,11 +187,6 @@ public class VoteService {
         }
 
         // TODO : "존재하지 않는 선택지입니다" 만들어야 함
-        private void checkExistOption(Long voteId, Long choseId){
-                List<VoteAnswer> voteAnswerList = voteAnswerRepository.findAllByVoteId(voteId);
-                if(voteAnswerList.size() < choseId){
-                        throw new VoteException(VoteExceptionType.NON_EXIST_ANSWER);
-                }
-        }
+
 
 }

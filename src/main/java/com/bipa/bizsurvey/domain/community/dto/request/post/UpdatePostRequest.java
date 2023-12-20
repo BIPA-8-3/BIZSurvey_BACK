@@ -21,5 +21,6 @@ public class UpdatePostRequest {
 
     private List<String> imgUrlList;
 
+    private Long voteId; // 새로 생성된 투표
 
 }
