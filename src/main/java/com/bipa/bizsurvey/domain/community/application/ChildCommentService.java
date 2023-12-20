@@ -75,6 +75,7 @@ public class ChildCommentService {
                     .content(checkContent(childComment))
                     .nickName(childComment.getUser().getNickname())
                     .createTime(childComment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .thumbImageUrl(childComment.getUser().getProfile())
                     .build();
             commentResponseList.add(commentResponse);
         }

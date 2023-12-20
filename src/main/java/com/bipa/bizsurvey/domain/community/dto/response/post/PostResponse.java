@@ -29,4 +29,7 @@ public class PostResponse {
     // 신고당한 여부
     private int reported; // 0 ->신고 X, 1 -> 신고 O
 
+    //게시물 작성 유저 섬네일 이미지
+    private String thumbImageUrl;
+
 }
