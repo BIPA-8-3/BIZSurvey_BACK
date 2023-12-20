@@ -50,7 +50,7 @@ public class WorkspaceAdminService {
     private String backendAddress;
 
     @Value("${spring.domain.frontend}")
-    private String frontendAddrss;
+    private String frontendAddress;
 
     public WorkspaceAdminDto.Response invite(WorkspaceAdminDto.InviteRequest request) throws Exception {
         Workspace workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(request.getWorkspaceId())
@@ -101,7 +101,7 @@ public class WorkspaceAdminService {
 
         emailMessage.put("msg", "초대를 수락하신다면 다음 링크를 눌러주세요. (링크는 3일간 유효합니다.)");
         emailMessage.put("hasLink", true);
-        emailMessage.put("link", frontendAddrss + "/authorization/invite/" + fullToken);
+        emailMessage.put("link", frontendAddress + "/authorization/invite/" + fullToken);
         emailMessage.put("linkText", "입장하기");
 
         mailUtil.sendTemplateMail(emailMessage);

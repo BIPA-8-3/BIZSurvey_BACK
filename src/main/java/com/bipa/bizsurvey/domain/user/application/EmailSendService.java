@@ -10,6 +10,7 @@ import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.email.EmailMessage;
 import com.bipa.bizsurvey.global.common.email.MailUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,8 @@ public class EmailSendService {
     private final RedisService redisService;
     private final MailUtil mailUtil;
 
+    @Value("${spring.domain.frontend}")
+    private String front;
     public void authEmail(EmailCheckRequest request) throws Exception {
         Optional<User> emailUser = userRepository.findByEmail(request.getEmail());
         if(emailUser.isPresent()){
@@ -106,7 +109,7 @@ public class EmailSendService {
 
         emailMessage.put("msg", text);
         emailMessage.put("hasLink", true);
-        emailMessage.put("link", "http://localhost:3000/emailValidation/" + key );
+        emailMessage.put("link", front +"/emailValidation/" + key );
         emailMessage.put("linkText", "비밀번호 변경");
         mailUtil.sendTemplateMail(emailMessage);
 
