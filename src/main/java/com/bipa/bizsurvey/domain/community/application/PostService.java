@@ -210,7 +210,7 @@ public class PostService {
     // 게시물 수정
     // /community/updatePost/{post_id}
     @CacheEvict(value = "postListCache", allEntries = true)
-    public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
+    public Long updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
 
         List<PostImageResponse> postImageResponses = postImageService.getImageList(postId); // DB에 저장되어 있던 값들
         List<String> exist = new ArrayList<>(); // DB에 저장되어 있던 값들
@@ -223,8 +223,8 @@ public class PostService {
 
         Post post = checkPermission(userId, postId);
         post.updatePost(updatePostRequest);
-
-        postRepository.save(post);
+        Post save = postRepository.save(post);
+        return save.getId();
     }
 
     // 게시물 삭제
