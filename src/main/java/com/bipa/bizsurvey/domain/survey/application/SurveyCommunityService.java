@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.survey.application;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
+import com.bipa.bizsurvey.domain.survey.domain.QUserSurveyResponse;
 import com.bipa.bizsurvey.domain.survey.domain.Question;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
@@ -45,6 +46,8 @@ public class SurveyCommunityService {
     private final JPAQueryFactory jpaQueryFactory;
     private final SurveyRepository surveyRepository;
 
+    public QUserSurveyResponse u = new QUserSurveyResponse("u");
+
 
     public void participateSurvey(List<ParticipateSurveyRequest> participateSurvey, Long postId, LoginUser loginUser){
             User user = userRepository.findById(loginUser.getId()).orElseThrow();
@@ -85,10 +88,20 @@ public class SurveyCommunityService {
 
     // 참여 회원 체크
     public boolean checkUserParticipation(Long postId, LoginUser loginUser){
-        SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
-        Long userId = loginUser.getId();
-        boolean isExists = userSurveyResponseRepository.existsBySurveyPostIdAndUserId(surveyPost.getId(), userId);
-        return isExists;
+        Long count = jpaQueryFactory
+                .select(u.count())
+                .from(u)
+                .where(u.surveyPost.post.id.eq(postId)
+                        .and(u.user.id.eq(loginUser.getId()))
+                )
+                .fetchOne();
+
+        if(count == 0){
+            return false;
+        }else{
+            return true;
+        }
+
     }
 
 
@@ -112,18 +125,7 @@ public class SurveyCommunityService {
                     )
             );
         }
-
-
         return response;
-//        return list.stream()
-//                .map(result -> new SurveyListInCommunityResponse(
-//                        ((Number) result[0]).longValue(),
-//                        (String) result[1],
-//                        result[2] != null ? (String) result[2] : "",
-//                        WorkspaceType.valueOf((String) result[3]),
-//                        (String) result[4]
-//                ))
-//                .collect(Collectors.toList());
 
     }
 
