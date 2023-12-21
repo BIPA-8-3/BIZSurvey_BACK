@@ -1,5 +1,7 @@
-package com.bipa.bizsurvey.infra.s3;
+package com.bipa.bizsurvey.domain.survey.dto.request;
 
+import com.bipa.bizsurvey.global.common.storage.Domain;
+import com.bipa.bizsurvey.global.common.storage.ShareType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +19,7 @@ public class UploadSurveyFileDto {
 
 
     public String getPath() {
-        return String.format("%s%d/%s%d/%d/", S3Domain.SURVEY.getDomainName(), surveyId, shareType.getType(),shareId, questionId);
+        return String.format("%s%d/%s%d/%d/", Domain.SURVEY.getDomainName(), surveyId, shareType.getType(),shareId, questionId);
     }
 }
 
