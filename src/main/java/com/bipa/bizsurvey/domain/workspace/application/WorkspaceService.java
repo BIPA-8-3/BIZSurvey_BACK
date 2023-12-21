@@ -6,7 +6,10 @@ import com.bipa.bizsurvey.domain.survey.domain.QQuestion;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.request.UpdateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
+import com.bipa.bizsurvey.domain.user.domain.QUser;
 import com.bipa.bizsurvey.domain.user.domain.User;
+import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
@@ -35,6 +38,7 @@ public class WorkspaceService {
     private final UserRepository userRepository;
     private final SurveyRepository surveyRepository;
     private final WorkspaceAdminRepository workspaceAdminRepository;
+    private final JPAQueryFactory jpaQueryFactory;
 
     public WorkspaceDto.ListResponse create(Long userId, WorkspaceDto.CreateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
@@ -107,18 +111,38 @@ public class WorkspaceService {
         workspaceRepository.findByDelFlagFalseAndUserIdAndWorkspaceType(userId, WorkspaceType.PERSONAL).orElseThrow(() -> new EntityNotFoundException("개인 워크스페이스가 존재하지 않습니다."));
     }
 
-    public boolean permissionCheck(Long userId) {
-        List<Workspace> list =  workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
-        if(list != null && list.size() > 0) {
-            return true;
-        }
+    public boolean permissionCheck(LoginUser loginUser) {
+        boolean permission = true;
+        Long userId = loginUser.getId();
 
         List<WorkspaceAdmin> adminList = workspaceAdminRepository.findByUserIdAndDelFlagFalse(userId);
+        List<User> userList = adminList.stream().map(e -> e.getWorkspace().getUser()).collect(Collectors.toList());
+        QUser user = QUser.user;
+
         if(adminList != null && adminList.size() > 0) {
-            return true;
+            permission = jpaQueryFactory
+                    .select()
+                    .from(user)
+                    .where(
+                            user.delFlag.isFalse(),
+                            user.planSubscribe.ne(Plan.COMMUNITY),
+                            user.in(userList)
+                    )
+                    .fetchCount() > 0;
+
+            if(permission) {
+                return permission;
+            }
         }
 
-        return false;
+        List<Workspace> list =  workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
+
+        if(list != null && list.size() > 0) {
+            if(loginUser.getPlan().equals(Plan.COMMUNITY)) {
+                permission = false;
+            }
+        }
+        return permission;
     }
 }
 
