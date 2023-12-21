@@ -66,8 +66,7 @@ public class StatisticsService {
                 .select(Projections.constructor(SurveyPostListResponse.class, sp.post.id, sp.post.title))
                 .from(sp)
                 .innerJoin(sp.post)
-                .where(sp.post.delFlag.eq(false)
-                        .and(sp.survey.id.eq(surveyId)))
+                .where(sp.survey.id.eq(surveyId))
                 .fetch();
     }
 
@@ -310,6 +309,7 @@ public class StatisticsService {
                 .collect(Collectors.toList());
     }
 
+
     public void downloadExcelResult(HttpServletResponse response, Long sharedId, ShareType shareType) throws IOException {
 //        Workbook workbook = new HSSFWorkbook();
         Workbook workbook = new XSSFWorkbook();
@@ -345,21 +345,7 @@ public class StatisticsService {
 
         }
 
-//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//        response.setHeader("Content-Disposition", "attachment;filename=studentList.xls");
 
-//        workbook.write(response.getOutputStream());
-//        workbook.close();
-
-//        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-//        workbook.write(bout);
-//        bout.close();
-//        response.setHeader("Set-Cookie", "fileDownload=true; path=/");
-//        response.setHeader("Content-Disposition", String.format("attachment; filename=" + "excelName.xlsx"));
-//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-////        response.setContentLength(bout.size());
-////        response.setHeader("Content-Disposition", String.format("attachment;filename=%s.xlsx", "test"));
-//        response.setContentLength(bout.size());
         String filename = "통계.xlsx";
 
 
@@ -378,10 +364,6 @@ public class StatisticsService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
 
     }
 }
