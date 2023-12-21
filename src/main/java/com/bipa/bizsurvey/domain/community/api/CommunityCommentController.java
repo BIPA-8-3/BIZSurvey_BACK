@@ -27,7 +27,7 @@ public class CommunityCommentController {
                                            @AuthenticationPrincipal LoginUser loginUser
                                            ){
 
-        commentService.createComment(1L, postId, createCommentRequest);
+        commentService.createComment(loginUser.getId(), postId, createCommentRequest);
         return ResponseEntity.ok().body("댓글이 생성되었습니다.");
     }
 

@@ -2,12 +2,13 @@ package com.bipa.bizsurvey.domain.user.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
 public class PasswordUpdateRequest {
-    @Pattern(regexp = "^[a-zA-Z0-9]{2,10}@[a-zA-Z0-9]{2,6}\\.[a-zA-Z]{2,3}$", message = "이메일 형식으로 작성해주세요")
+    @Email
     @NotBlank
     private String email;
 

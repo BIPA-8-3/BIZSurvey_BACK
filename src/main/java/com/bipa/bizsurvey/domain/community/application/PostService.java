@@ -44,9 +44,6 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class PostService {
-    
-    // 확인용
-    //
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -203,6 +200,7 @@ public class PostService {
                 .voteId(post.getVoteId())
                 .commentSize(commentService.getCommentList(postId).size())
                 .reported(isReported(post.getReported()))
+                .thumbImageUrl(post.getUser().getProfile())
                 .build();
     }
 
@@ -210,12 +208,12 @@ public class PostService {
     // 게시물 수정
     // /community/updatePost/{post_id}
     @CacheEvict(value = "postListCache", allEntries = true)
-    public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
+    public Long updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
 
         List<PostImageResponse> postImageResponses = postImageService.getImageList(postId); // DB에 저장되어 있던 값들
         List<String> exist = new ArrayList<>(); // DB에 저장되어 있던 값들
         for (PostImageResponse postImageResponse : postImageResponses) {
-           exist.add(postImageResponse.getPostImageUrl());
+            exist.add(postImageResponse.getPostImageUrl());
         }
 
         postImageService.deletePostImages(postId, exist); // 전부 삭제
@@ -223,8 +221,8 @@ public class PostService {
 
         Post post = checkPermission(userId, postId);
         post.updatePost(updatePostRequest);
-
-        postRepository.save(post);
+        Post save = postRepository.save(post);
+        return save.getId();
     }
 
     // 게시물 삭제
@@ -347,7 +345,7 @@ public class PostService {
         return post.getCount();
     }
 
-     //신고 게시물 체크
+    //신고 게시물 체크
 
 
 

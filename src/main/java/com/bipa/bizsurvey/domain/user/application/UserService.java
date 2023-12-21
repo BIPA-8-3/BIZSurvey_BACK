@@ -224,7 +224,6 @@ public class UserService {
                         p.count,
                         p.user.nickname,
                         p.regDate,
-                        sp.maxMember,
                         sp.startDateTime,
                         sp.endDateTime
                 )
@@ -246,7 +245,6 @@ public class UserService {
                     .count(tuple.get(p.count))
                     .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                     .build();
