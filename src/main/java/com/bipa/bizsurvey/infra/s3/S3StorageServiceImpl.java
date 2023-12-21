@@ -48,6 +48,7 @@ public class S3StorageServiceImpl implements StorageService {
 
         path = createPath(domain, path, originName);
         String saveName = createFileName(path, originName);
+        String resizingName = path.contains("temp/") ? saveName.replace("temp/", "") : saveName;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
@@ -55,12 +56,27 @@ public class S3StorageServiceImpl implements StorageService {
 
         try (InputStream inputStream = file.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, saveName, inputStream, metadata));
+
+            if(path.contains("temp/")) {
+                for(int i = 0; ; i++) {
+                    Thread.sleep(2000);
+                    if(amazonS3Client.doesObjectExist(bucket, resizingName)) {
+                        break;
+                    } else if(i >= 30) {
+                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+                    }
+                }
+            }
         } catch (IOException e) {
             log.error("파일 업로드에 실패했습니다.", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        } catch (InterruptedException e) {
+            log.error("파일 업로드에 실패했습니다.", e);
+
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
 
-        return amazonS3Client.getUrl(bucket, saveName).toString().split("//")[1];
+        return amazonS3Client.getUrl(bucket, resizingName).toString().split("//")[1];
     }
 
     @Override
