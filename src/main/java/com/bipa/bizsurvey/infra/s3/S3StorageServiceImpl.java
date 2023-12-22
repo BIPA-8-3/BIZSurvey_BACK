@@ -225,6 +225,7 @@ public class S3StorageServiceImpl implements StorageService {
             throw new FileNotFoundException();
     }
 
+    @Override
     public void confirmStorageOfTemporaryFiles(List<String> fileName) {
         String basePath = "tempStorage/";
 

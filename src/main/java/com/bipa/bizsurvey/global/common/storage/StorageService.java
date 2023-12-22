@@ -21,8 +21,10 @@ public interface StorageService {
     void downloadZip(ZipOutputStream zipOut , String fileUrl) throws IOException;
     void deleteFile(String filePath);
     void deleteFolder(String folderPath);
+    void confirmStorageOfTemporaryFiles(List<String> fileName);
 
-    void deleteMultipleFiles(List<DeleteFileRequest> fileList);
+
+        void deleteMultipleFiles(List<DeleteFileRequest> fileList);
 
     default String getOriginName(String saveName) {
         int uuidIndex = saveName.indexOf("_") + 1;

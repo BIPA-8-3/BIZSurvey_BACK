@@ -19,6 +19,7 @@ import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
+import com.bipa.bizsurvey.global.common.storage.StorageService;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class SurveyCommunityService {
     private final UserRepository userRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final SurveyRepository surveyRepository;
+    private final StorageService storageService;
 
     public QUserSurveyResponse u = new QUserSurveyResponse("u");
 
@@ -52,7 +54,7 @@ public class SurveyCommunityService {
     public void participateSurvey(List<ParticipateSurveyRequest> participateSurvey, Long postId, LoginUser loginUser){
             User user = userRepository.findById(loginUser.getId()).orElseThrow();
             SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
-
+            List<String> url  = new ArrayList<>();
             for(ParticipateSurveyRequest survey : participateSurvey){
                 Question question = questionRepository.findById(survey.getQuestionId()).orElseThrow();
 
@@ -63,13 +65,12 @@ public class SurveyCommunityService {
                     throw  new SurveyException(SurveyExceptionType.MISSING_REQUIRED_VALUE);
                 }
                 survey.getAnswer().forEach((answer) -> {
+                    url.add(survey.getUrl());
                     UserSurveyResponse userSurveyResponse = UserSurveyResponse.toEntity(survey, user, question, surveyPost, answer);
                     userSurveyResponseRepository.save(userSurveyResponse);
                 });
-
-
             }
-
+            storageService.confirmStorageOfTemporaryFiles(url);
             addCount(postId);
     }
 
