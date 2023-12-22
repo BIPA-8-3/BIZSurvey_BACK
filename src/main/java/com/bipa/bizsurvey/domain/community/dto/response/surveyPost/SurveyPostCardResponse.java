@@ -20,7 +20,6 @@ public class SurveyPostCardResponse {
     private String content;
     private int count;// 컨트롤러 리턴
     private String nickname;
-    private int maxMember;
     private int commentSize; // 컨트롤러 리턴
     private int participateCount; // 컨트롤러 리턴
     private String canAccess; // 컨트롤러 리턴
@@ -29,15 +28,14 @@ public class SurveyPostCardResponse {
 
     @Builder
     public SurveyPostCardResponse(Long postId, Long surveyPostId, String title, String content, int count, String nickname,
-                                  int maxMember, int commentSize, int participateCount, String canAccess,
-                                  String thumbImageUrl, String profile) {
+                                  int commentSize, int participateCount, String canAccess, String thumbImageUrl,
+                                  String profile) {
         this.postId = postId;
         this.surveyPostId = surveyPostId;
         this.title = title;
         this.content = content;
         this.count = count;
         this.nickname = nickname;
-        this.maxMember = maxMember;
         this.commentSize = commentSize;
         this.participateCount = participateCount;
         this.canAccess = canAccess;

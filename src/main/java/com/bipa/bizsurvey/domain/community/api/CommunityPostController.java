@@ -33,7 +33,6 @@ public class CommunityPostController {
     //
 
     private final PostService postService;
-    private final CommentService commentService;
     private final RedisService redisService;
 
      //CREATE
