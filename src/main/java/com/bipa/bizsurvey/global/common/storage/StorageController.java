@@ -48,7 +48,6 @@ public class StorageController {
 
     @PostMapping("/multiple/files")
     public ResponseEntity<?> deleteMultipleFiles(@RequestBody List<DeleteFileRequest> fileList) {
-        fileList.stream().forEach(log::info);
         service.deleteMultipleFiles(fileList);
         return ResponseEntity.ok().body("정상적으로 삭제되었습니다.");
     }

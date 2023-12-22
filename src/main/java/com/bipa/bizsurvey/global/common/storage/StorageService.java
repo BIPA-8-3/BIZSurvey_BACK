@@ -13,7 +13,8 @@ import java.util.UUID;
 import java.util.zip.ZipOutputStream;
 
 public interface StorageService {
-    Domain[] resizingexclusiondomains = { Domain.SURVEY };
+    Domain[] resizingExclusionDomains = { Domain.SURVEY };
+    Domain[] temporaryStorageDomain = { Domain.SURVEY };
 
     String uploadFile(MultipartFile file, Domain domain, String path);
     byte[] downloadFile(String fileName) throws IOException;
@@ -56,18 +57,31 @@ public interface StorageService {
                 path.append("temp/");
             }
             folder = Folder.IMAGES;
+        } else if(getTemporaryFileCheck(domain)) {
+            path.append("tempStorage/");
+            folder = Folder.IMAGES;
         }
+
         path.append(domain.getDomainName()).append(basePath).append(folder.getFolderName());
         return path.toString();
     }
 
     default boolean getResizingCheck(Domain domain) {
-        for (Domain item : resizingexclusiondomains) {
+        for (Domain item : resizingExclusionDomains) {
             if (item == domain) {
                 return false;
             }
         }
         return true;
+    }
+
+    default boolean getTemporaryFileCheck(Domain domain) {
+        for (Domain item : temporaryStorageDomain) {
+            if (item == domain) {
+                return true;
+            }
+        }
+        return false;
     }
 
     default MediaType getContentType(String keyName) {
