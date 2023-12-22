@@ -13,6 +13,7 @@ import org.springframework.web.util.UriUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.zip.ZipOutputStream;
 
 @RestController
@@ -38,11 +39,17 @@ public class StorageController {
         service.deleteFile(fileUrl);
         return ResponseEntity.ok().body("정상적으로 삭제되었습니다.");
     }
-
     @DeleteMapping("/folder/**")
     public ResponseEntity<?> deleteFolder(HttpServletRequest request) {
         String fileUrl = service.extractFileName(request.getRequestURI(), "/storage/folder/");
         service.deleteFolder(fileUrl);
+        return ResponseEntity.ok().body("정상적으로 삭제되었습니다.");
+    }
+
+    @PostMapping("/multiple/files")
+    public ResponseEntity<?> deleteMultipleFiles(@RequestBody List<DeleteFileRequest> fileList) {
+        fileList.stream().forEach(log::info);
+        service.deleteMultipleFiles(fileList);
         return ResponseEntity.ok().body("정상적으로 삭제되었습니다.");
     }
 

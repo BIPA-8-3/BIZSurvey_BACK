@@ -96,7 +96,7 @@ public class SharedSurveyService {
 
         sharedListRepository.saveAll(sharedList);
 
-        // 메일 데이터 셍성
+        // 메일 데이터 생성
         Long sharedSurveyId = sharedSurvey.getId();
         String title = String.format("[BIZSURVEY] [%s] 워크스페이스에서 [%s] 설문을 요청하셨습니다.",
                 workspace.getWorkspaceName(), survey.getTitle());

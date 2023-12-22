@@ -138,6 +138,7 @@ spring:
   redis:
     host: bizsurvey.shop
     port: 6379
+    password: ${REDIS_PASSWORD}
     topic:
       expired: __keyevent@*__:expired
   domain:

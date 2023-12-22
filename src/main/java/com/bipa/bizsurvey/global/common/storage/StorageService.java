@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipOutputStream;
 
@@ -19,6 +20,8 @@ public interface StorageService {
     void downloadZip(ZipOutputStream zipOut , String fileUrl) throws IOException;
     void deleteFile(String filePath);
     void deleteFolder(String folderPath);
+
+    void deleteMultipleFiles(List<DeleteFileRequest> fileList);
 
     default String getOriginName(String saveName) {
         int uuidIndex = saveName.indexOf("_") + 1;

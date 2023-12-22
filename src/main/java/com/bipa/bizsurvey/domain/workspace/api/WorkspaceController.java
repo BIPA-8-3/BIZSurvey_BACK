@@ -45,7 +45,7 @@ public class WorkspaceController {
 
     @GetMapping("/list")
     public ResponseEntity<List<WorkspaceDto.ListResponse>> list(@AuthenticationPrincipal LoginUser loginUser) {
-        return ResponseEntity.ok().body(workspaceService.listWorkspaces(loginUser.getId()));
+        return ResponseEntity.ok().body(workspaceService.listWorkspaces(loginUser));
     }
 
     @PatchMapping("/{id}")
@@ -80,7 +80,7 @@ public class WorkspaceController {
     //워크스페이스 권한 체크
     @GetMapping("/permission/check")
     public ResponseEntity<?> checkPermissions(@AuthenticationPrincipal LoginUser loginUser) {
-        if(workspaceService.permissionCheck(loginUser.getId())) {
+        if(workspaceService.permissionCheck(loginUser)) {
             return ResponseEntity.ok().body("승인되었습니다.");
         } else {
             return ResponseEntity.badRequest().body("접근 권한이 없습니다.");
