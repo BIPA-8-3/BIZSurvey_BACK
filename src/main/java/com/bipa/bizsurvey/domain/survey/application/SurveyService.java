@@ -44,7 +44,6 @@ public class SurveyService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final WorkspaceRepository workspaceRepository;
-//    private final SurveyMapper surveyMapper;
     private final UserRepository userRepository;
     private final WorkspaceAdminRepository workspaceAdminRepository;
     private final JPAQueryFactory jpaQueryFactory;
@@ -109,11 +108,12 @@ public class SurveyService {
                         )
                 )
                 .from(q)
-                .leftJoin(a).on(q.id.eq(a.question.id))
+                .leftJoin(a).on(q.id.eq(a.question.id)
+                       .and(a.delFlag.isNull().or(a.delFlag.isFalse()))
+               )
                 .where(
                         q.survey.id.eq(survey.getId()),
-                        q.delFlag.isFalse(),
-                        a.delFlag.isFalse().or(a.delFlag.isNull())
+                        q.delFlag.isFalse()
                 )
                 .groupBy(q.id, a.id)  // Group by questionId
                 .orderBy(q.step.asc(), a.step.asc())
