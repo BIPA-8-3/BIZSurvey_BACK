@@ -21,8 +21,10 @@ public interface StorageService {
     void downloadZip(ZipOutputStream zipOut , String fileUrl) throws IOException;
     void deleteFile(String filePath);
     void deleteFolder(String folderPath);
+    void confirmStorageOfTemporaryFiles(List<String> fileName);
 
-    void deleteMultipleFiles(List<DeleteFileRequest> fileList);
+
+        void deleteMultipleFiles(List<DeleteFileRequest> fileList);
 
     default String getOriginName(String saveName) {
         int uuidIndex = saveName.indexOf("_") + 1;
@@ -57,9 +59,14 @@ public interface StorageService {
                 path.append("temp/");
             }
             folder = Folder.IMAGES;
-        } else if(getTemporaryFileCheck(domain)) {
+        }
+        if(getTemporaryFileCheck(domain)) {
             path.append("tempStorage/");
-            folder = Folder.IMAGES;
+            if (isImageFile(originName)) {
+                folder = Folder.IMAGES;
+            } else {
+                folder = Folder.IMAGES;
+            }
         }
 
         path.append(domain.getDomainName()).append(basePath).append(folder.getFolderName());
