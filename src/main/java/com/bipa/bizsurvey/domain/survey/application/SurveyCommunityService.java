@@ -65,7 +65,9 @@ public class SurveyCommunityService {
                     throw  new SurveyException(SurveyExceptionType.MISSING_REQUIRED_VALUE);
                 }
                 survey.getAnswer().forEach((answer) -> {
-                    url.add(survey.getUrl());
+                    if(survey.getUrl() != null && !survey.getUrl().isEmpty()){
+                        url.add(survey.getUrl());
+                    }
                     UserSurveyResponse userSurveyResponse = UserSurveyResponse.toEntity(survey, user, question, surveyPost, answer);
                     userSurveyResponseRepository.save(userSurveyResponse);
                 });

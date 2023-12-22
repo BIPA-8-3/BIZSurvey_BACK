@@ -59,9 +59,14 @@ public interface StorageService {
                 path.append("temp/");
             }
             folder = Folder.IMAGES;
-        } else if(getTemporaryFileCheck(domain)) {
+        }
+        if(getTemporaryFileCheck(domain)) {
             path.append("tempStorage/");
-            folder = Folder.IMAGES;
+            if (isImageFile(originName)) {
+                folder = Folder.IMAGES;
+            } else {
+                folder = Folder.IMAGES;
+            }
         }
 
         path.append(domain.getDomainName()).append(basePath).append(folder.getFolderName());

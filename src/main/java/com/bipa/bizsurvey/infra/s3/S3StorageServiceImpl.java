@@ -78,7 +78,7 @@ public class S3StorageServiceImpl implements StorageService {
         String result = amazonS3Client.getUrl(bucket, resizingName).toString().split("//")[1];
 
         if (result.contains("tempStorage/")) {
-            result.replace("tempStorage/", "");
+            result = result.replace("tempStorage/", "");
         }
 
         return result;
@@ -230,6 +230,8 @@ public class S3StorageServiceImpl implements StorageService {
         String basePath = "tempStorage/";
 
         List<TemporaryFileConfirmRequest> fileList = fileName.stream().map(file -> {
+
+            log.info("file: " + file);
             String originName = file.split(".com/")[1];
             String tempFile = basePath + originName;
             return new TemporaryFileConfirmRequest(tempFile, originName);
