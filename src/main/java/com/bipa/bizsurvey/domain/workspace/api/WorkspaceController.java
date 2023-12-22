@@ -45,7 +45,7 @@ public class WorkspaceController {
 
     @GetMapping("/list")
     public ResponseEntity<List<WorkspaceDto.ListResponse>> list(@AuthenticationPrincipal LoginUser loginUser) {
-        return ResponseEntity.ok().body(workspaceService.listWorkspaces(loginUser.getId()));
+        return ResponseEntity.ok().body(workspaceService.listWorkspaces(loginUser));
     }
 
     @PatchMapping("/{id}")

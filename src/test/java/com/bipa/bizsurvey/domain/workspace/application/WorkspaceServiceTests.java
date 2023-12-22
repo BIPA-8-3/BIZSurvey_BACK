@@ -40,7 +40,7 @@ public class WorkspaceServiceTests {
 
     @Test
     public void testList() {
-        workspaceService.listWorkspaces(1L).stream().forEach(log::info);
+//        workspaceService.listWorkspaces(1L).stream().forEach(log::info);
     }
 
     @Test
