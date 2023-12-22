@@ -132,6 +132,7 @@ public class VoteService {
                        long count = jpaQueryFactory
                                .select(userAnswer)
                                .from(userAnswer)
+                               .where(userAnswer.vote.id.eq(voteId))
                                .where(userAnswer.answer.eq(voteAnswer.getAnswer()))
                                .stream().count();
                        AnswerPercentageResponse answerPercentageResponse = AnswerPercentageResponse.builder()

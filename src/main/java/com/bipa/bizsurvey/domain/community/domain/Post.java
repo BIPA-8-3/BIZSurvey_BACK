@@ -17,7 +17,6 @@ import javax.persistence.*;
 @Table(name = "post")
 public class Post extends BaseEntity {
 
-    //
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +26,7 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10000)
     private String content;
 
     @ColumnDefault("0")
@@ -83,9 +82,6 @@ public class Post extends BaseEntity {
 
 
 
-
-
-    // 추 후 redis caching
     public void addCount(){
         this.count += 1;
     }
