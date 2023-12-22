@@ -218,7 +218,7 @@ public class PostService {
             exist.add(postImageResponse.getPostImageUrl());
         }
 
-        postImageService.deletePostImages(postId, exist); // 전부 삭제
+        postImageService.deletePostImages(postId, exist); // 전부 삭제(전부 삭제가 먼)
         postImageService.createPostImages(postId, updatePostRequest.getImgUrlList()); // 새로 생성
 
         Post post = checkPermission(userId, postId);
