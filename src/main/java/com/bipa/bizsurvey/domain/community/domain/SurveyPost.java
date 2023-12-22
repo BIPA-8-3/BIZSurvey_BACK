@@ -34,8 +34,6 @@ public class SurveyPost extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime endDateTime;
 
-    @Column(nullable = false)
-    private int maxMember; // 최대 인원 수
 
     @ColumnDefault("0")
     private int memberCount; // 참여자 수
@@ -54,10 +52,9 @@ public class SurveyPost extends BaseEntity {
     private String thumbImgUrl;
 
     @Builder
-    public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, int maxMember, Post post, Survey survey, String thumbImgUrl) {
+    public SurveyPost(LocalDateTime startDateTime, LocalDateTime endDateTime, Post post, Survey survey, String thumbImgUrl) {
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.maxMember = maxMember;
         this.post = post;
         this.survey = survey;
         this.thumbImgUrl = thumbImgUrl;
@@ -73,7 +70,6 @@ public class SurveyPost extends BaseEntity {
         this.post.updatePost(updateSurveyPostRequest.getTitle(), updateSurveyPostRequest.getContent());
         this.startDateTime = updateSurveyPostRequest.getStartDateTime();
         this.endDateTime = updateSurveyPostRequest.getEndDateTime();
-        this.maxMember = updateSurveyPostRequest.getMaxMember();
         this.survey = survey;
         this.thumbImgUrl = updateSurveyPostRequest.getThumbImgUrl();
     }

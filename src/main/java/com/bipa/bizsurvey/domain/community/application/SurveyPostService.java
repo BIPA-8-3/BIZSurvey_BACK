@@ -167,7 +167,6 @@ public class SurveyPostService {
                         sp.id,
                         sp.startDateTime,
                         sp.endDateTime,
-                        sp.maxMember,
                         sp.thumbImgUrl
                 )
                 .from(p)
@@ -199,9 +198,7 @@ public class SurveyPostService {
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .thumbImageUrl(tuple.get(sp.thumbImgUrl))
-
                     .build();
 
             results.add(surveyPostResponse);
@@ -234,7 +231,6 @@ public class SurveyPostService {
                         sp.id,
                         sp.startDateTime,
                         sp.endDateTime,
-                        sp.maxMember,
                         sp.thumbImgUrl
                 )
                 .from(p)
@@ -268,7 +264,6 @@ public class SurveyPostService {
                     .content(tuple.get(p.content))
                     .count(tuple.get(p.count))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .commentSize(commentService.getCommentList(tuple.get(p.id)).size())
                     .participateCount(surveyCommunityService.getParticipants(tuple.get(sp.id)))
                     .canAccess(checkAccess(tuple.get(sp.id)))
