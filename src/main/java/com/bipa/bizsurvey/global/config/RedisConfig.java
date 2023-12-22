@@ -35,7 +35,9 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory(){
-        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
+        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
+        lettuceConnectionFactory.setPassword(redisProperties.getPassword());
+        return lettuceConnectionFactory;
     }
 
     // RedisTemplate<KEY, VALUE>
