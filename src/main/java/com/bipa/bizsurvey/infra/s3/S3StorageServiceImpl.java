@@ -21,6 +21,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -74,8 +75,13 @@ public class S3StorageServiceImpl implements StorageService {
 
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
+        String result = amazonS3Client.getUrl(bucket, resizingName).toString().split("//")[1];
 
-        return amazonS3Client.getUrl(bucket, resizingName).toString().split("//")[1];
+        if (result.contains("tempStorage/")) {
+            result.replace("tempStorage/", "");
+        }
+
+        return result;
     }
 
     @Override
@@ -133,7 +139,7 @@ public class S3StorageServiceImpl implements StorageService {
             List<DeleteObjectsRequest.KeyVersion> keys = fileList.stream().map(file -> {
                 String fileName = file.getFileName();
                 String[] split = fileName.split(".com/");
-                if(split.length > 1) {
+                if (split.length > 1) {
                     return new DeleteObjectsRequest.KeyVersion(split[1]);
                 } else {
                     return new DeleteObjectsRequest.KeyVersion(split[0]);
@@ -217,5 +223,27 @@ public class S3StorageServiceImpl implements StorageService {
     private void validateFileExists(String fileName) throws FileNotFoundException {
         if (!amazonS3Client.doesObjectExist(bucket, fileName))
             throw new FileNotFoundException();
+    }
+
+    public void confirmStorageOfTemporaryFiles(List<String> fileName) {
+        String basePath = "tempStorage/";
+
+        List<TemporaryFileConfirmRequest> fileList = fileName.stream().map(file -> {
+            String originName = file.split(".com/")[1];
+            String tempFile = basePath + originName;
+            return new TemporaryFileConfirmRequest(tempFile, originName);
+        }).collect(Collectors.toList());
+
+        try {
+            List<DeleteFileRequest> deleteList = new ArrayList<>();
+
+            fileList.stream().forEach(file -> {
+                amazonS3Client.copyObject(bucket, file.getTempFileName(), bucket, file.getFileName());
+                deleteList.add(new DeleteFileRequest(file.getTempFileName()));
+            });
+            deleteMultipleFiles(deleteList);
+        } catch (AmazonS3Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }
