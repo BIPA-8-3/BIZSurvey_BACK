@@ -17,8 +17,6 @@ public class CreatePostRequest {
     @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String title;
 
-    @NotBlank(message = "게시물 내용을 입력하셔야 합니다.")
-    @Size(min = 2, message = "최소 두 글자 이상 입력하셔야 합니다.")
     private String content;
 
     private Long voteId; // 투표 생성 시 저장되어야 하는 값.
