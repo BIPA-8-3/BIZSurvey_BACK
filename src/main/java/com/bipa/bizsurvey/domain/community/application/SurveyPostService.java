@@ -79,7 +79,6 @@ public class SurveyPostService {
         SurveyPost surveyPost = SurveyPost.builder()
                 .startDateTime(createSurveyPostRequest.getStartDateTime())
                 .endDateTime(createSurveyPostRequest.getEndDateTime())
-                .maxMember(createSurveyPostRequest.getMaxMember())
                 .post(save)
                 .survey(survey)
                 .thumbImgUrl(createSurveyPostRequest.getThumbImageUrl())
@@ -104,7 +103,6 @@ public class SurveyPostService {
                          p.regDate,
                          p.reported,
                          sp.survey.id,
-                         sp.maxMember,
                          sp.thumbImgUrl,
                          sp.startDateTime,
                          sp.endDateTime,
@@ -131,7 +129,6 @@ public class SurveyPostService {
                 .count(tuple.get(p.count))
                 .createDate(tuple.get(p.regDate).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .nickname(tuple.get(p.user.nickname))
-                .maxMember(tuple.get(sp.maxMember))
                 .startDateTime(tuple.get(sp.startDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .endDateTime(tuple.get(sp.endDateTime).format((DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .commentList(commentList)
@@ -170,7 +167,6 @@ public class SurveyPostService {
                         sp.id,
                         sp.startDateTime,
                         sp.endDateTime,
-                        sp.maxMember,
                         sp.thumbImgUrl
                 )
                 .from(p)
@@ -202,9 +198,7 @@ public class SurveyPostService {
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .thumbImageUrl(tuple.get(sp.thumbImgUrl))
-
                     .build();
 
             results.add(surveyPostResponse);
@@ -237,7 +231,6 @@ public class SurveyPostService {
                         sp.id,
                         sp.startDateTime,
                         sp.endDateTime,
-                        sp.maxMember,
                         sp.thumbImgUrl
                 )
                 .from(p)
@@ -271,7 +264,6 @@ public class SurveyPostService {
                     .content(tuple.get(p.content))
                     .count(tuple.get(p.count))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .commentSize(commentService.getCommentList(tuple.get(p.id)).size())
                     .participateCount(surveyCommunityService.getParticipants(tuple.get(sp.id)))
                     .canAccess(checkAccess(tuple.get(sp.id)))

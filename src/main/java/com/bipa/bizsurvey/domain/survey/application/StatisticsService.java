@@ -66,8 +66,7 @@ public class StatisticsService {
                 .select(Projections.constructor(SurveyPostListResponse.class, sp.post.id, sp.post.title))
                 .from(sp)
                 .innerJoin(sp.post)
-                .where(sp.post.delFlag.eq(false)
-                        .and(sp.survey.id.eq(surveyId)))
+                .where(sp.survey.id.eq(surveyId))
                 .fetch();
     }
 
@@ -204,11 +203,11 @@ public class StatisticsService {
                 .orderBy(a.question.step.asc())
                 .fetch();
 
-        // 그룹화된 데이터를 questionId를 기준으로 다시 그룹화
+
         Map<Long, List<ScoreResultResponse>> groupedResults = list.stream()
                 .collect(Collectors.groupingBy(ScoreResultResponse::getQuestionId));
 
-        // 각 그룹의 ScoreResultResponse를 처리하여 새로운 리스트 생성
+
         List<ScoreResultResponse> processedResults = groupedResults.entrySet().stream()
                 .map(entry -> {
                     long questionId = entry.getKey();
@@ -254,16 +253,12 @@ public class StatisticsService {
                     Long questionId = entry.getKey();
                     List<ChartAndTextResponse> chartResultResponses = entry.getValue();
 
-                    // questionId에 대한 모든 answerType을 동일한 값으로 설정
                     AnswerType answerType = chartResultResponses.get(0).getQuestionType();
                     String title = chartResultResponses.get(0).getTitle();
 
-                    // 각 value(ChartResultResponse)의 answers를 합치기
                     List<ChartAndTextResult> combinedAnswers = chartResultResponses.stream()
                             .flatMap(chartResultResponse -> chartResultResponse.getAnswers().stream())
                             .collect(Collectors.toList());
-
-                    // 새로운 ChartResultResponse 객체 생성
                     return new ChartAndTextResponse(questionId, title, answerType, combinedAnswers);
                 })
                 .collect(Collectors.toList());
@@ -295,20 +290,17 @@ public class StatisticsService {
                     Long questionId = entry.getKey();
                     List<FileResultResponse> fileResultResponses = entry.getValue();
 
-                    // questionId에 대한 모든 answerType을 동일한 값으로 설정
                     AnswerType answerType = fileResultResponses.get(0).getQuestionType();
                     String title = fileResultResponses.get(0).getTitle();
 
-                    // 각 value(ChartResultResponse)의 answers를 합치기
                     List<FileInfo> combinedAnswers = fileResultResponses.stream()
                             .flatMap(fileResultResponse -> fileResultResponse.getFileInfos().stream())
                             .collect(Collectors.toList());
-
-                    // 새로운 ChartResultResponse 객체 생성
                     return new FileResultResponse(questionId, title, answerType, combinedAnswers);
                 })
                 .collect(Collectors.toList());
     }
+
 
     public void downloadExcelResult(HttpServletResponse response, Long sharedId, ShareType shareType) throws IOException {
 //        Workbook workbook = new HSSFWorkbook();
@@ -345,22 +337,8 @@ public class StatisticsService {
 
         }
 
-//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//        response.setHeader("Content-Disposition", "attachment;filename=studentList.xls");
 
-//        workbook.write(response.getOutputStream());
-//        workbook.close();
-
-//        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-//        workbook.write(bout);
-//        bout.close();
-//        response.setHeader("Set-Cookie", "fileDownload=true; path=/");
-//        response.setHeader("Content-Disposition", String.format("attachment; filename=" + "excelName.xlsx"));
-//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-////        response.setContentLength(bout.size());
-////        response.setHeader("Content-Disposition", String.format("attachment;filename=%s.xlsx", "test"));
-//        response.setContentLength(bout.size());
-        String filename = "안전보건관리비.xlsx";
+        String filename = "통계.xlsx";
 
 
         response.setContentType("application/octet-stream;");
@@ -378,10 +356,6 @@ public class StatisticsService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
 
     }
 }

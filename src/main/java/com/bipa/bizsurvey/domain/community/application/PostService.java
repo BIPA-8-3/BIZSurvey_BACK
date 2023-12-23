@@ -44,9 +44,6 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class PostService {
-    
-    // 확인용
-    //
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -57,7 +54,7 @@ public class PostService {
     public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
-    @CacheEvict(value = "postListCache", allEntries = true)
+
     public Long createPost(Long userId, CreatePostRequest createPostRequest){
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Post post = Post.toEntity(user, PostType.COMMUNITY, createPostRequest);
@@ -82,8 +79,8 @@ public class PostService {
 
     // TODO : 신고된 게시물 띄우지 않기로(추가해야함)
     // TODO : QueryDSL 로 업데이트
-    @Cacheable(value = "postListCache", key = "#pageable.pageNumber", cacheManager = "jdkCacheManager")
-    public CustomPageImpl<?> getPostList(Pageable pageable){
+
+    public Page<?> getPostList(Pageable pageable){
 
         long totalCount = jpaQueryFactory
                 .select(p)
@@ -115,6 +112,8 @@ public class PostService {
                     .createTime(post.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .commentSize(commentService.getCommentList(post.getId()).size())
                     .voteId(post.getVoteId())
+                    .commentSize(commentService.getCommentList(post.getId()).size())
+                    .profile(post.getUser().getProfile())
                     .createType(checkCreateType(post))
                     .isBest(checkIsBest(post.getId()))
                     .build();
@@ -123,7 +122,7 @@ public class PostService {
         }
 
 
-        return new CustomPageImpl<>(result, pageable.getPageNumber(), pageable.getPageSize(), totalCount);
+        return new PageImpl<>(result, pageable, totalCount);
     }
 
 
@@ -203,33 +202,34 @@ public class PostService {
                 .voteId(post.getVoteId())
                 .commentSize(commentService.getCommentList(postId).size())
                 .reported(isReported(post.getReported()))
+                .thumbImageUrl(post.getUser().getProfile())
                 .build();
     }
 
 
     // 게시물 수정
     // /community/updatePost/{post_id}
-    @CacheEvict(value = "postListCache", allEntries = true)
-    public void updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
+
+    public Long updatePost(Long userId, Long postId, UpdatePostRequest updatePostRequest){
 
         List<PostImageResponse> postImageResponses = postImageService.getImageList(postId); // DB에 저장되어 있던 값들
         List<String> exist = new ArrayList<>(); // DB에 저장되어 있던 값들
         for (PostImageResponse postImageResponse : postImageResponses) {
-           exist.add(postImageResponse.getPostImageUrl());
+            exist.add(postImageResponse.getPostImageUrl());
         }
 
-        postImageService.deletePostImages(postId, exist); // 전부 삭제
+        postImageService.deletePostImages(postId, exist); // 전부 삭제(전부 삭제가 먼)
         postImageService.createPostImages(postId, updatePostRequest.getImgUrlList()); // 새로 생성
 
         Post post = checkPermission(userId, postId);
         post.updatePost(updatePostRequest);
-
-        postRepository.save(post);
+        Post save = postRepository.save(post);
+        return save.getId();
     }
 
     // 게시물 삭제
     // /community/deletePost/{postId}
-    @CacheEvict(value = "postListCache", allEntries = true)
+
     public void deletePost(Long userId, Long postId){
         Post post = checkPermission(userId, postId);
         checkAvailable(post);
@@ -347,7 +347,7 @@ public class PostService {
         return post.getCount();
     }
 
-     //신고 게시물 체크
+    //신고 게시물 체크
 
 
 
