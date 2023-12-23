@@ -5,6 +5,8 @@ import com.bipa.bizsurvey.domain.community.domain.QPostImages;
 import com.bipa.bizsurvey.domain.community.dto.response.post.PostImageResponse;
 import com.bipa.bizsurvey.domain.community.repository.PostImagesRepository;
 import com.bipa.bizsurvey.domain.community.repository.PostRepository;
+import com.bipa.bizsurvey.global.common.storage.DeleteFileRequest;
+import com.bipa.bizsurvey.infra.s3.S3StorageServiceImpl;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class PostImageService {
     private final PostRepository postRepository;
     private final PostImagesRepository postImagesRepository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final S3StorageServiceImpl s3StorageService;
     private final QPostImages pi = QPostImages.postImages;
     public void createPostImages(Long postId, List<String> createUrlList){
 
@@ -58,7 +61,18 @@ public class PostImageService {
     }
 
     public void deletePostImages(Long postId, List<String> deleteUrlList){
+
+        List<DeleteFileRequest> deleteFileRequests = new ArrayList<>();
+
         for(String s : deleteUrlList){
+
+                // s3
+                DeleteFileRequest deleteFileRequest = DeleteFileRequest.builder()
+                        .fileName(s)
+                        .build();
+                deleteFileRequests.add(deleteFileRequest);
+
+                s3StorageService.deleteMultipleFiles(deleteFileRequests);
 
 
                 List<PostImages> postImages = jpaQueryFactory
