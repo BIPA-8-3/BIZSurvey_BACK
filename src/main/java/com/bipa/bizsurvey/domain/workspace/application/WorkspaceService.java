@@ -84,7 +84,7 @@ public class WorkspaceService {
         Long userId = loginUser.getId();
 
         switch (plan) {
-            case COMPANY_SUBSCRIBE :
+            case COMPANY_SUBSCRIBE:
                 list = workspaceRepository.findCompanyPlanWorkspaces(userId);
                 break;
             case NORMAL_SUBSCRIBE:
@@ -142,22 +142,22 @@ public class WorkspaceService {
         workspaceRepository.findByDelFlagFalseAndUserIdAndWorkspaceType(userId, WorkspaceType.PERSONAL).orElseThrow(() -> new EntityNotFoundException("개인 워크스페이스가 존재하지 않습니다."));
     }
 
-    public boolean permissionCheck(LoginUser loginUser) {
-        boolean permission = true;
-        Long userId = loginUser.getId();
+    public boolean permissionCheck(Long userId, Plan plan) {
+        boolean permission = false;
 
         List<WorkspaceAdmin> adminList = workspaceAdminRepository.findByUserIdAndDelFlagFalse(userId);
         List<User> userList = adminList.stream().map(e -> e.getWorkspace().getUser()).collect(Collectors.toList());
         QUser user = QUser.user;
 
+        // 관리자로 초대된 워크스페이스가 존재하는지 확인
         if (adminList != null && adminList.size() > 0) {
             permission = jpaQueryFactory
                     .select()
                     .from(user)
                     .where(
-                            user.delFlag.isFalse(),
-                            user.planSubscribe.ne(Plan.COMMUNITY),
-                            user.in(userList)
+                            user.delFlag.isFalse()
+                                    .and(user.planSubscribe.eq(Plan.COMPANY_SUBSCRIBE))
+                                    .and(user.in(userList))
                     )
                     .fetchCount() > 0;
 
@@ -165,17 +165,13 @@ public class WorkspaceService {
                 return permission;
             }
         }
-
+        // 내 명의의 워크스페이스가 존재하는지 확인
         List<Workspace> list = workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
 
-        if (list != null && list.size() > 0) {
-            if (loginUser.getPlan().equals(Plan.COMMUNITY)) {
-                permission = false;
-            }
+        if (!Plan.COMMUNITY.equals(plan) && list != null && list.size() > 0) {
+            permission = true;
         }
         return permission;
     }
-
-
 }
 
