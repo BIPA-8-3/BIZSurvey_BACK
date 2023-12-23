@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.workspace.api;
 
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
+import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.workspace.application.WorkspaceService;
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceDto;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,7 @@ public class WorkspaceController {
         return ResponseEntity.ok().body("수정이 완료되었습니다.");
 
     }
+
     @GetMapping("/personal")
     public ResponseEntity<Boolean> readPersonalWorkspace(@AuthenticationPrincipal LoginUser loginUser) {
         try {
@@ -80,11 +82,13 @@ public class WorkspaceController {
     //워크스페이스 권한 체크
     @GetMapping("/permission/check")
     public ResponseEntity<?> checkPermissions(@AuthenticationPrincipal LoginUser loginUser) {
-        if(workspaceService.permissionCheck(loginUser)) {
-            return ResponseEntity.ok().body("승인되었습니다.");
-        } else {
-            return ResponseEntity.badRequest().body("접근 권한이 없습니다.");
+        try {
+            Long userId = loginUser.getId();
+            Plan plan = Plan.valueOf(loginUser.getPlan());
+            return ResponseEntity.ok().body(workspaceService.permissionCheck(userId, plan));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-    }
 
+    }
 }
