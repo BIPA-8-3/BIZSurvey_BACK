@@ -76,7 +76,7 @@ public class OAuth2Controller {
         // jwtToken 및 refreshJwtToken을 헤더에 추가
         header.add("Authorization", jwtToken);
         header.add("RefreshAuthorization", refreshJwtToken);
-
+        System.out.println("test : : : " + jwtToken);
         return ResponseEntity.ok()
                 .headers(header)
                 .body(loginUser);
@@ -144,7 +144,7 @@ public class OAuth2Controller {
                         .nickname("")
                         .name(userInfo.getName())
                         .gender(Gender.valueOf((userInfo.getGender()).toUpperCase()))
-                        .planSubscribe(Plan.COMMUNITY)
+                        .planSubscribe(userOp.get().getPlanSubscribe())
                         .provider("kakao")
                         .build();
                 loginInfoRequest.setId(userOp.get().getId());

@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String dateTimeString = user.getForbiddenDate();
 
         if ("forbidden".equals(dateTimeString)) {
-            CustomResponseUtil.forbidden(response, "영구 정지");
+            CustomResponseUtil.forbidden(response, "영구 정지된 회원입니다.");
             return;
         }
 
@@ -90,7 +90,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         if (dateTimeString != null && !dateTimeString.equals("")) {
             LocalDateTime targetDateTime = LocalDateTime.parse(dateTimeString, formatter);
             if (currentDateTime.isBefore(targetDateTime)) {
-                CustomResponseUtil.forbidden(response, "정지");
+                CustomResponseUtil.forbidden(response, "정지된 회원입니다.");
                 return;
             }
         }
