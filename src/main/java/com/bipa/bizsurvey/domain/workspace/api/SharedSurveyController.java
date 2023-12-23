@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -46,10 +47,14 @@ public class SharedSurveyController {
             return ResponseEntity.badRequest().body("설문 참여에 실패하셨습니다.");
         }
     }
-
     @PutMapping("/{sharedSurveyId}")
-    public ResponseEntity<String> deadlineExtension(@PathVariable Long sharedSurveyId) {
-        sharedSurveyService.deadlineExtension(sharedSurveyId);
+    public ResponseEntity<String> modifyDeadlineDate(@PathVariable Long sharedSurveyId,
+                                                    @RequestBody SharedSurveyDto.DeadlineRequest request) {
+        if(request.getDeadlineDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("마감날짜는 현재날짜보다 빠를 수 없습니다.");
+        }
+        request.setSharedSurveyId(sharedSurveyId);
+        sharedSurveyService.modifyDeadlineDate(request);
         return ResponseEntity.ok().body("마감기한이 연장되었습니다.");
     }
 
