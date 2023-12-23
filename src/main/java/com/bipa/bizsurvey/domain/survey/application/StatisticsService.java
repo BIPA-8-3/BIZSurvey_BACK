@@ -86,10 +86,10 @@ public class StatisticsService {
 
     // 개인 결과
 
-    public List<PersonalResultResponse> getSurveyUserResult(Long surveyId, Long postId, String nickname) {
+    public List<PersonalResultResponse> getSurveyUserResult(Long surveyId, Long postId, Long userId) {
 
         SurveyPost surveyPost = surveyPostRepository.findByPostIdAndSurveyId(postId, surveyId);
-        User user = userRepository.findByNickname(nickname).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow();
 
         return jpaQueryFactory
                 .select(Projections.constructor(PersonalResultResponse.class,
@@ -123,9 +123,9 @@ public class StatisticsService {
 
     // 점수형 설문 개별 통계
 
-    public List<UserScoreResponse> getScoreUserAnswer(Long surveyId, Long postId, String nickname){
+    public List<UserScoreResponse> getScoreUserAnswer(Long surveyId, Long postId, Long userId){
         SurveyPost surveyPost = surveyPostRepository.findByPostIdAndSurveyId(postId, surveyId);
-        User user = userRepository.findByNickname(nickname).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow();
 
         List<UserScoreResponse> list = jpaQueryFactory
                 .select(Projections.constructor(UserScoreResponse.class,
