@@ -1,9 +1,11 @@
 package com.bipa.bizsurvey.domain.workspace.dto;
 
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +16,13 @@ public class SharedSurveyDto {
         private Long surveyId;
         private Long deadline;
         private List<ContactDto.SharedRequest> contactList;
+    }
+
+    @Data
+    public static class DeadlineRequest {
+        private Long sharedSurveyId;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+        private LocalDateTime deadlineDate;
     }
 
     @Data
