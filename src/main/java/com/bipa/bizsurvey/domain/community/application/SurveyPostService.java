@@ -18,7 +18,6 @@ import com.bipa.bizsurvey.domain.survey.application.SurveyCommunityService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
@@ -26,7 +25,6 @@ import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -237,6 +235,7 @@ public class SurveyPostService {
                 .innerJoin(sp).on(p.eq(sp.post))
                 .where(p.postType.eq(PostType.SURVEY))
                 .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
                 .where(p.content.like("%" + keyword + "%")
                         .or(p.title.like("%" + keyword + "%")))
                 .orderBy(sp.score.desc())
