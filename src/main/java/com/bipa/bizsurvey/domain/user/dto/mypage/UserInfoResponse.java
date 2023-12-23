@@ -19,4 +19,7 @@ public class UserInfoResponse {
     private Gender gender;
     private String birthdate;
     private String profile;
+    private String provider;
+    private String regdate;
+    private String forbiddenDate;
 }

@@ -8,7 +8,7 @@ import javax.validation.constraints.Pattern;
 
 @Data
 public class PasswordUpdateRequest {
-    @Email
+    //@Email
     @NotBlank
     private String email;
 

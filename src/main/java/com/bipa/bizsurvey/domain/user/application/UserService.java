@@ -80,6 +80,9 @@ public class UserService {
                 .gender(user.getGender())
                 .birthdate(user.getBirthdate())
                 .profile(user.getProfile())
+                .provider(user.getProvider())
+                .regdate(user.getRegDate().toString())
+                .forbiddenDate(user.getForbiddenDate())
                 .build();
     }
 
@@ -132,7 +135,6 @@ public class UserService {
     public String accessTokenRefresh(String refreshToken){
         DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(JwtVO.SECRET)).build().verify(refreshToken.replace(JwtVO.TOKEN_PREFIX, ""));
         Long key = decodedJWT.getClaim("id").asLong();
-
         String value = redisService.getData(String.valueOf(key));
         String redisToken = value.replace("\"", "");
         String userToken = refreshToken.replace(JwtVO.TOKEN_PREFIX, "");
