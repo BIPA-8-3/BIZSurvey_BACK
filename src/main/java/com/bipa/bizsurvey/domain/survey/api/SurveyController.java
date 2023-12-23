@@ -94,19 +94,19 @@ public class SurveyController {
     }
 
     // 개인 설문 결과
-    @GetMapping("/result/{surveyId}/{postId}/{nickname}")
+    @GetMapping("/result/{surveyId}/{postId}/{userId}")
     public ResponseEntity<?> getSurveyUserResult(@PathVariable Long surveyId,
                                                  @PathVariable Long postId,
-                                                 @PathVariable String nickname){
-        return ResponseEntity.ok().body(statisticsService.getSurveyUserResult(surveyId, postId, nickname));
+                                                 @PathVariable Long userId){
+        return ResponseEntity.ok().body(statisticsService.getSurveyUserResult(surveyId, postId, userId));
     }
 
     // 점수형 설문 개별 통계
-    @GetMapping("/result/score/{surveyId}/{postId}/{nickname}")
+    @GetMapping("/result/score/{surveyId}/{postId}/{userId}")
     public ResponseEntity<?> getScoreUserAnswer(@PathVariable Long surveyId,
                                                 @PathVariable Long postId,
-                                                @PathVariable String nickname){
-        return ResponseEntity.ok().body(statisticsService.getScoreUserAnswer(surveyId, postId, nickname));
+                                                @PathVariable Long userId){
+        return ResponseEntity.ok().body(statisticsService.getScoreUserAnswer(surveyId, postId, userId));
 
     }
 
