@@ -33,7 +33,6 @@ public class CommunityPostController {
     //
 
     private final PostService postService;
-    private final CommentService commentService;
     private final RedisService redisService;
 
      //CREATE
@@ -47,19 +46,7 @@ public class CommunityPostController {
      //게시물 전체 조회
     @GetMapping("")
     public ResponseEntity<?> getPostList(@PageableDefault(size = 15) Pageable pageable){
-        CustomPageImpl<?> postPage = postService.getPostList(pageable);
-        List<?> content = postPage.getContent();
-        for (Object o : content) {
-            PostTableResponse postTableResponse = (PostTableResponse) o;
-            postTableResponse.setCommentSize(commentService.getCommentList(postTableResponse.getPostId()).size());
-
-            Post post = postService.findPost(postTableResponse.getPostId());
-
-            postTableResponse.setCount(post.getCount());
-            postTableResponse.setProfile(post.getUser().getProfile());
-        }
-
-        return ResponseEntity.ok().body(postPage); // 200 OK
+       return ResponseEntity.ok().body(postService.getPostList(pageable));
     }
 
     // 게시물 상세 조회

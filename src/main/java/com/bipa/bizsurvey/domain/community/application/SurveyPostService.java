@@ -18,7 +18,6 @@ import com.bipa.bizsurvey.domain.survey.application.SurveyCommunityService;
 import com.bipa.bizsurvey.domain.survey.application.SurveyService;
 import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.user.domain.User;
-import com.bipa.bizsurvey.domain.user.enums.ClaimReason;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
@@ -26,7 +25,6 @@ import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -167,7 +165,6 @@ public class SurveyPostService {
                         sp.id,
                         sp.startDateTime,
                         sp.endDateTime,
-                        sp.maxMember,
                         sp.thumbImgUrl
                 )
                 .from(p)
@@ -199,9 +196,7 @@ public class SurveyPostService {
                     .title(tuple.get(p.title))
                     .content(tuple.get(p.content))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .thumbImageUrl(tuple.get(sp.thumbImgUrl))
-
                     .build();
 
             results.add(surveyPostResponse);
@@ -234,13 +229,13 @@ public class SurveyPostService {
                         sp.id,
                         sp.startDateTime,
                         sp.endDateTime,
-                        sp.maxMember,
                         sp.thumbImgUrl
                 )
                 .from(p)
                 .innerJoin(sp).on(p.eq(sp.post))
                 .where(p.postType.eq(PostType.SURVEY))
                 .where(p.delFlag.eq(false))
+                .where(p.reported.eq(false))
                 .where(p.content.like("%" + keyword + "%")
                         .or(p.title.like("%" + keyword + "%")))
                 .orderBy(sp.score.desc())
@@ -268,7 +263,6 @@ public class SurveyPostService {
                     .content(tuple.get(p.content))
                     .count(tuple.get(p.count))
                     .nickname(tuple.get(p.user.nickname))
-                    .maxMember(tuple.get(sp.maxMember))
                     .commentSize(commentService.getCommentList(tuple.get(p.id)).size())
                     .participateCount(surveyCommunityService.getParticipants(tuple.get(sp.id)))
                     .canAccess(checkAccess(tuple.get(sp.id)))

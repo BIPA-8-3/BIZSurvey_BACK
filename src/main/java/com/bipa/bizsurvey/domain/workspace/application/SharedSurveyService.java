@@ -39,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.ObjectInputFilter;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -76,7 +78,6 @@ public class SharedSurveyService {
         // 공유 설문 Insert
         SharedSurvey sharedSurvey = SharedSurvey.builder()
                 .survey(survey)
-                .deadline(request.getDeadline())
                 .build();
 
         sharedSurveyRepository.save(sharedSurvey);
@@ -213,10 +214,9 @@ public class SharedSurveyService {
     // 링크 유효성 검사
     public Long linkValidation(Long sharedSurveyId, String token) {
         SharedSurvey sharedSurvey = sharedSurveyRepository.findByIdAndDelFlagFalse(sharedSurveyId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 링크입니다."));
-        LocalDateTime deadline = sharedSurvey.getRegDate().plusDays(sharedSurvey.getDeadline());
+        LocalDateTime deadlineDate = sharedSurvey.getDeadlineDate();
 
-        // deadline이 지났는지 확인
-        if (deadline.isBefore(LocalDateTime.now())) {
+        if (!deadlineDate.isAfter(LocalDateTime.now())) {
             throw new RuntimeException("만료된 링크입니다.");
         }
 
@@ -236,11 +236,10 @@ public class SharedSurveyService {
         return sharedSurvey.getSurvey().getId();
     }
 
-    // 유효기간 연장
-    public void deadlineExtension(Long shardSurveyId) {
-        getShredSurvey(shardSurveyId).plusDeadline();
+    // 유효기간 수정
+    public void modifyDeadlineDate(SharedSurveyDto.DeadlineRequest request) {
+        getShredSurvey(request.getSharedSurveyId()).updateDeadlineDate(request.getDeadlineDate());
     }
-
 
     // 삭제
     public void delete(Long sharedListId) {
@@ -272,9 +271,9 @@ public class SharedSurveyService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 연락처 입니다."));
     }
 
-    /////////////////////////////
-    // 집계 로직 🥲전체적으로 수정 필요 //
-    /////////////////////////////
+    /////////////
+    // 집계 로직 //
+    ////////////
     private final JPAQueryFactory jpaQueryFactory;
 
     QQuestion question = QQuestion.question;
@@ -286,14 +285,13 @@ public class SharedSurveyService {
 
     // 공유단위 목록 조회
     public List<SharedSurveyDto.SharedSurveysResponse> readSharedSurveyHistory(Long surveyId) {
-        List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalseOrderByModDateDesc(surveyId);
+        List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalseOrderByDeadlineDateDescRegDateAsc(surveyId);
         return sharedSurveys.stream().map(e -> {
-            LocalDateTime dueDate = e.getRegDate().plusDays(e.getDeadline());
             return SharedSurveyDto.SharedSurveysResponse.builder()
                     .id(e.getId())
                     .regDate(e.getRegDate())
-                    .dueDate(dueDate)
-                    .deadline(LocalDateTime.now().isAfter(dueDate)) // true 마감일자 안 지남
+                    .dueDate(e.getDeadlineDate())
+                    .deadline(LocalDateTime.now().isAfter(e.getDeadlineDate())) // true 마감일자 안 지남
                     .surveyId(e.getSurvey().getId())
                     .build();
         }).collect(Collectors.toList());
@@ -301,23 +299,6 @@ public class SharedSurveyService {
 
     // 공유 단위별 참여자 목록
     public List<SharedListDto.Response> readSharedContactList(Long sharedSurveyId) {
-//        return jpaQueryFactory.select(Projections.fields(SharedListDto.Response.class,
-//                        sl.id,
-//                        sl.sharedSurvey.id.as("sharedSurveyId"),
-//                        ct.id.as("contactId"),
-//                        ct.email,
-//                        ct.name
-//                ))
-//                .from(sl)
-//                .leftJoin(ct).on(sl.contact.eq(ct))
-//                .where(sl.sharedSurvey.id.eq(sharedSurveyId).and(sl.delFlag.isFalse())
-//                        .and(JPAExpressions
-//                                .select(ssr.count())
-//                                .from(ssr)
-//                                .where(ssr.sharedList.eq(sl)).gt(0L)ScoreResultResponse))
-//                .fetch();
-
-
         return jpaQueryFactory.select(Projections.fields(SharedListDto.Response.class,
                         sl.id,
                         sl.sharedSurvey.id.as("sharedSurveyId"),
@@ -349,12 +330,10 @@ public class SharedSurveyService {
                 .fetch();
     }
 
-
     // 외부공유 통계
     public StatisticsResponse readSharedSurveyResult(Long sharedSurveyId) {
         return new StatisticsResponse(processChartAndText(sharedSurveyId), processFile(sharedSurveyId));
     }
-
 
     // 개별 점수형 설문 정답
     public List<SharedSurveyResponseDto.PersonalScoreSurveyResults> readPersonalScoreResults(Long sharedListId) {
@@ -403,8 +382,8 @@ public class SharedSurveyService {
                 .fetch();
 
         Map<Long, List<ScoreResultResponse>> groupResults = result
-                        .stream()
-                        .collect(Collectors.groupingByConcurrent(ScoreResultResponse::getQuestionId));
+                .stream()
+                .collect(Collectors.groupingByConcurrent(ScoreResultResponse::getQuestionId));
 
         return groupResults.entrySet().stream().map(entry -> {
             Long questionId = entry.getKey();

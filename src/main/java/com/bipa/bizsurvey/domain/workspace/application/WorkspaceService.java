@@ -13,12 +13,16 @@ import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.exception.UserException;
 import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.domain.workspace.domain.QWorkspace;
+import com.bipa.bizsurvey.domain.workspace.domain.QWorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.domain.WorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceDto;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -43,7 +47,7 @@ public class WorkspaceService {
     public WorkspaceDto.ListResponse create(Long userId, WorkspaceDto.CreateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
 
-        if(request.getWorkspaceType() == null) {
+        if (request.getWorkspaceType() == null) {
             request.setWorkspaceType(WorkspaceType.COMPANY);
         }
         Workspace workspace = Workspace.builder()
@@ -55,15 +59,42 @@ public class WorkspaceService {
         workspaceRepository.save(workspace);
 
         return WorkspaceDto.ListResponse.builder()
-                    .workspaceName(workspace.getWorkspaceName())
-                    .workspaceType(workspace.getWorkspaceType())
-                    .id(workspace.getId())
-                    .build();
+                .workspaceName(workspace.getWorkspaceName())
+                .workspaceType(workspace.getWorkspaceType())
+                .id(workspace.getId())
+                .build();
     }
 
+//    @Transactional(readOnly = true)
+//    public List<WorkspaceDto.ListResponse> listWorkspaces(LoginUser loginUser) {
+//        Long userId = loginUser.getId();
+//        List<Workspace> list = workspaceRepository.findWorkspaceByDelFlagFalseAndUserId(userId);
+//        return list.stream().map(e ->
+//                WorkspaceDto.ListResponse.builder()
+//                        .workspaceName(e.getWorkspaceName())
+//                        .workspaceType(e.getWorkspaceType())
+//                        .id(e.getId()).build()).collect(Collectors.toList());
+//    }
+
     @Transactional(readOnly = true)
-    public List<WorkspaceDto.ListResponse> listWorkspaces(Long userId) {
-        List<Workspace> list = workspaceRepository.findWorkspaceByDelFlagFalseAndUserId(userId);
+    public List<WorkspaceDto.ListResponse> listWorkspaces(LoginUser loginUser) {
+        List<Workspace> list = null;
+
+        Plan plan = Plan.valueOf(loginUser.getPlan());
+        Long userId = loginUser.getId();
+
+        switch (plan) {
+            case COMPANY_SUBSCRIBE:
+                list = workspaceRepository.findCompanyPlanWorkspaces(userId);
+                break;
+            case NORMAL_SUBSCRIBE:
+                list = workspaceRepository.findPersonalPlanWorkspaces(userId, WorkspaceType.PERSONAL);
+                break;
+            case COMMUNITY:
+                list = workspaceRepository.findCommunityPlanWorkspaces(userId);
+                break;
+        }
+
         return list.stream().map(e ->
                 WorkspaceDto.ListResponse.builder()
                         .workspaceName(e.getWorkspaceName())
@@ -93,8 +124,8 @@ public class WorkspaceService {
     }
 
     public void delete(Long workspaceId) {
-         Workspace workspace = getWorkspace(workspaceId);
-         workspace.delete();
+        Workspace workspace = getWorkspace(workspaceId);
+        workspace.delete();
     }
 
     private Workspace getWorkspace(Long id) {
@@ -111,36 +142,34 @@ public class WorkspaceService {
         workspaceRepository.findByDelFlagFalseAndUserIdAndWorkspaceType(userId, WorkspaceType.PERSONAL).orElseThrow(() -> new EntityNotFoundException("개인 워크스페이스가 존재하지 않습니다."));
     }
 
-    public boolean permissionCheck(LoginUser loginUser) {
-        boolean permission = true;
-        Long userId = loginUser.getId();
+    public boolean permissionCheck(Long userId, Plan plan) {
+        boolean permission = false;
 
         List<WorkspaceAdmin> adminList = workspaceAdminRepository.findByUserIdAndDelFlagFalse(userId);
         List<User> userList = adminList.stream().map(e -> e.getWorkspace().getUser()).collect(Collectors.toList());
         QUser user = QUser.user;
 
-        if(adminList != null && adminList.size() > 0) {
+        // 관리자로 초대된 워크스페이스가 존재하는지 확인
+        if (adminList != null && adminList.size() > 0) {
             permission = jpaQueryFactory
                     .select()
                     .from(user)
                     .where(
-                            user.delFlag.isFalse(),
-                            user.planSubscribe.ne(Plan.COMMUNITY),
-                            user.in(userList)
+                            user.delFlag.isFalse()
+                                    .and(user.planSubscribe.eq(Plan.COMPANY_SUBSCRIBE))
+                                    .and(user.in(userList))
                     )
                     .fetchCount() > 0;
 
-            if(permission) {
+            if (permission) {
                 return permission;
             }
         }
+        // 내 명의의 워크스페이스가 존재하는지 확인
+        List<Workspace> list = workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
 
-        List<Workspace> list =  workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
-
-        if(list != null && list.size() > 0) {
-            if(loginUser.getPlan().equals(Plan.COMMUNITY)) {
-                permission = false;
-            }
+        if (!Plan.COMMUNITY.equals(plan) && list != null && list.size() > 0) {
+            permission = true;
         }
         return permission;
     }

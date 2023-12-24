@@ -31,6 +31,7 @@ public class UserSurveyResponse extends BaseEntity {
     @Column(nullable = false)
     private String answer;
 
+    @Column(length = 500)
     private String url;
 
     @Column(nullable = false)

@@ -6,10 +6,7 @@ import com.amazonaws.services.s3.transfer.MultipleFileDownload;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferProgress;
 import com.amazonaws.util.IOUtils;
-import com.bipa.bizsurvey.global.common.storage.Domain;
-import com.bipa.bizsurvey.global.common.storage.Folder;
-import com.bipa.bizsurvey.global.common.storage.StorageService;
-import com.bipa.bizsurvey.global.common.storage.FileUtil;
+import com.bipa.bizsurvey.global.common.storage.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -24,7 +21,9 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,7 +42,7 @@ public class S3StorageServiceImpl implements StorageService {
     public String uploadFile(MultipartFile file, Domain domain, String path) {
         String originName = file.getOriginalFilename();
 
-        if(StringUtils.isEmpty(path)){
+        if (StringUtils.isEmpty(path)) {
             path = "";
         }
 
@@ -58,12 +57,12 @@ public class S3StorageServiceImpl implements StorageService {
         try (InputStream inputStream = file.getInputStream()) {
             amazonS3Client.putObject(new PutObjectRequest(bucket, saveName, inputStream, metadata));
 
-            if(path.contains("temp/")) {
-                for(int i = 0; ; i++) {
+            if (path.contains("temp/")) {
+                for (int i = 0; ; i++) {
                     Thread.sleep(2000);
-                    if(amazonS3Client.doesObjectExist(bucket, resizingName)) {
+                    if (amazonS3Client.doesObjectExist(bucket, resizingName)) {
                         break;
-                    } else if(i >= 30) {
+                    } else if (i >= 30) {
                         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
                     }
                 }
@@ -76,12 +75,17 @@ public class S3StorageServiceImpl implements StorageService {
 
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
         }
+        String result = amazonS3Client.getUrl(bucket, resizingName).toString().split("//")[1];
 
-        return amazonS3Client.getUrl(bucket, resizingName).toString().split("//")[1];
+        if (result.contains("tempStorage/")) {
+            result = result.replace("tempStorage/", "");
+        }
+
+        return result;
     }
 
     @Override
-    public byte[] downloadFile(String fileUrl) throws IOException{
+    public byte[] downloadFile(String fileUrl) throws IOException {
         String s3FileName = extractFileName(fileUrl, REGEX);
         validateFileExists(s3FileName);
         String originName = getOriginName(s3FileName);
@@ -128,6 +132,28 @@ public class S3StorageServiceImpl implements StorageService {
     }
 
     @Override
+    public void deleteMultipleFiles(List<DeleteFileRequest> fileList) {
+        try {
+            DeleteObjectsRequest multiObjectDeleteRequest = new DeleteObjectsRequest(bucket);
+
+            List<DeleteObjectsRequest.KeyVersion> keys = fileList.stream().map(file -> {
+                String fileName = file.getFileName();
+                String[] split = fileName.split(".com/");
+                if (split.length > 1) {
+                    return new DeleteObjectsRequest.KeyVersion(split[1]);
+                } else {
+                    return new DeleteObjectsRequest.KeyVersion(split[0]);
+                }
+            }).collect(Collectors.toList());
+            multiObjectDeleteRequest.setKeys(keys);
+            amazonS3Client.deleteObjects(multiObjectDeleteRequest);
+
+        } catch (AmazonS3Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    @Override
     public void deleteFolder(String folderPath) {
         String fileName = extractFileName(folderPath, REGEX);
         ListObjectsV2Request listObjectsV2Request = new ListObjectsV2Request()
@@ -152,7 +178,7 @@ public class S3StorageServiceImpl implements StorageService {
         String splitStr = ".com/";
         int startIndex = saveName.lastIndexOf(splitStr);
 
-        if(startIndex != -1) {
+        if (startIndex != -1) {
             startIndex += splitStr.length();
             saveName = saveName.substring(startIndex);
         }
@@ -185,6 +211,7 @@ public class S3StorageServiceImpl implements StorageService {
                 }
                 return FileVisitResult.CONTINUE;
             }
+
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) {
                 System.err.printf("Unable to zip : %s%n%s%n", file, exc);
@@ -192,8 +219,34 @@ public class S3StorageServiceImpl implements StorageService {
             }
         });
     }
+
     private void validateFileExists(String fileName) throws FileNotFoundException {
         if (!amazonS3Client.doesObjectExist(bucket, fileName))
             throw new FileNotFoundException();
+    }
+
+    @Override
+    public void confirmStorageOfTemporaryFiles(List<String> fileName) {
+        String basePath = "tempStorage/";
+
+        List<TemporaryFileConfirmRequest> fileList = fileName.stream().map(file -> {
+
+            log.info("file: " + file);
+            String originName = file.split(".com/")[1];
+            String tempFile = basePath + originName;
+            return new TemporaryFileConfirmRequest(tempFile, originName);
+        }).collect(Collectors.toList());
+
+        try {
+            List<DeleteFileRequest> deleteList = new ArrayList<>();
+
+            fileList.stream().forEach(file -> {
+                amazonS3Client.copyObject(bucket, file.getTempFileName(), bucket, file.getFileName());
+                deleteList.add(new DeleteFileRequest(file.getTempFileName()));
+            });
+            deleteMultipleFiles(deleteList);
+        } catch (AmazonS3Exception e) {
+            log.error(e.getMessage());
+        }
     }
 }

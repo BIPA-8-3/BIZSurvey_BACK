@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,20 +23,34 @@ public class SharedSurvey extends BaseEntity {
     @Column(name = "shared_survey_id")
     private Long id;
 
-    @ColumnDefault("7")
-    private Long deadline;
+//    @ColumnDefault("7")
+//    private Long deadline;
+
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime deadlineDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
+    //    @Builder
+//    public SharedSurvey(Survey survey, Long deadline) {
+//        this.survey = survey;
+////        this.deadline = deadline;
+//    }
     @Builder
-    public SharedSurvey(Survey survey, Long deadline) {
+    public SharedSurvey(Survey survey) {
         this.survey = survey;
-        this.deadline = deadline;
-    }
-    public void plusDeadline() {
-        this.deadline += 7;
     }
 
+    @PrePersist
+    public void prePersist() {
+        if (deadlineDate == null) {
+            deadlineDate = LocalDateTime.now().plusDays(7);
+        }
+    }
+
+    public void updateDeadlineDate(LocalDateTime deadlineDate) {
+        this.deadlineDate = deadlineDate;
+    }
 }
