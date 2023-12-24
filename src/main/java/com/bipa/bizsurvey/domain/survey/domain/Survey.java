@@ -29,7 +29,7 @@ public class Survey extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)
