@@ -26,8 +26,6 @@ public class Contact extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-//    private String remark;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
@@ -36,14 +34,11 @@ public class Contact extends BaseEntity {
     public Contact(String name, String email, Workspace workspace) {
         this.name = name;
         this.email = email;
-//        this.remark = remark;
         this.workspace = workspace;
     }
-
-
+    
     public void update(String name, String email) {
         this.name = name;
         this.email = email;
-//        this.remark = remark;
     }
 }

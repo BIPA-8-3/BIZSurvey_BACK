@@ -18,7 +18,6 @@ public class Workspace extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "workspace_id")
     private Long id;
-
     private String workspaceName;
 
     @Enumerated(EnumType.STRING)
