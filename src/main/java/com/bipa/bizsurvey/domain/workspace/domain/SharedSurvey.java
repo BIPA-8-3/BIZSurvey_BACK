@@ -23,21 +23,12 @@ public class SharedSurvey extends BaseEntity {
     @Column(name = "shared_survey_id")
     private Long id;
 
-//    @ColumnDefault("7")
-//    private Long deadline;
-
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime deadlineDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_id")
     private Survey survey;
 
-    //    @Builder
-//    public SharedSurvey(Survey survey, Long deadline) {
-//        this.survey = survey;
-////        this.deadline = deadline;
-//    }
     @Builder
     public SharedSurvey(Survey survey) {
         this.survey = survey;
