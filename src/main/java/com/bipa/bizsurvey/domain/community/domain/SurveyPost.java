@@ -35,9 +35,6 @@ public class SurveyPost extends BaseEntity {
     private LocalDateTime endDateTime;
 
 
-    @ColumnDefault("0")
-    private int memberCount; // 참여자 수
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
@@ -75,9 +72,6 @@ public class SurveyPost extends BaseEntity {
     }
 
 
-    public void addCount(){
-        this.memberCount += 1;
-    }
 
 
 
