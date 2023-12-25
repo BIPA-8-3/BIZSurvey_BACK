@@ -22,6 +22,7 @@ import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.CustomPageImpl;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
+import com.bipa.bizsurvey.global.common.storage.StorageService;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -51,6 +52,7 @@ public class PostService {
     private final CommentService commentService;
     private final PostImageService postImageService;
     private final RedisService redisService;
+    private final StorageService storageService;
     public QPost p = QPost.post;
 
     // 커뮤니티 게시물 제작
@@ -67,6 +69,7 @@ public class PostService {
 
         if(createPostRequest.getImageUrlList() != null){
             postImageService.createPostImages(save.getId() , createPostRequest.getImageUrlList());
+            storageService.confirmStorageOfTemporaryFiles(createPostRequest.getImageUrlList());
         }
 
         return save.getId();
