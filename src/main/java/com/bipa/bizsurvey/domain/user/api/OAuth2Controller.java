@@ -5,10 +5,13 @@ import com.bipa.bizsurvey.domain.user.dto.LoginInfoRequest;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.enums.Gender;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
+import com.bipa.bizsurvey.domain.user.exception.UserException;
+import com.bipa.bizsurvey.domain.user.exception.UserExceptionType;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.global.common.RedisService;
 import com.bipa.bizsurvey.global.config.jwt.JwtProcess;
 import com.bipa.bizsurvey.global.config.oauth.OAuth2UserInfo;
+import com.bipa.bizsurvey.global.util.CustomResponseUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -66,8 +71,33 @@ public class OAuth2Controller {
 
         // 토큰 요청
         String tokenResponse = requestToken(code, response);
-
         LoginUser loginUser = oauthUserInfo(tokenResponse, response);
+
+
+
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
+
+        String dateTimeString = user.getForbiddenDate();
+
+        if ("forbidden".equals(dateTimeString)) {
+            throw new UserException(UserExceptionType.FORBIDDEN_USER);
+        }
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        if (dateTimeString != null && !dateTimeString.equals("")) {
+            LocalDateTime targetDateTime = LocalDateTime.parse(dateTimeString, formatter);
+            if (currentDateTime.isBefore(targetDateTime)) {
+                throw new UserException(UserExceptionType.REPORTED_USER);
+            }
+        }
+
+        user.forbiddenDateUpdate("");
+        userRepository.save(user);
+
+
         String jwtToken = JwtProcess.create(loginUser);
         String refreshJwtToken = JwtProcess.refreshCreate(loginUser, redisService);
 

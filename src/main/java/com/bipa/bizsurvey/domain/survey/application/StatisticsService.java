@@ -142,6 +142,7 @@ public class StatisticsService {
                         .and(u.answer.eq(a.surveyAnswer))
                         .and(a.delFlag.eq(false)))
                 .groupBy(u.question, a.correct, u.answer)
+                .orderBy(u.question.step.asc())
                 .fetch();
 
         Map<Long, UserScoreResponse> answerMap = new HashMap<>();
