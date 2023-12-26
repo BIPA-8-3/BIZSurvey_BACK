@@ -62,7 +62,7 @@ public class WorkspaceAdminDto {
         private String name;
         private String nickName;
         private AdminType adminType;
-        private Boolean inviteFlag;
+//        private Boolean inviteFlag;
         private Boolean hasToken;
     }
 
