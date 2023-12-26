@@ -363,6 +363,7 @@ public class SharedSurveyService {
                         Projections.constructor(ScoreResultResponse.class,
                                 answer.question.id,
                                 answer.question.surveyQuestion,
+                                answer.question.step,
                                 Projections.list(
                                         Projections.constructor(
                                                 ScoreAnswerCount.class,
@@ -389,11 +390,12 @@ public class SharedSurveyService {
             Long questionId = entry.getKey();
             List<ScoreResultResponse> scoreList = entry.getValue();
             String title = scoreList.get(0).getTitle();
+            int step = scoreList.get(0).getStep();
 
             List<ScoreAnswerCount> mergedAnswers = scoreList.stream()
                     .flatMap(score -> score.getAnswers().stream()).collect(Collectors.toList());
 
-            return new ScoreResultResponse(questionId, title, mergedAnswers);
+            return new ScoreResultResponse(questionId, title,step, mergedAnswers);
         }).collect(Collectors.toList());
     }
 
