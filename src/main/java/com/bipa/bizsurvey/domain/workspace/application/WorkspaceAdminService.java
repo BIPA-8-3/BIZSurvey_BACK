@@ -54,6 +54,7 @@ public class WorkspaceAdminService {
     @Value("${spring.domain.frontend}")
     private String frontendAddress;
 
+    private final SseEmitters sseEmitters;
     public WorkspaceAdminDto.Response invite(WorkspaceAdminDto.InviteRequest request) throws Exception {
         Workspace workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(request.getWorkspaceId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스 입니다."));
@@ -143,7 +144,7 @@ public class WorkspaceAdminService {
 
         workspaceAdmin.acceptInvite(user);
 
-        return WorkspaceAdminDto.Response.builder()
+        WorkspaceAdminDto.Response response = WorkspaceAdminDto.Response.builder()
                 .id(workspaceAdmin.getId())
                 .workspaceId(workspaceId)
                 .userId(user.getId())
@@ -153,6 +154,10 @@ public class WorkspaceAdminService {
                 .nickName(user.getNickname())
                 .adminType(workspaceAdmin.getAdminType())
                 .build();
+
+        sseEmitters.acceptInvite(response);
+
+        return response;
     }
 
 
@@ -179,7 +184,7 @@ public class WorkspaceAdminService {
                         .name(e.getRemark())
                         .adminType(e.getAdminType())
                         .nickName(e.getRemark())
-                        .userId(e.getUser().getId())
+                        .userId(null)
                         .hasToken(e.getToken() != null)
                         .profileUrl(null)
                         .build())
@@ -213,6 +218,7 @@ public class WorkspaceAdminService {
 
         return response;
     }
+
 
     public void delete(Long id) {
         WorkspaceAdmin admin = getWorkspaceAdmin(id);
