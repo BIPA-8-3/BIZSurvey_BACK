@@ -286,15 +286,15 @@ public class SharedSurveyService {
     // 공유단위 목록 조회
     public List<SharedSurveyDto.SharedSurveysResponse> readSharedSurveyHistory(Long surveyId) {
         List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalseOrderByDeadlineDateDescRegDateAsc(surveyId);
-        return sharedSurveys.stream().map(e -> {
-            return SharedSurveyDto.SharedSurveysResponse.builder()
+        return sharedSurveys.stream().map(e ->
+             SharedSurveyDto.SharedSurveysResponse.builder()
                     .id(e.getId())
                     .regDate(e.getRegDate())
                     .dueDate(e.getDeadlineDate())
                     .deadline(LocalDateTime.now().isAfter(e.getDeadlineDate())) // true 마감일자 안 지남
                     .surveyId(e.getSurvey().getId())
-                    .build();
-        }).collect(Collectors.toList());
+                    .build()
+        ).collect(Collectors.toList());
     }
 
     // 공유 단위별 참여자 목록

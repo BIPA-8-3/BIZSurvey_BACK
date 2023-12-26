@@ -65,7 +65,6 @@ public class SurveyService {
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
         // get survey
-//        SurveyResponse surveyDto = surveyMapper.toSurveyInWorkspaceResponse(survey);
 
         SurveyResponse surveyDto = SurveyResponse.builder()
                 .surveyId(survey.getId())
@@ -74,19 +73,6 @@ public class SurveyService {
                 .content(survey.getContent())
                 .build();
         // get question
-        Long surveyKey = survey.getId();
-//        List<QuestionResponse> questionDtoList = surveyMapper
-//                .toQuestionInWorkspaceResponseList(questionRepository.findAllBySurveyIdAndDelFlagFalseOrderByStep(surveyKey));
-
-        // get answer
-//        questionDtoList.forEach(questionDto -> {
-//                Long questionKey = questionDto.getQuestionId();
-//                List<AnswerResponse> answerDtoList = surveyMapper
-//                        .toAnswerInWorkspaceResponseList(answerRepository.findAllByQuestionIdAndDelFlagFalseOrderByStep(questionKey));
-//                questionDto.setAnswers(answerDtoList);
-//        });
-//
-//        surveyDto.setQuestions(questionDtoList);
 
        List<QuestionResponse> questionList = jpaQueryFactory
                 .select(
@@ -127,10 +113,7 @@ public class SurveyService {
 //        checkPermission(loginUser, workspaceId);
         Long surveyId = addSurvey(createSurveyRequest,  workspaceId, loginUser);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
-        // 질문 수 체크
-        if (questionRequests.size() > 40){
-            throw new SurveyException(SurveyExceptionType.QUESTION_LIMIT_EXCEEDED);
-        }
+
         addQuestions(questionRequests, surveyId);
 
     }
@@ -141,8 +124,24 @@ public class SurveyService {
         checkAvailable(survey);
         modifySurvey(updateSurveyRequest);
         deleteQuestionAndAnswer(surveyId);
-        modifyQuestions(updateSurveyRequest.getUpdateQuestions());
-        addQuestions(updateSurveyRequest.getCreateQuestions(), surveyId);
+        List<CreateQuestionRequest> create= new ArrayList<>();
+        List<UpdateQuestionRequest> update = updateSurveyRequest.getQuestions();
+        for (UpdateQuestionRequest question: update){
+            if(question.getQuestionId() == 0){
+                CreateQuestionRequest newQ = new CreateQuestionRequest(
+                    question.getSurveyQuestion(),
+                    question.getAnswerType(),
+                    question.getIsRequired(),
+                    question.getScore(),
+                    question.getStep(),
+                    question.getAnswers()
+                );
+                create.add(newQ);
+            }
+        }
+
+        modifyQuestions(updateSurveyRequest.getQuestions());
+        addQuestions(create, surveyId);
     }
 
     public void deleteSurvey(Long surveyId){
@@ -241,7 +240,7 @@ public class SurveyService {
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
 
         if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
-            if (workspaceAdminRepository.findByWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
+            if (workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
                 throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
             }
         }else {

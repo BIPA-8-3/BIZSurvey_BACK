@@ -42,7 +42,7 @@ public class WorkspaceAdminController {
 
     @PostMapping("/re-invite")
     public ResponseEntity<WorkspaceAdminDto.Response> reinvite(@AuthenticationPrincipal LoginUser loginUser,
-                                                             @RequestBody WorkspaceAdminDto.ReInviteRequest request) {
+                                                               @RequestBody WorkspaceAdminDto.ReInviteRequest request) {
         WorkspaceAdminDto.Response response = null;
         try {
             response = workspaceAdminService.reinvite(request);
@@ -61,7 +61,7 @@ public class WorkspaceAdminController {
 
     @PostMapping
     public ResponseEntity<?> acceptInvite(@AuthenticationPrincipal LoginUser loginUser,
-                                               @RequestBody WorkspaceAdminDto.AcceptRequest request) {
+                                          @RequestBody WorkspaceAdminDto.AcceptRequest request) {
         try {
             request.setUserId(loginUser.getId());
             return ResponseEntity.ok().body(workspaceAdminService.acceptInvite(request));
@@ -73,14 +73,14 @@ public class WorkspaceAdminController {
 
     @GetMapping("/list/{workspaceId}")
     public ResponseEntity<WorkspaceAdminDto.ListResponse> list(
-                                  @AuthenticationPrincipal LoginUser loginUser,
-                                  @PathVariable Long workspaceId) {
+            @AuthenticationPrincipal LoginUser loginUser,
+            @PathVariable Long workspaceId) {
         return ResponseEntity.ok().body(workspaceAdminService.list(workspaceId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> remove(@PathVariable Long id) {
-        try{
+        try {
             workspaceAdminService.delete(id);
             return ResponseEntity.ok().body("삭제가 완료되었습니다.");
         } catch (Exception e) {
@@ -88,13 +88,21 @@ public class WorkspaceAdminController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
     @GetMapping("/invite/{token}")
     public ResponseEntity<String> checkInvitationCode(@PathVariable String token) {
-        if(!redisService.validateDataExists("INVITE-" + token)) {
+        if(workspaceAdminService.tokenValueVerification(token)) {
             return ResponseEntity.ok().body(token);
-        }else {
+        } else {
             return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
         }
     }
 }
+// redis 관련 코드 제거
+//    @GetMapping("/invite/{token}")
+//    public ResponseEntity<String> checkInvitationCode(@PathVariable String token) {
+//        if(!redisService.validateDataExists("INVITE-" + token)) {
+//            return ResponseEntity.ok().body(token);
+//        }else {
+//            return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
+//        }
+//    }

@@ -12,7 +12,8 @@ import java.util.Optional;
 
 public interface WorkspaceAdminRepository extends JpaRepository<WorkspaceAdmin, Long> {
     Optional<WorkspaceAdmin> findByIdAndDelFlagFalse(Long id);
-    Optional<WorkspaceAdmin> findByWorkspaceIdAndUserId(Long userId, Long workspaceId);
+    Optional<WorkspaceAdmin> findByDelFlagFalseAndWorkspaceIdAndUserId(Long userId, Long workspaceId);
     List<WorkspaceAdmin> findByWorkspaceIdAndDelFlagFalse(Long workspaceId);
     List<WorkspaceAdmin> findByUserIdAndDelFlagFalse(Long userId);
+    Optional<WorkspaceAdmin> findByTokenNotNullAndTokenAndDelFlagFalse(String token);
 }

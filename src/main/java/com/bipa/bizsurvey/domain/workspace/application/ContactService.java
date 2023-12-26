@@ -71,6 +71,7 @@ public class ContactService {
         List<Contact> list = jpaQueryFactory.select(qContact)
                 .from(qContact)
                 .where(booleanBuilder)
+                .orderBy(qContact.name.asc(), qContact.email.asc())
                 .fetch();
 
         return list.stream().map(e -> ContactDto.Response.builder()

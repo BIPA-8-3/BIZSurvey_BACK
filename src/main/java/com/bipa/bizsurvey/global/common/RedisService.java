@@ -81,5 +81,4 @@ public class RedisService {
     public RedisTemplate<String, Object> getRedisTemplate() {
         return this.redisTemplate;
     }
-
 }

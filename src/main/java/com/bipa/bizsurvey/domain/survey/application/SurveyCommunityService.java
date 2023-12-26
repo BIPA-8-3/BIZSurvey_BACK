@@ -73,13 +73,10 @@ public class SurveyCommunityService {
                 });
             }
             storageService.confirmStorageOfTemporaryFiles(url);
-            addCount(postId);
+
     }
 
-    private void addCount(Long postId){
-        SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
-        surveyPost.addCount();
-    }
+
 
 
     // 설문 페이지
