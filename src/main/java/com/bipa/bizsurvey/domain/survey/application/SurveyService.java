@@ -240,7 +240,7 @@ public class SurveyService {
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
 
         if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
-            if (workspaceAdminRepository.findByWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
+            if (workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
                 throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
             }
         }else {
