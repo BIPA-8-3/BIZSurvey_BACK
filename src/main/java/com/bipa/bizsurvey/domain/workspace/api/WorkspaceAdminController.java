@@ -90,10 +90,14 @@ public class WorkspaceAdminController {
     }
     @GetMapping("/invite/{token}")
     public ResponseEntity<String> checkInvitationCode(@PathVariable String token) {
-        if(workspaceAdminService.tokenValueVerification(token)) {
-            return ResponseEntity.ok().body(token);
-        } else {
-            return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
+        try {
+            if (workspaceAdminService.tokenValueVerification(token)) {
+                return ResponseEntity.ok().body(token);
+            } else {
+                return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("위조된 링크 입니다.");
         }
     }
 }
