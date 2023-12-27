@@ -33,9 +33,13 @@ public class SharedSurveyController {
     }
 
     @GetMapping("/link/{sharedSurveyId}/{token}")
-    public ResponseEntity<Long> getSurveyInfo(@PathVariable Long sharedSurveyId,
+    public ResponseEntity<?> getSurveyInfo(@PathVariable Long sharedSurveyId,
                                               @PathVariable String token) {
-        return ResponseEntity.ok().body(sharedSurveyService.linkValidation(sharedSurveyId, token));
+        try {
+            return ResponseEntity.ok().body(sharedSurveyService.linkValidation(sharedSurveyId, token));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/survey")
