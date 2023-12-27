@@ -225,7 +225,7 @@ public class SharedSurveyService {
         try {
             sharedListId = Long.parseLong(mailUtil.decrypt(token));
         } catch (Exception e) {
-            throw new RuntimeException("유요하지 않는 링크입니다.");
+            throw new RuntimeException("유효하지 않는 링크입니다.");
         }
 
         boolean exists = sharedSurveyResponseRepository.existsByDelFlagFalseAndSharedListId(sharedListId);
