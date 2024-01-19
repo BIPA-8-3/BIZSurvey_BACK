@@ -21,9 +21,12 @@ import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +41,6 @@ import java.util.*;
 @Slf4j
 public class SurveyService {
 
-    //
 
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
@@ -50,13 +52,22 @@ public class SurveyService {
     public QSurvey s = new QSurvey("s");
     public QQuestion q = new QQuestion("q");
     public QAnswer a = new QAnswer("a");
+    public QSurvey s1 = new QSurvey("s1");
 
     public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
         return jpaQueryFactory
                 .select(Projections.constructor(SurveyListResponse.class, s.id, s.title, s.surveyType))
                 .from(s)
                 .where(s.workspace.id.eq(workspaceId)
-                        .and(s.delFlag.eq(false)))
+                        .and(s.delFlag.eq(false))
+                        .and(Expressions.list(s.surveyGroup, s.version)
+                                .in(JPAExpressions
+                                        .select(s1.surveyGroup, s1.version.max())
+                                        .from(s1)
+                                        .groupBy(s1.surveyGroup)
+                                )
+                        )
+                )
                 .orderBy(sortByField(fieldName))
                 .fetch();
     }
@@ -110,7 +121,6 @@ public class SurveyService {
     }
 
     public void createSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId, LoginUser loginUser){
-//        checkPermission(loginUser, workspaceId);
         Long surveyId = addSurvey(createSurveyRequest,  workspaceId, loginUser);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
 
@@ -152,7 +162,7 @@ public class SurveyService {
     }
 
 
-    // create survey & check permission
+    // create survey
     private Long addSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId, LoginUser loginUser){
         User user = userRepository.findById(loginUser.getId()).orElseThrow();
 
@@ -160,6 +170,8 @@ public class SurveyService {
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
         surveyRepository.save(survey);
+        survey.updateGroup(survey.getId());
+        survey.updateVersion(1L);
         return survey.getId();
     }
 

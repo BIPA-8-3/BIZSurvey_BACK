@@ -19,8 +19,6 @@ import javax.persistence.*;
 public class Survey extends BaseEntity {
 
 
-    //
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "survey_id")
@@ -31,6 +29,10 @@ public class Survey extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    private Long surveyGroup;
+
+    private Long version;
 
     @Enumerated(EnumType.STRING)
     private SurveyType surveyType;
@@ -43,13 +45,17 @@ public class Survey extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+
+
     @Builder
-    public Survey(String title, String content, SurveyType surveyType, Workspace workspace, User user) {
+    public Survey(String title, String content, SurveyType surveyType, Workspace workspace, User user, Long group, Long version) {
         this.title = title;
         this.content = content;
         this.surveyType = surveyType;
         this.workspace = workspace;
         this.user = user;
+        this.surveyGroup = group;
+        this.version = version;
     }
 
     public static Survey toEntity(User user, Workspace workspace, CreateSurveyRequest createSurveyRequest){
@@ -61,6 +67,14 @@ public class Survey extends BaseEntity {
                 .workspace(workspace)
                 .build();
 
+    }
+
+    public void updateGroup(Long group){
+        this.surveyGroup = group;
+    }
+
+    public void updateVersion(Long version){
+        this.version = version;
     }
 
     public void updateSurvey(UpdateSurveyRequest updateSurveyRequest){
