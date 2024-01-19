@@ -97,12 +97,3 @@ public class WorkspaceAdminController {
         }
     }
 }
-// redis 관련 코드 제거
-//    @GetMapping("/invite/{token}")
-//    public ResponseEntity<String> checkInvitationCode(@PathVariable String token) {
-//        if(!redisService.validateDataExists("INVITE-" + token)) {
-//            return ResponseEntity.ok().body(token);
-//        }else {
-//            return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
-//        }
-//    }

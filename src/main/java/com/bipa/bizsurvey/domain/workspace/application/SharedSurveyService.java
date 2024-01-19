@@ -1,10 +1,11 @@
 package com.bipa.bizsurvey.domain.workspace.application;
 
-import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
-import com.bipa.bizsurvey.domain.survey.domain.*;
+import com.bipa.bizsurvey.domain.survey.domain.QAnswer;
+import com.bipa.bizsurvey.domain.survey.domain.QQuestion;
+import com.bipa.bizsurvey.domain.survey.domain.Question;
+import com.bipa.bizsurvey.domain.survey.domain.Survey;
 import com.bipa.bizsurvey.domain.survey.dto.response.*;
 import com.bipa.bizsurvey.domain.survey.enums.AnswerType;
-import com.bipa.bizsurvey.domain.survey.enums.Correct;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
 import com.bipa.bizsurvey.domain.survey.repository.QuestionRepository;
@@ -14,6 +15,9 @@ import com.bipa.bizsurvey.domain.workspace.dto.ContactDto;
 import com.bipa.bizsurvey.domain.workspace.dto.SharedListDto;
 import com.bipa.bizsurvey.domain.workspace.dto.SharedSurveyDto;
 import com.bipa.bizsurvey.domain.workspace.dto.SharedSurveyResponseDto;
+import com.bipa.bizsurvey.domain.workspace.exception.EncryptionException;
+import com.bipa.bizsurvey.domain.workspace.exception.MailExceptionType;
+import com.bipa.bizsurvey.domain.workspace.exception.MailSendingException;
 import com.bipa.bizsurvey.domain.workspace.repository.ContactRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.SharedListRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyRepository;
@@ -21,14 +25,8 @@ import com.bipa.bizsurvey.domain.workspace.repository.SharedSurveyResponseReposi
 import com.bipa.bizsurvey.global.common.email.EmailMessage;
 import com.bipa.bizsurvey.global.common.email.MailUtil;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.QTuple;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -38,15 +36,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.ObjectInputFilter;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Service
 @Log4j2
@@ -69,50 +64,54 @@ public class SharedSurveyService {
     @Value("${spring.domain.frontend}")
     private String frontendAddress;
 
-    // 연락처로 공유
     public void share(SharedSurveyDto.SharedRequest request) {
         Long surveyId = request.getSurveyId();
         Survey survey = getSurvey(surveyId);
-        Workspace workspace = survey.getWorkspace();
-
-        // 공유 설문 Insert
-        SharedSurvey sharedSurvey = SharedSurvey.builder()
-                .survey(survey)
-                .build();
-
-        sharedSurveyRepository.save(sharedSurvey);
-
-        // 공유 데이터 저장
+        SharedSurvey sharedSurvey = createSharedSurvey(survey);
         List<ContactDto.SharedRequest> contactList = request.getContactList();
+        List<SharedList> sharedList = createSharedList(sharedSurvey, contactList);
+        sendEmailNotifications(sharedList);
+    }
 
-        List<SharedList> sharedList =
-                contactList.stream().map(e -> {
-                    Contact contact = getContact(e.getId());
+    private SharedSurvey createSharedSurvey(Survey survey) {
+        SharedSurvey sharedSurvey = SharedSurvey.builder().survey(survey).build();
+        sharedSurveyRepository.save(sharedSurvey);
+        return sharedSurvey;
+    }
+
+    private List<SharedList> createSharedList(SharedSurvey sharedSurvey,
+                                              List<ContactDto.SharedRequest> contactList) {
+        List<SharedList> sharedLists = contactList.stream()
+                .map(contactDto -> {
+                    Contact contact = getContact(contactDto.getId());
                     return SharedList.builder()
                             .sharedSurvey(sharedSurvey)
                             .contact(contact)
                             .build();
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
 
+        sharedListRepository.saveAll(sharedLists);
+        return sharedLists;
+    }
 
-        sharedListRepository.saveAll(sharedList);
-
-        // 메일 데이터 생성
-        Long sharedSurveyId = sharedSurvey.getId();
+    private void sendEmailNotifications(List<SharedList> sharedList) {
+        Long sharedSurveyId = sharedList.get(0).getSharedSurvey().getId();
+        Workspace workspace = sharedList.get(0).getSharedSurvey().getSurvey().getWorkspace();
         String title = String.format("[BIZSURVEY] [%s] 워크스페이스에서 [%s] 설문을 요청하셨습니다.",
-                workspace.getWorkspaceName(), survey.getTitle());
+                workspace.getWorkspaceName(),
+                sharedList.get(0).getSharedSurvey().getSurvey().getTitle());
 
-
-        List<EmailMessage> emailList = sharedList.stream().map(e -> {
-            Contact contact = e.getContact();
+        List<EmailMessage> emailList = sharedList.stream().map(sharedListEntry -> {
+            Contact contact = sharedListEntry.getContact();
             String email = contact.getEmail();
-            Long id = e.getId();
+            Long id = sharedListEntry.getId();
             String token = null;
 
             try {
                 token = mailUtil.encrypt(String.valueOf(id));
-            } catch (Exception ex) {
-                throw new RuntimeException("메일 전송에 실패하였습니다.");
+            } catch (Exception e) {
+                throw new EncryptionException(MailExceptionType.ENCRYPTION_ERROR);
             }
 
             EmailMessage emailMessage = EmailMessage.builder()
@@ -122,17 +121,19 @@ public class SharedSurveyService {
 
             emailMessage.put("msg", "참여를 원하신다면 링크를 클릭해주세요. (링크는 3일간 유효합니다.)");
             emailMessage.put("hasLink", true);
-            emailMessage.put("link", frontendAddress + "/authorization/shared/" + sharedSurveyId + "_" + token);
+            emailMessage.put("link", frontendAddress +
+                    "/authorization/shared/" +
+                    sharedSurveyId +
+                    "_" + token);
             emailMessage.put("linkText", "참여하기");
 
             return emailMessage;
         }).collect(Collectors.toList());
 
-        // 메일 전송
         try {
             mailUtil.sendTemplateGroupMail(emailList);
         } catch (Exception e) {
-            throw new RuntimeException("메일 전송에 실패하였습니다.");
+            throw new MailSendingException(MailExceptionType.MAIL_SENDING_ERROR);
         }
     }
 

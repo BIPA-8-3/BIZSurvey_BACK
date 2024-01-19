@@ -1,6 +1,8 @@
 package com.bipa.bizsurvey.global.common.email;
 
 import com.amazonaws.util.IOUtils;
+import com.bipa.bizsurvey.domain.workspace.exception.EncryptionException;
+import com.bipa.bizsurvey.domain.workspace.exception.MailExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -104,10 +106,10 @@ public class MailUtil {
         return Base64.getUrlEncoder().encodeToString(encrypt(plainText, secretKey));
     }
 
-    public byte[] encrypt(String plainText, SecretKey secretKey) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        return cipher.doFinal(plainText.getBytes("UTF-8"));
+    public byte[] encrypt(String plainText, SecretKey secretKey)  throws Exception {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return cipher.doFinal(plainText.getBytes("UTF-8"));
     }
 
     public String decrypt(String cipherText) throws Exception {
