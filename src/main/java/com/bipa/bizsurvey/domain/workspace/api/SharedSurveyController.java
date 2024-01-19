@@ -28,8 +28,12 @@ public class SharedSurveyController {
     public ResponseEntity<String> share(@AuthenticationPrincipal LoginUser loginUser,
                                         @RequestBody SharedSurveyDto.SharedRequest request) {
 
-        sharedSurveyService.share(request);
-        return ResponseEntity.ok().body("성공적으로 전송하였습니다.");
+        try {
+            sharedSurveyService.share(request);
+            return ResponseEntity.ok().body("성공적으로 전송하였습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @GetMapping("/link/{sharedSurveyId}/{token}")
