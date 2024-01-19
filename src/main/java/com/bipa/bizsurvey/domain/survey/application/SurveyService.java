@@ -110,12 +110,10 @@ public class SurveyService {
     }
 
     public void createSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId, LoginUser loginUser){
-//        checkPermission(loginUser, workspaceId);
         Long surveyId = addSurvey(createSurveyRequest,  workspaceId, loginUser);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
 
         addQuestions(questionRequests, surveyId);
-
     }
 
 
@@ -152,10 +150,9 @@ public class SurveyService {
     }
 
 
-    // create survey & check permission
+    // create survey
     private Long addSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId, LoginUser loginUser){
         User user = userRepository.findById(loginUser.getId()).orElseThrow();
-
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
