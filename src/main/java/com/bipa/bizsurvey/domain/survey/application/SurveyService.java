@@ -165,11 +165,11 @@ public class SurveyService {
     // create survey
     private Long addSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId, LoginUser loginUser){
         User user = userRepository.findById(loginUser.getId()).orElseThrow();
-
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
         // save survey
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
         surveyRepository.save(survey);
+        survey.setDelFlag(false);
         survey.updateGroup(survey.getId());
         survey.updateVersion(1L);
         return survey.getId();
