@@ -50,6 +50,8 @@ public class SurveyService {
     public QAnswer a = new QAnswer("a");
     public QSurvey s1 = new QSurvey("s1");
 
+
+    // TODO : 설문 수정일자로 보내주기
     public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
         return jpaQueryFactory
                 .select(Projections.constructor(SurveyListResponse.class, s.id, s.title, s.surveyType))
@@ -123,11 +125,12 @@ public class SurveyService {
     }
 
 
-    public void updateSurvey(CreateSurveyRequest createSurveyRequest, Long surveyId, LoginUser loginUser){
+    public Long updateSurvey(CreateSurveyRequest createSurveyRequest, Long surveyId, LoginUser loginUser){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
         Long newSurveyId = modifySurvey(createSurveyRequest, loginUser, survey);
         addQuestions(createSurveyRequest.getQuestions(), newSurveyId);
+        return newSurveyId;
     }
 
     public void deleteSurvey(Long surveyId){
