@@ -2,6 +2,7 @@ package com.bipa.bizsurvey.domain.user.application;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bipa.bizsurvey.domain.community.domain.Post;
 import com.bipa.bizsurvey.domain.community.domain.QPost;
@@ -133,25 +134,30 @@ public class UserService {
 
     //refresh Token 검증 및 Access Token 재발급
     public String accessTokenRefresh(String refreshToken){
-        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(JwtVO.SECRET)).build().verify(refreshToken.replace(JwtVO.TOKEN_PREFIX, ""));
-        Long key = decodedJWT.getClaim("id").asLong();
-        String value = redisService.getData(String.valueOf(key));
-        String redisToken = value.replace("\"", "");
-        String userToken = refreshToken.replace(JwtVO.TOKEN_PREFIX, "");
+        try {
+            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(JwtVO.SECRET)).build().verify(refreshToken.replace(JwtVO.TOKEN_PREFIX, ""));
+            Long key = decodedJWT.getClaim("id").asLong();
+            String value = redisService.getData(String.valueOf(key));
+            String redisToken = value.replace("\"", "");
+            String userToken = refreshToken.replace(JwtVO.TOKEN_PREFIX, "");
 
-        if(userToken.equals(redisToken)){
-            User user = userRepository.findById(Long.valueOf(key)).orElseThrow(
-                    () -> new UserException(UserExceptionType.NON_EXIST_USER)
-            );
-            return JWT.create()
-                    .withSubject("bank")
-                    .withExpiresAt(new Date(System.currentTimeMillis() + JwtVO.EXPIRATION_TIME))
-                    .withClaim("id", user.getId())
-                    .withClaim("nickname", user.getNickname())
-                    .withClaim("email", user.getEmail())
-                    .withClaim("role", String.valueOf(user.getPlanSubscribe()))
-                    .sign(Algorithm.HMAC512(JwtVO.SECRET));
-        }else {
+            if (userToken.equals(redisToken)) {
+                User user = userRepository.findById(Long.valueOf(key)).orElseThrow(
+                        () -> new UserException(UserExceptionType.NON_EXIST_USER)
+                );
+                return JWT.create()
+                        .withSubject("bank")
+                        .withExpiresAt(new Date(System.currentTimeMillis() + JwtVO.EXPIRATION_TIME))
+                        .withClaim("id", user.getId())
+                        .withClaim("nickname", user.getNickname())
+                        .withClaim("email", user.getEmail())
+                        .withClaim("role", String.valueOf(user.getPlanSubscribe()))
+                        .sign(Algorithm.HMAC512(JwtVO.SECRET));
+            } else {
+                throw new UserException(UserExceptionType.JWT_VERIFICATION);
+            }
+        } catch (TokenExpiredException e) {
+            // 토큰이 만료되었을 때 예외 처리
             throw new UserException(UserExceptionType.JWT_VERIFICATION);
         }
     }
