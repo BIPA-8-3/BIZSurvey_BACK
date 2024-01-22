@@ -18,6 +18,8 @@ public class ScoreResultResponse {
 
     private String title;
 
+    private int step;
+
     private List<ScoreAnswerCount> answers;
 
 }

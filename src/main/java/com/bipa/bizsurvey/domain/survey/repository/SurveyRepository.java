@@ -36,7 +36,7 @@ public interface SurveyRepository extends JpaRepository<Survey, Long> {
             "(SELECT wa.workspace.id " +
             " FROM WorkspaceAdmin wa " +
             " WHERE wa.delFlag = false " +
-            " AND wa.inviteFlag = true " +
+//            " AND wa.inviteFlag = true " +
             " AND wa.user.id = :userId)")
     List<Survey> getSurveyList(@Param("userId") Long userId);
 

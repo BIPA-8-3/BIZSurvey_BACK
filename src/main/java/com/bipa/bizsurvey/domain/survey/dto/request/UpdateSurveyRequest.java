@@ -28,8 +28,8 @@ public class UpdateSurveyRequest {
 
     private SurveyType surveyType;
 
-    private List<UpdateQuestionRequest> updateQuestions;
-    private List<CreateQuestionRequest> createQuestions;
+    private List<UpdateQuestionRequest> questions;
+//    private List<CreateQuestionRequest> createQuestions;
 
 
 }

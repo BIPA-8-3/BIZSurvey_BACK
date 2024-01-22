@@ -28,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -80,7 +82,8 @@ public class WorkspaceAdminService {
         return processInvite(workspaceAdmin);
     }
 
-    private WorkspaceAdminDto.Response processInvite(WorkspaceAdmin workspaceAdmin) throws Exception {
+
+    private WorkspaceAdminDto.Response processInvite(WorkspaceAdmin workspaceAdmin) {
         // send Email
         Workspace workspace = workspaceAdmin.getWorkspace();
         User owner = workspace.getUser();
@@ -104,10 +107,11 @@ public class WorkspaceAdminService {
         emailMessage.put("link", frontendAddress + "/authorization/invite/" + fullToken);
         emailMessage.put("linkText", "입장하기");
 
-        mailUtil.sendTemplateMail(emailMessage);
-
-        // redis
-        redisService.saveData(TOKEN_PREFIX + fullToken, workspace.getId(), TOKEN_VALID_TIME_SECONDS);
+        try {
+            mailUtil.sendTemplateMail(emailMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("초대에 실패하였습니다.");
+        }
 
         return WorkspaceAdminDto.Response.builder()
                 .id(adminId)
@@ -116,27 +120,30 @@ public class WorkspaceAdminService {
                 .name(email)
                 .nickName(email)
                 .adminType(workspaceAdmin.getAdminType())
-                .inviteFlag(false)
                 .hasToken(true)
                 .build();
     }
 
     public WorkspaceAdminDto.Response acceptInvite(WorkspaceAdminDto.AcceptRequest request) {
-        String fullToken = TOKEN_PREFIX + request.getToken();
-
-        if(redisService.validateDataExists(fullToken)) {
-            throw new RuntimeException("유효하지 않은 key값 입니다.");
+        if (!tokenValueVerification(request.getToken())) {
+            throw new RuntimeException("만료된 토큰입니다.");
         }
 
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Long adminId = Long.parseLong(request.getToken().split("_")[0]);
         WorkspaceAdmin workspaceAdmin = getWorkspaceAdmin(adminId);
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
+        Long workspaceId = workspaceAdmin.getWorkspace().getId();
+
+        boolean adminFlag = workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(request.getUserId(), workspaceId).isPresent() ||
+                workspaceRepository.getReferenceById(workspaceId).getUser().getId().equals(request.getUserId());
+
+        if (adminFlag) {
+            throw new RuntimeException("이미 관리자로 등록된 계정 입니다.");
+        }
 
         workspaceAdmin.acceptInvite(user);
-        Long workspaceId = Long.parseLong(redisService.getData(fullToken));
-        redisService.deleteData(fullToken);
 
-        return WorkspaceAdminDto.Response.builder()
+        WorkspaceAdminDto.Response response = WorkspaceAdminDto.Response.builder()
                 .id(workspaceAdmin.getId())
                 .workspaceId(workspaceId)
                 .userId(user.getId())
@@ -145,34 +152,36 @@ public class WorkspaceAdminService {
                 .name(user.getName())
                 .nickName(user.getNickname())
                 .adminType(workspaceAdmin.getAdminType())
-                .inviteFlag(workspaceAdmin.getInviteFlag())
                 .build();
+
+        return response;
     }
+
 
     @Transactional(readOnly = true)
     public WorkspaceAdminDto.ListResponse list(Long workspaceId) {
         List<WorkspaceAdmin> list = workspaceAdminRepository.findByWorkspaceIdAndDelFlagFalse(workspaceId);
 
-        List<WorkspaceAdminDto.Response> adminList = list.stream().filter(e -> e.getInviteFlag())
+        List<WorkspaceAdminDto.Response> adminList = list.stream().filter(e -> e.getUser() != null)
                 .map(e -> WorkspaceAdminDto.Response.builder()
                         .id(e.getId())
                         .email(e.getUser().getEmail())
                         .name(e.getUser().getName())
                         .adminType(e.getAdminType())
+                        .userId(e.getUser().getId())
                         .nickName(e.getUser().getNickname())
-                        .inviteFlag(e.getInviteFlag())
                         .profileUrl(e.getUser().getProfile())
                         .build())
                 .collect(Collectors.toList());
 
-        List<WorkspaceAdminDto.Response> waitList = list.stream().filter(e -> !e.getInviteFlag())
+        List<WorkspaceAdminDto.Response> waitList = list.stream().filter(e -> e.getUser() == null)
                 .map(e -> WorkspaceAdminDto.Response.builder()
                         .id(e.getId())
                         .email(e.getRemark())
                         .name(e.getRemark())
                         .adminType(e.getAdminType())
                         .nickName(e.getRemark())
-                        .inviteFlag(e.getInviteFlag())
+                        .userId(null)
                         .hasToken(e.getToken() != null)
                         .profileUrl(null)
                         .build())
@@ -193,7 +202,6 @@ public class WorkspaceAdminService {
                 .email(u.getEmail())
                 .name(u.getName())
                 .workspaceId(workspaceId)
-                .inviteFlag(true)
                 .adminType(AdminType.INVITE)
                 .nickName(u.getNickname())
                 .profileUrl(u.getProfile())
@@ -207,6 +215,7 @@ public class WorkspaceAdminService {
 
         return response;
     }
+
 
     public void delete(Long id) {
         WorkspaceAdmin admin = getWorkspaceAdmin(id);
@@ -225,7 +234,7 @@ public class WorkspaceAdminService {
     }
 
     private String generateInvitationToken() {
-        String inviteToken  = RandomStringUtils.randomAlphanumeric(8);
+        String inviteToken = RandomStringUtils.randomAlphanumeric(8);
         return inviteToken;
     }
 
@@ -234,16 +243,16 @@ public class WorkspaceAdminService {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         booleanBuilder.and(qWorkspaceAdmin.delFlag.eq(false))
-                      .and(qWorkspaceAdmin.workspace.id.eq(id))
-                      .and(qWorkspaceAdmin.user.email.equalsIgnoreCase(email)
+                .and(qWorkspaceAdmin.workspace.id.eq(id))
+                .and(qWorkspaceAdmin.user.email.equalsIgnoreCase(email)
                         .or(qWorkspaceAdmin.remark.equalsIgnoreCase(email))
-                      );
+                );
 
         boolean exists = jpaQueryFactory.select(qWorkspaceAdmin)
-                                            .from(qWorkspaceAdmin)
-                                            .leftJoin(qWorkspaceAdmin.user).fetchJoin()
-                                            .where(booleanBuilder)
-                                            .fetchFirst() != null;
+                .from(qWorkspaceAdmin)
+                .leftJoin(qWorkspaceAdmin.user).fetchJoin()
+                .where(booleanBuilder)
+                .fetchFirst() != null;
 
         if (exists) {
             log.error("User with email {} is already invited.", email);
@@ -256,5 +265,17 @@ public class WorkspaceAdminService {
         Long validTime = Long.valueOf(10);
         redisService.saveData(TOKEN_PREFIX + token, "test", validTime);
         redisService.getRedisTemplate().convertAndSend("__keyevent@*__:expired", TOKEN_PREFIX + token);
+    }
+
+    public boolean tokenValueVerification(String token) {
+        Long adminId = Long.parseLong(token.split("_")[0]);
+        WorkspaceAdmin workspaceAdmin = getWorkspaceAdmin(adminId);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(workspaceAdmin.getExpirationDate())) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

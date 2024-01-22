@@ -13,18 +13,22 @@ import java.util.UUID;
 import java.util.zip.ZipOutputStream;
 
 public interface StorageService {
-    Domain[] resizingExclusionDomains = { Domain.SURVEY };
-    Domain[] temporaryStorageDomain = { Domain.SURVEY };
+    Domain[] resizingExclusionDomains = {Domain.SURVEY};
+    Domain[] temporaryStorageDomain = {Domain.SURVEY};
 
     String uploadFile(MultipartFile file, Domain domain, String path);
+
     byte[] downloadFile(String fileName) throws IOException;
-    void downloadZip(ZipOutputStream zipOut , String fileUrl) throws IOException;
+
+    void downloadZip(ZipOutputStream zipOut, String fileUrl) throws IOException;
+
     void deleteFile(String filePath);
+
     void deleteFolder(String folderPath);
+
     void confirmStorageOfTemporaryFiles(List<String> fileName);
 
-
-        void deleteMultipleFiles(List<DeleteFileRequest> fileList);
+    void deleteMultipleFiles(List<DeleteFileRequest> fileList);
 
     default String getOriginName(String saveName) {
         int uuidIndex = saveName.indexOf("_") + 1;
@@ -38,6 +42,7 @@ public interface StorageService {
                 .concat("_" + baseName)
                 .concat(getFileExtension(fileName));
     }
+
     default boolean isImageFile(String fileName) {
         String fileExtension = getFileExtension(fileName);
         String[] imageExtensions = {".jpeg", ".png", ".gif"};
@@ -60,7 +65,7 @@ public interface StorageService {
             }
             folder = Folder.IMAGES;
         }
-        if(getTemporaryFileCheck(domain)) {
+        if (getTemporaryFileCheck(domain)) {
             path.append("tempStorage/");
             if (isImageFile(originName)) {
                 folder = Folder.IMAGES;

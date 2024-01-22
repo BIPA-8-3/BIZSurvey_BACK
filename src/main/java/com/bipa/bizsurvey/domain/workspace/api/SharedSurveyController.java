@@ -33,9 +33,13 @@ public class SharedSurveyController {
     }
 
     @GetMapping("/link/{sharedSurveyId}/{token}")
-    public ResponseEntity<Long> getSurveyInfo(@PathVariable Long sharedSurveyId,
+    public ResponseEntity<?> getSurveyInfo(@PathVariable Long sharedSurveyId,
                                               @PathVariable String token) {
-        return ResponseEntity.ok().body(sharedSurveyService.linkValidation(sharedSurveyId, token));
+        try {
+            return ResponseEntity.ok().body(sharedSurveyService.linkValidation(sharedSurveyId, token));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/survey")
@@ -105,14 +109,4 @@ public class SharedSurveyController {
             @PathVariable Long sharedSurveyId) {
         return ResponseEntity.ok().body(sharedSurveyService.readShareScoreResults(surveyId, sharedSurveyId));
     }
-
-    // 공유 토큰 확인
-//    @GetMapping("/invite/{token}")
-//    public ResponseEntity<String> checkInvitationCode(@PathVariable String token) {
-//        if(!redisService.validateDataExists("INVITE-" + token)) {
-//            return ResponseEntity.ok().body(token);
-//        }else {
-//            return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
-//        }
-//    }
 }

@@ -225,7 +225,7 @@ public class SharedSurveyService {
         try {
             sharedListId = Long.parseLong(mailUtil.decrypt(token));
         } catch (Exception e) {
-            throw new RuntimeException("유요하지 않는 링크입니다.");
+            throw new RuntimeException("유효하지 않는 링크입니다.");
         }
 
         boolean exists = sharedSurveyResponseRepository.existsByDelFlagFalseAndSharedListId(sharedListId);
@@ -286,15 +286,15 @@ public class SharedSurveyService {
     // 공유단위 목록 조회
     public List<SharedSurveyDto.SharedSurveysResponse> readSharedSurveyHistory(Long surveyId) {
         List<SharedSurvey> sharedSurveys = sharedSurveyRepository.findBySurveyIdAndDelFlagFalseOrderByDeadlineDateDescRegDateAsc(surveyId);
-        return sharedSurveys.stream().map(e -> {
-            return SharedSurveyDto.SharedSurveysResponse.builder()
+        return sharedSurveys.stream().map(e ->
+             SharedSurveyDto.SharedSurveysResponse.builder()
                     .id(e.getId())
                     .regDate(e.getRegDate())
                     .dueDate(e.getDeadlineDate())
                     .deadline(LocalDateTime.now().isAfter(e.getDeadlineDate())) // true 마감일자 안 지남
                     .surveyId(e.getSurvey().getId())
-                    .build();
-        }).collect(Collectors.toList());
+                    .build()
+        ).collect(Collectors.toList());
     }
 
     // 공유 단위별 참여자 목록
@@ -363,6 +363,7 @@ public class SharedSurveyService {
                         Projections.constructor(ScoreResultResponse.class,
                                 answer.question.id,
                                 answer.question.surveyQuestion,
+                                answer.question.step,
                                 Projections.list(
                                         Projections.constructor(
                                                 ScoreAnswerCount.class,
@@ -389,11 +390,12 @@ public class SharedSurveyService {
             Long questionId = entry.getKey();
             List<ScoreResultResponse> scoreList = entry.getValue();
             String title = scoreList.get(0).getTitle();
+            int step = scoreList.get(0).getStep();
 
             List<ScoreAnswerCount> mergedAnswers = scoreList.stream()
                     .flatMap(score -> score.getAnswers().stream()).collect(Collectors.toList());
 
-            return new ScoreResultResponse(questionId, title, mergedAnswers);
+            return new ScoreResultResponse(questionId, title,step, mergedAnswers);
         }).collect(Collectors.toList());
     }
 
