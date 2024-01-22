@@ -1,15 +1,13 @@
 package com.bipa.bizsurvey.domain.survey.application;
 
-import com.bipa.bizsurvey.domain.community.domain.QPost;
 import com.bipa.bizsurvey.domain.survey.domain.*;
 import com.bipa.bizsurvey.domain.survey.dto.request.*;
 import com.bipa.bizsurvey.domain.survey.dto.response.AnswerResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.QuestionResponse;
-import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListResponse;
+import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyException;
 import com.bipa.bizsurvey.domain.survey.exception.surveyException.SurveyExceptionType;
-//import com.bipa.bizsurvey.domain.survey.mapper.SurveyMapper;
 import com.bipa.bizsurvey.domain.survey.repository.AnswerRepository;
 import com.bipa.bizsurvey.domain.survey.repository.QuestionRepository;
 import com.bipa.bizsurvey.domain.survey.repository.SurveyRepository;
@@ -20,8 +18,6 @@ import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
-import com.bipa.bizsurvey.global.common.sorting.OrderByNull;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -123,35 +119,15 @@ public class SurveyService {
     public void createSurvey(CreateSurveyRequest createSurveyRequest, Long workspaceId, LoginUser loginUser){
         Long surveyId = addSurvey(createSurveyRequest,  workspaceId, loginUser);
         List<CreateQuestionRequest> questionRequests = createSurveyRequest.getQuestions();
-
         addQuestions(questionRequests, surveyId);
-
     }
 
 
-    public void updateSurvey(UpdateSurveyRequest updateSurveyRequest, Long surveyId){
+    public void updateSurvey(CreateSurveyRequest createSurveyRequest, Long surveyId, LoginUser loginUser){
         Survey survey = findSurvey(surveyId);
         checkAvailable(survey);
-        modifySurvey(updateSurveyRequest);
-        deleteQuestionAndAnswer(surveyId);
-        List<CreateQuestionRequest> create= new ArrayList<>();
-        List<UpdateQuestionRequest> update = updateSurveyRequest.getQuestions();
-        for (UpdateQuestionRequest question: update){
-            if(question.getQuestionId() == 0){
-                CreateQuestionRequest newQ = new CreateQuestionRequest(
-                    question.getSurveyQuestion(),
-                    question.getAnswerType(),
-                    question.getIsRequired(),
-                    question.getScore(),
-                    question.getStep(),
-                    question.getAnswers()
-                );
-                create.add(newQ);
-            }
-        }
-
-        modifyQuestions(updateSurveyRequest.getQuestions());
-        addQuestions(create, surveyId);
+        Long newSurveyId = modifySurvey(createSurveyRequest, loginUser, survey);
+        addQuestions(createSurveyRequest.getQuestions(), newSurveyId);
     }
 
     public void deleteSurvey(Long surveyId){
@@ -170,19 +146,29 @@ public class SurveyService {
         Survey survey = Survey.toEntity(user, workspace, createSurveyRequest);
         surveyRepository.save(survey);
         survey.setDelFlag(false);
-        survey.updateGroup(survey.getId());
-        survey.updateVersion(1L);
+        addGroupAndVersion(survey.getId(), 1L, survey);
         return survey.getId();
     }
 
 
     // update survey
-    private void modifySurvey(UpdateSurveyRequest updateSurveyRequest) {
-        Survey survey = findSurvey(updateSurveyRequest.getSurveyId());
-        survey.updateSurvey(updateSurveyRequest);
-        surveyRepository.save(survey);
+    private Long modifySurvey(CreateSurveyRequest createSurveyRequest, LoginUser loginUser, Survey survey) {
+        User user = userRepository.findById(loginUser.getId()).orElseThrow();
+        Workspace workspace = survey.getWorkspace();
+        // group , version
+        Long group = survey.getSurveyGroup();
+        Long version = survey.getVersion();
+        Survey newSurvey = Survey.toEntity(user, workspace, createSurveyRequest);
+        surveyRepository.save(newSurvey);
+        newSurvey.setDelFlag(false);
+        addGroupAndVersion(group, version+1, newSurvey);
+        return newSurvey.getId();
     }
 
+    private void addGroupAndVersion(Long group, Long version, Survey survey){
+        survey.updateGroup(group);
+        survey.updateVersion(version);
+    }
 
     // create questions
     private void addQuestions(List<CreateQuestionRequest> createQuestionRequest, Long surveyId){

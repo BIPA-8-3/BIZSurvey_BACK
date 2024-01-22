@@ -56,9 +56,10 @@ public class SurveyController {
 
     //설문지 수정
     @PatchMapping("/{surveyId}")
-    public ResponseEntity<String> updateSurvey(@RequestBody UpdateSurveyRequest updateSurveyRequest,
+    public ResponseEntity<String> updateSurvey(@RequestBody CreateSurveyRequest createSurveyRequest,
+                                               @AuthenticationPrincipal LoginUser loginUser,
                                                @PathVariable Long surveyId) {
-        surveyService.updateSurvey(updateSurveyRequest, surveyId);
+        surveyService.updateSurvey(createSurveyRequest, surveyId, loginUser);
         return ResponseEntity.ok().body("설문지 수정이 완료되었습니다.");
     }
 
