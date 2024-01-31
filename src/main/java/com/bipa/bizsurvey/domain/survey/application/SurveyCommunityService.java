@@ -2,10 +2,7 @@ package com.bipa.bizsurvey.domain.survey.application;
 
 import com.bipa.bizsurvey.domain.community.domain.SurveyPost;
 import com.bipa.bizsurvey.domain.community.repository.SurveyPostRepository;
-import com.bipa.bizsurvey.domain.survey.domain.QUserSurveyResponse;
-import com.bipa.bizsurvey.domain.survey.domain.Question;
-import com.bipa.bizsurvey.domain.survey.domain.Survey;
-import com.bipa.bizsurvey.domain.survey.domain.UserSurveyResponse;
+import com.bipa.bizsurvey.domain.survey.domain.*;
 import com.bipa.bizsurvey.domain.survey.dto.request.ParticipateSurveyRequest;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyListInCommunityResponse;
 import com.bipa.bizsurvey.domain.survey.dto.response.SurveyResponse;
@@ -18,8 +15,13 @@ import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.dto.LoginUser;
 import com.bipa.bizsurvey.domain.user.enums.Plan;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
+import com.bipa.bizsurvey.domain.workspace.domain.QWorkspace;
+import com.bipa.bizsurvey.domain.workspace.domain.QWorkspaceAdmin;
 import com.bipa.bizsurvey.domain.workspace.enums.WorkspaceType;
 import com.bipa.bizsurvey.global.common.storage.StorageService;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +39,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SurveyCommunityService {
 
-    //
-
     private final SurveyPostRepository surveyPostRepository;
     private final QuestionRepository questionRepository;
     private final UserSurveyResponseRepository userSurveyResponseRepository;
@@ -47,9 +47,7 @@ public class SurveyCommunityService {
     private final JPAQueryFactory jpaQueryFactory;
     private final SurveyRepository surveyRepository;
     private final StorageService storageService;
-
-    public QUserSurveyResponse u = new QUserSurveyResponse("u");
-
+    private QUserSurveyResponse u = new QUserSurveyResponse("u");
 
     public void participateSurvey(List<ParticipateSurveyRequest> participateSurvey, Long postId, LoginUser loginUser){
             User user = userRepository.findById(loginUser.getId()).orElseThrow();
@@ -77,12 +75,9 @@ public class SurveyCommunityService {
     }
 
 
-
-
     // 설문 페이지
     public SurveyResponse getSurvey(Long postId){
         SurveyPost surveyPost = surveyPostRepository.findByPostId(postId);
-
         return surveyService.getSurvey(surveyPost.getSurvey().getId());
     }
 
@@ -98,34 +93,47 @@ public class SurveyCommunityService {
 
         if(count == 0){
             return false;
-        }else{
+        }else {
             return true;
         }
-
     }
 
 
-
-    // 설문 게시글 등록 시 본인 설문지 목록
+    // 본인 설문지 목록
     public List<SurveyListInCommunityResponse> getSurveyList(LoginUser loginUser){
+        QSurvey s = new QSurvey("s");
+        QWorkspace w = new QWorkspace("w");
+        QWorkspaceAdmin wa = new QWorkspaceAdmin("wa");
+
         Long userId = loginUser.getId();
-        String plan = loginUser.getPlan();
 
-        List<Survey> list = surveyRepository.getSurveyList(userId);
-        List<SurveyListInCommunityResponse> response = new ArrayList<>();
+        return jpaQueryFactory
+                .select(Projections.constructor(SurveyListInCommunityResponse.class, s.id, s.title, s.workspace.workspaceName, s.workspace.workspaceType, s.user.nickname))
+                .from(s)
+                .where(s.delFlag.eq(false)
+                        .and(Expressions.list(s.surveyGroup, s.version).in(
+                                JPAExpressions
+                                        .select(s.surveyGroup, s.version.max())
+                                        .from(s)
+                                        .where(s.workspace.id.in(
+                                          JPAExpressions
+                                                  .select(w.id)
+                                                  .from(w)
+                                                  .where(w.delFlag.eq(false)
+                                                          .and(w.user.id.eq(userId)))
+                                        ).or(s.workspace.id.in(
+                                                JPAExpressions
+                                                        .select(wa.workspace.id)
+                                                        .from(wa)
+                                                        .where(wa.delFlag.eq(false)
+                                                                .and(wa.user.id.eq(userId)))
+                                                )
+                                        ))
+                                        .groupBy(s.surveyGroup)
 
-        for(Survey survey : list){
-            response.add(
-                    new SurveyListInCommunityResponse(
-                            survey.getId(),
-                            survey.getTitle(),
-                            survey.getWorkspace().getWorkspaceName(),
-                            survey.getWorkspace().getWorkspaceType(),
-                            survey.getUser().getNickname()
-                    )
-            );
-        }
-        return response;
+                        )
+                ))
+                .fetch();
 
     }
 
