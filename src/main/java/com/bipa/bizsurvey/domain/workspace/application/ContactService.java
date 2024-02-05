@@ -4,6 +4,7 @@ import com.bipa.bizsurvey.domain.workspace.domain.Contact;
 import com.bipa.bizsurvey.domain.workspace.domain.QContact;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.dto.ContactDto;
+import com.bipa.bizsurvey.domain.workspace.dto.EventDto;
 import com.bipa.bizsurvey.domain.workspace.repository.ContactRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -25,6 +26,7 @@ public class ContactService {
     private final ContactRepository contactRepository;
     private final WorkspaceRepository workspaceRepository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final SseEmitters sseEmitters;
 
     public ContactDto.Response create(ContactDto.CreateRequest request) {
         Workspace workspace =  workspaceRepository.findWorkspaceByIdAndDelFlagFalse(request.getWorkspaceId()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스 입니다."));
@@ -33,17 +35,27 @@ public class ContactService {
                 .workspace(workspace)
                 .name(request.getName())
                 .email(request.getEmail())
-//                .remark(request.getRemark())
                 .build();
 
         contactRepository.save(contact);
 
-        return ContactDto.Response.builder()
+        ContactDto.Response response = ContactDto.Response.builder()
                 .id(contact.getId())
                 .email(contact.getEmail())
                 .name(contact.getName())
-//                .remark(contact.getRemark())
                 .build();
+
+        EventDto event = EventDto.builder()
+                .workspaceId(request.getWorkspaceId())
+                .id(request.getUserId())
+                .name("contactEvent")
+                .errorMessage("연락처 등록에 실패하였습니다.")
+//                .response(response)
+                .build();
+
+        sseEmitters.sendEvent(event);
+
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +65,6 @@ public class ContactService {
                 .id(contact.getId())
                 .name(contact.getName())
                 .email(contact.getEmail())
-//                .remark(contact.getRemark())
                 .build();
     }
 
@@ -78,7 +89,6 @@ public class ContactService {
                     .id(e.getId())
                     .name(e.getName())
                     .email(e.getEmail())
-//                    .remark(e.getRemark())
                     .build())
                     .collect(Collectors.toList());
     }
@@ -88,8 +98,19 @@ public class ContactService {
         contact.update(request.getName(), request.getEmail());
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) {
         Contact contact = contactRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 연락처입니다."));
         contact.delete();
+
+        EventDto event = EventDto.builder()
+                .workspaceId(contact.getWorkspace().getId())
+                .name("contactEvent")
+                .errorMessage("연락처 삭제에 실패하였습니다.")
+                .delFlag(true)
+                .id(userId)
+//                .response(contact.getId())
+                .build();
+
+        sseEmitters.sendEvent(event);
     }
 }

@@ -346,8 +346,8 @@ public class PostService {
     }
 
     public int getPostCount(Long postId){
-        Post post = postRepository.findById(postId).get();
-        return post.getCount();
+        Optional<Post> post = postRepository.findById(postId);
+        return post.isPresent() ? post.get().getCount() : 0;
     }
 
     //신고 게시물 체크

@@ -12,6 +12,7 @@ public class ContactDto {
         private String email;
 //        private String remark;
         private Long workspaceId;
+        private Long userId;
     }
 
     @Data

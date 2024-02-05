@@ -44,7 +44,7 @@ public class WorkspaceAdminServiceTests {
 
     @Test
     public void testDelete() {
-        workspaceAdminService.delete(9L);
+        workspaceAdminService.delete(9L, 0L);
     }
 
 }

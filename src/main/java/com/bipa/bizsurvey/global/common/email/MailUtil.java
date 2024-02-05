@@ -1,7 +1,10 @@
 package com.bipa.bizsurvey.global.common.email;
 
 import com.amazonaws.util.IOUtils;
+import com.bipa.bizsurvey.domain.workspace.exception.EncryptionException;
+import com.bipa.bizsurvey.domain.workspace.exception.MailExceptionType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -27,6 +30,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Log4j2
 public class MailUtil {
     private final JavaMailSender javaMailSender;
     private final TemplateEngine htmlTemplateEngine;
@@ -37,53 +41,34 @@ public class MailUtil {
 
 
     public void sendTemplateMail(EmailMessage emailMessage) throws Exception {
+        log.info("초대 시작-1");
         Context context = new Context();
-
+        log.info("초대 시작-2");
         InputStream imageStream = getClass().getClassLoader().getResourceAsStream("static/img/logo.png");
-
+        log.info("초대 시작-3");
         MimeType mimeType = MimeTypeUtils.parseMimeType("image/png");
-
+        log.info("초대 시작-4");
         context.setVariable("logoImage", "cid:logoImage");
         context.setVariables(emailMessage.getVariables());
-
+        log.info("초대 시작-5");
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
+        log.info("초대 시작-6");
         messageHelper.setTo(emailMessage.getTo());
         messageHelper.setSubject(emailMessage.getSubject());
-
+        log.info("초대 시작-7");
         String htmlTemplate = htmlTemplateEngine.process("mail/mail", context);
         messageHelper.setText(htmlTemplate, true);
-
+        log.info("초대 시작-8");
         // InputStream을 ByteArray로 변환하여 Resource 생성
         byte[] imageBytes = IOUtils.toByteArray(imageStream);
         Resource imageResource = new ByteArrayResource(imageBytes);
-
+        log.info("초대 시작-10");
         // Content ID로 이미지 추가
         messageHelper.addInline("logoImage", imageResource, mimeType.toString());
-
+        log.info("초대 시작-11");
         javaMailSender.send(mimeMessage);
-
-//        Context context = new Context();
-//
-//        ClassPathResource imageResource = new ClassPathResource("/static/img/logo.png");
-//        String imagePath = imageResource.getFile().getAbsolutePath();
-//
-//        context.setVariable("logoImage", imagePath);
-//
-//        context.setVariables(emailMessage.getVariables());
-//
-//        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-//        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-//
-//        messageHelper.setTo(emailMessage.getTo());
-//        messageHelper.setSubject(emailMessage.getSubject());
-//
-//        String htmlTemplate = htmlTemplateEngine.process("mail/mail", context);
-//        messageHelper.setText(htmlTemplate, true);
-//        messageHelper.addInline("logoImage", new File(imagePath));
-//
-//        javaMailSender.send(mimeMessage);
+        log.info("초대 시작-12");
     }
 
     public void sendTemplateGroupMail(List<EmailMessage> emailMessageList) throws Exception {
@@ -104,10 +89,10 @@ public class MailUtil {
         return Base64.getUrlEncoder().encodeToString(encrypt(plainText, secretKey));
     }
 
-    public byte[] encrypt(String plainText, SecretKey secretKey) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        return cipher.doFinal(plainText.getBytes("UTF-8"));
+    public byte[] encrypt(String plainText, SecretKey secretKey)  throws Exception {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return cipher.doFinal(plainText.getBytes("UTF-8"));
     }
 
     public String decrypt(String cipherText) throws Exception {
