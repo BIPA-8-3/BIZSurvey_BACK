@@ -15,11 +15,13 @@ import com.bipa.bizsurvey.domain.survey.repository.UserSurveyResponseRepository;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.user.repository.UserRepository;
 import com.bipa.bizsurvey.domain.workspace.application.SharedSurveyService;
+import com.bipa.bizsurvey.global.common.storage.FileUtil;
 import com.bipa.bizsurvey.global.common.storage.ShareType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -30,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -273,7 +272,9 @@ public class StatisticsService {
 
     public List<FileResultResponse> processFile(Survey survey, SurveyPost surveyPost){
         List<FileResultResponse> results = jpaQueryFactory
-                .select(Projections.constructor(FileResultResponse.class, u.question.id,u.question.surveyQuestion, u.question.answerType.as("questionType"),
+                .select(Projections.constructor(FileResultResponse.class,
+                        u.question.id,
+                        u.question.surveyQuestion, u.question.answerType.as("questionType"),
                         Projections.list(Projections.constructor(FileInfo.class, u.answer.as("filename"), u.url)))
                 )
                 .from(u)
@@ -306,7 +307,6 @@ public class StatisticsService {
 
 
     public void downloadExcelResult(HttpServletResponse response, Long sharedId, ShareType shareType) throws IOException {
-//        Workbook workbook = new HSSFWorkbook();
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("통계결과");
         int rowNo = 0;
@@ -337,22 +337,19 @@ public class StatisticsService {
                 dataRow.createCell(2).setCellValue(answerCount.getAnswer());
                 dataRow.createCell(3).setCellValue(answerCount.getCount());
             }
-
         }
 
-
         String filename = "통계.xlsx";
-
 
         response.setContentType("application/octet-stream;");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + new String(filename.getBytes("UTF-8"), "ISO-8859-1"));
         response.setHeader("Pragma", "no-cache;");
         response.setHeader("Expires", "-1;");
+
         // excel 파일 저장
         try {
-            FileOutputStream fileOut = new FileOutputStream(filename);
             workbook.write(response.getOutputStream());
-            fileOut.close();
+            response.getOutputStream().close();
             workbook.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

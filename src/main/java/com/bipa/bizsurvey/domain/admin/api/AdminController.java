@@ -53,7 +53,6 @@ public class AdminController {
     //플랜 회원 조회
     @GetMapping("/user/plan/{plan}")
     public ResponseEntity<?> planUser(@PathVariable Plan plan){
-
         return ResponseEntity.ok().body((adminUserService.getPlanUserList(plan)).size());
     }
 
