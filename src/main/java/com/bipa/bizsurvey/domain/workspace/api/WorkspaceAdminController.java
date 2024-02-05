@@ -79,10 +79,25 @@ public class WorkspaceAdminController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> remove(@PathVariable Long id) {
+    public ResponseEntity<String> remove(
+            @AuthenticationPrincipal LoginUser loginUser,
+            @PathVariable Long id) {
         try {
-            workspaceAdminService.delete(id);
+            workspaceAdminService.delete(loginUser.getId(), id);
             return ResponseEntity.ok().body("삭제가 완료되었습니다.");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/self/{workspaceId}")
+    public ResponseEntity<String> leave(
+            @AuthenticationPrincipal LoginUser loginUser,
+            @PathVariable Long workspaceId) {
+        try {
+            workspaceAdminService.leave(loginUser.getId(), workspaceId);
+            return ResponseEntity.ok().body("탈퇴가 완료되었습니다.");
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -94,10 +109,10 @@ public class WorkspaceAdminController {
             if (workspaceAdminService.tokenValueVerification(token)) {
                 return ResponseEntity.ok().body(token);
             } else {
-                return ResponseEntity.badRequest().body("유효하지 않은 링크입니다.");
+                return ResponseEntity.badRequest().body("유효기간이 지난 링크입니다.");
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("위조된 링크 입니다.");
+            return ResponseEntity.badRequest().body("유효하지 않은 링크 입니다.");
         }
     }
 }

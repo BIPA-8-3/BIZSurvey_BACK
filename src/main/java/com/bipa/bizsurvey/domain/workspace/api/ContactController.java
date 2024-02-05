@@ -22,6 +22,7 @@ public class ContactController {
     @PostMapping
     public ResponseEntity<?> register(@AuthenticationPrincipal LoginUser loginUser,
                                       @RequestBody ContactDto.CreateRequest request) {
+        request.setUserId(loginUser.getId());
         ContactDto.Response response = contactService.create(request);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -51,8 +52,9 @@ public class ContactController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> remove(@PathVariable Long id) {
-        contactService.delete(id);
+    public ResponseEntity<String> remove(@AuthenticationPrincipal LoginUser loginUser,
+                                         @PathVariable Long id) {
+        contactService.delete(id, loginUser.getId());
         return ResponseEntity.ok().body("삭제가 완료되었습니다.");
     }
 }

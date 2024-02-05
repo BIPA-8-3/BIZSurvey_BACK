@@ -48,6 +48,6 @@ public class ContactServiceTests {
     @Test
     public void testDelete() {
         Long id = 1L;
-        contactService.delete(id);
+        contactService.delete(id, 0L);
     }
 }

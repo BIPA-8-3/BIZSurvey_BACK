@@ -56,13 +56,12 @@ public class WorkspaceAdminService {
     private String frontendAddress;
 
     private final SseEmitters sseEmitters;
+
     public WorkspaceAdminDto.Response invite(WorkspaceAdminDto.InviteRequest request) throws Exception {
         Workspace workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(request.getWorkspaceId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스 입니다."));
-
         invitationCheck(request.getWorkspaceId(), request.getEmail());
         String token = generateInvitationToken();
-
         WorkspaceAdmin workspaceAdmin = WorkspaceAdmin.builder()
                 .workspace(workspace)
                 .remark(request.getEmail())
@@ -71,7 +70,6 @@ public class WorkspaceAdminService {
                 .build();
 
         workspaceAdminRepository.save(workspaceAdmin);
-
         return processInvite(workspaceAdmin);
     }
 
@@ -90,10 +88,8 @@ public class WorkspaceAdminService {
         Workspace workspace = workspaceAdmin.getWorkspace();
         User owner = workspace.getUser();
         String token = workspaceAdmin.getToken();
-
         String subject = String.format("%s %s 님께서 %s 워크스페이스 관리자로 초대합니다.",
                 "[BIZSURVEY]", owner.getNickname(), "[" + workspace.getWorkspaceName() + "]");
-
         Long adminId = workspaceAdmin.getId();
         String email = workspaceAdmin.getRemark();
 
@@ -103,7 +99,6 @@ public class WorkspaceAdminService {
                 .build();
 
         String fullToken = adminId + "_" + token;
-
         emailMessage.put("msg", "초대를 수락하신다면 다음 링크를 눌러주세요. (링크는 3일간 유효합니다.)");
         emailMessage.put("hasLink", true);
         emailMessage.put("link", frontendAddress + "/authorization/invite/" + fullToken);
@@ -112,10 +107,11 @@ public class WorkspaceAdminService {
         try {
             mailUtil.sendTemplateMail(emailMessage);
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new RuntimeException("초대에 실패하였습니다.");
         }
 
-        WorkspaceAdminDto.Response response =  WorkspaceAdminDto.Response.builder()
+        WorkspaceAdminDto.Response response = WorkspaceAdminDto.Response.builder()
                 .id(adminId)
                 .workspaceId(workspace.getId())
                 .email(email)
@@ -127,12 +123,12 @@ public class WorkspaceAdminService {
 
         EventDto event = EventDto.builder()
                 .workspaceId(workspace.getId())
-                .name("registerAdmin")
+                .name("adminEvent")
+                .detailEvent("invite")
                 .errorMessage("관리자 초대에 실패했습니다.")
-                .response(response)
+//                .response(response)
                 .build();
 
-        log.info("dto생성 : ", event);
         sseEmitters.sendEvent(event);
         return response;
     }
@@ -147,7 +143,7 @@ public class WorkspaceAdminService {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
         Long workspaceId = workspaceAdmin.getWorkspace().getId();
 
-        boolean adminFlag = workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(request.getUserId(), workspaceId).isPresent() ||
+        boolean adminFlag = workspaceAdminRepository.findByUserIdAndWorkspaceIdAndDelFlagFalse(request.getUserId(), workspaceId).isPresent() ||
                 workspaceRepository.getReferenceById(workspaceId).getUser().getId().equals(request.getUserId());
 
         if (adminFlag) {
@@ -169,16 +165,15 @@ public class WorkspaceAdminService {
 
         EventDto event = EventDto.builder()
                 .workspaceId(workspaceId)
-                .name("accept")
+                .name("adminEvent")
                 .errorMessage("초대 과정에 오류가 발생했습니다.")
-                .response(response)
+//                .response(response)
                 .build();
 
         sseEmitters.sendEvent(event);
 
         return response;
     }
-
 
     @Transactional(readOnly = true)
     public WorkspaceAdminDto.ListResponse list(Long workspaceId) {
@@ -239,20 +234,42 @@ public class WorkspaceAdminService {
     }
 
 
-    public void delete(Long id) {
+    public void delete(Long userId, Long id) {
         WorkspaceAdmin admin = getWorkspaceAdmin(id);
-        redisService.deleteData(TOKEN_PREFIX + admin.getId() + "_" + admin.getToken());
+//        redisService.deleteData(TOKEN_PREFIX + admin.getId() + "_" + admin.getToken());
         admin.expireToken();
+        admin.delete();
+
+        User user = admin.getUser();
+
+        EventDto event = EventDto.builder()
+                .workspaceId(admin.getWorkspace().getId())
+                .name("adminEvent")
+                .id(user == null ? 0 : user.getId())
+//                .userId(userId)
+                .delFlag(true)
+                .errorMessage("관리자 삭제에 실패하였습니다.")
+                .build();
+        log.info("555555");
+        sseEmitters.sendEvent(event);
+        log.info("666666");
+    }
+
+    public void leave(Long userId, Long workspaceId) {
+        WorkspaceAdmin admin = workspaceAdminRepository.findByUserIdAndWorkspaceIdAndDelFlagFalse(userId, workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 관리자 입니다."));
         admin.delete();
 
         EventDto event = EventDto.builder()
                 .workspaceId(admin.getWorkspace().getId())
-                .name("removeAdmin")
+                .name("adminEvent")
+                .id(admin.getUser().getId())
+//                .userId(userId)
+                .delFlag(true)
                 .errorMessage("관리자 삭제에 실패하였습니다.")
-                .response(admin.getId())
                 .build();
 
         sseEmitters.sendEvent(event);
+
     }
 
     public void expireToken(Long id) {
@@ -310,154 +327,3 @@ public class WorkspaceAdminService {
         }
     }
 }
-//    private WorkspaceAdminDto.Response processInvite(WorkspaceAdmin workspaceAdmin) {
-//        // send Email
-//        Workspace workspace = workspaceAdmin.getWorkspace();
-//        User owner = workspace.getUser();
-//        String token = workspaceAdmin.getToken();
-//
-//        String subject = String.format("%s %s 님께서 %s 워크스페이스 관리자로 초대합니다.",
-//                "[BIZSURVEY]", owner.getNickname(), "[" + workspace.getWorkspaceName() + "]");
-//
-//        Long adminId = workspaceAdmin.getId();
-//        String email = workspaceAdmin.getRemark();
-//
-//        EmailMessage emailMessage = EmailMessage.builder()
-//                .to(email)
-//                .subject(subject)
-//                .build();
-//
-//        String fullToken = adminId + "_" + token;
-//
-//        emailMessage.put("msg", "초대를 수락하신다면 다음 링크를 눌러주세요. (링크는 3일간 유효합니다.)");
-//        emailMessage.put("hasLink", true);
-//        emailMessage.put("link", frontendAddress + "/authorization/invite/" + fullToken);
-//        emailMessage.put("linkText", "입장하기");
-//
-//        try {
-//            mailUtil.sendTemplateMail(emailMessage);
-//        } catch (Exception e) {
-//            throw new RuntimeException("초대에 실패하였습니다.");
-//        }
-//
-//        //// redis -> RDB로 변경
-//        // redisService.saveData(TOKEN_PREFIX + fullToken, workspace.getId(), TOKEN_VALID_TIME_SECONDS);
-//
-//        return WorkspaceAdminDto.Response.builder()
-//                .id(adminId)
-//                .workspaceId(workspace.getId())
-//                .email(email)
-//                .name(email)
-//                .nickName(email)
-//                .adminType(workspaceAdmin.getAdminType())
-////                .inviteFlag(false)
-//                .hasToken(true)
-//                .build();
-//    }
-//    public WorkspaceAdminDto.Response acceptInvite(WorkspaceAdminDto.AcceptRequest request) {
-//        // 기존 redis 토큰 저장 코드 -> RDB로 변경
-////        String fullToken = TOKEN_PREFIX + request.getToken();
-////        if(redisService.validateDataExists(fullToken)) {
-////            throw new RuntimeException("유효하지 않은 토큰입니다.");
-////        }
-////        String token = request.getToken();
-////        Long adminId = Long.parseLong(token.split("_")[0]);
-////        WorkspaceAdmin workspaceAdmin = getWorkspaceAdmin(adminId);
-////        LocalDateTime now = LocalDateTime.now();
-//
-//        if (tokenValueVerification(request.getToken())) {
-//            throw new RuntimeException("만료된 토큰입니다.");
-//        }
-//        Long adminId = Long.parseLong(request.getToken().split("_")[0]);
-//        WorkspaceAdmin workspaceAdmin = getWorkspaceAdmin(adminId);
-//        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new UserException(UserExceptionType.NON_EXIST_USER));
-//        // 기존 redis 코드
-////        Long workspaceId = Long.parseLong(redisService.getData(fullToken));
-////        boolean validate = workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(request.getUserId(), workspaceId).isPresent() ||
-////                workspaceRepository.getReferenceById(workspaceId).getUser().getId().equals(request.getUserId());
-//
-//        Long workspaceId = workspaceAdmin.getWorkspace().getId();
-//
-//        boolean adminFlag = workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(request.getUserId(), workspaceId).isPresent() ||
-//                workspaceRepository.getReferenceById(workspaceId).getUser().getId().equals(request.getUserId());
-//
-//        if (adminFlag) {
-//            throw new RuntimeException("이미 관리자로 등록된 계정 입니다.");
-//        }
-//
-////        Long adminId = Long.parseLong(request.getToken().split("_")[0]);
-////        WorkspaceAdmin workspaceAdmin = getWorkspaceAdmin(adminId);
-//
-//        workspaceAdmin.acceptInvite(user);
-////        redisService.deleteData(fullToken);
-//
-//        return WorkspaceAdminDto.Response.builder()
-//                .id(workspaceAdmin.getId())
-//                .workspaceId(workspaceId)
-//                .userId(user.getId())
-//                .profileUrl(null)
-//                .email(user.getEmail())
-//                .name(user.getName())
-//                .nickName(user.getNickname())
-//                .adminType(workspaceAdmin.getAdminType())
-////                .inviteFlag(workspaceAdmin.getInviteFlag())
-//                .build();
-//    }
-//    @Transactional(readOnly = true)
-//    public WorkspaceAdminDto.ListResponse list(Long workspaceId) {
-//        List<WorkspaceAdmin> list = workspaceAdminRepository.findByWorkspaceIdAndDelFlagFalse(workspaceId);
-//
-//        List<WorkspaceAdminDto.Response> adminList = list.stream().filter(e -> e.getInviteFlag())
-//                .map(e -> WorkspaceAdminDto.Response.builder()
-//                        .id(e.getId())
-//                        .email(e.getUser().getEmail())
-//                        .name(e.getUser().getName())
-//                        .adminType(e.getAdminType())
-//                        .nickName(e.getUser().getNickname())
-//                        .inviteFlag(e.getInviteFlag())
-//                        .profileUrl(e.getUser().getProfile())
-//                        .build())
-//                .collect(Collectors.toList());
-//
-//        List<WorkspaceAdminDto.Response> waitList = list.stream().filter(e -> !e.getInviteFlag())
-//                .map(e -> WorkspaceAdminDto.Response.builder()
-//                        .id(e.getId())
-//                        .email(e.getRemark())
-//                        .name(e.getRemark())
-//                        .adminType(e.getAdminType())
-//                        .nickName(e.getRemark())
-//                        .inviteFlag(e.getInviteFlag())
-//                        .hasToken(e.getToken() != null)
-//                        .profileUrl(null)
-//                        .build())
-//                .collect(Collectors.toList());
-//
-//        QUser qUser = QUser.user;
-//        QWorkspace qWorkspace = QWorkspace.workspace;
-//
-//        User u = jpaQueryFactory.select(qUser)
-//                .from(qUser)
-//                .where(qUser.eq(
-//                        JPAExpressions.select(qWorkspace.user).from(qWorkspace).where(qWorkspace.id.eq(workspaceId))
-//                )).fetchOne();
-//
-//        WorkspaceAdminDto.Response owner = WorkspaceAdminDto.Response.builder()
-//                .id(0L)
-//                .userId(u.getId())
-//                .email(u.getEmail())
-//                .name(u.getName())
-//                .workspaceId(workspaceId)
-//                .inviteFlag(true)
-//                .adminType(AdminType.INVITE)
-//                .nickName(u.getNickname())
-//                .profileUrl(u.getProfile())
-//                .build();
-//
-//        WorkspaceAdminDto.ListResponse response = WorkspaceAdminDto.ListResponse.builder()
-//                .owner(owner)
-//                .adminList(adminList)
-//                .waitList(waitList)
-//                .build();
-//
-//        return response;
-//    }

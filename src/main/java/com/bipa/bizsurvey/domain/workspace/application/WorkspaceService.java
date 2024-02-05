@@ -143,35 +143,23 @@ public class WorkspaceService {
     }
 
     public boolean permissionCheck(Long userId, Plan plan) {
-        boolean permission = false;
+        // 개인 플랜 or 그룹 플랜인지 확인
+        if(Plan.NORMAL_SUBSCRIBE.equals(plan) || Plan.COMPANY_SUBSCRIBE.equals(plan)) {
+            return true;
+        }
 
         List<WorkspaceAdmin> adminList = workspaceAdminRepository.findByUserIdAndDelFlagFalse(userId);
-        List<User> userList = adminList.stream().map(e -> e.getWorkspace().getUser()).collect(Collectors.toList());
-        QUser user = QUser.user;
+        Long userCnt = adminList.stream()
+                .map(e -> e.getWorkspace().getUser())
+                .filter(e -> e.getPlanSubscribe().equals(Plan.COMPANY_SUBSCRIBE))
+                .count();
 
         // 관리자로 초대된 워크스페이스가 존재하는지 확인
-        if (adminList != null && adminList.size() > 0) {
-            permission = jpaQueryFactory
-                    .select()
-                    .from(user)
-                    .where(
-                            user.delFlag.isFalse()
-                                    .and(user.planSubscribe.eq(Plan.COMPANY_SUBSCRIBE))
-                                    .and(user.in(userList))
-                    )
-                    .fetchCount() > 0;
-
-            if (permission) {
-                return permission;
-            }
+        if(userCnt > 0) {
+            return true;
         }
-        // 내 명의의 워크스페이스가 존재하는지 확인
-        List<Workspace> list = workspaceRepository.findWorkspacesByUserIdAndDelFlagFalse(userId);
 
-        if (!Plan.COMMUNITY.equals(plan) && list != null && list.size() > 0) {
-            permission = true;
-        }
-        return permission;
+        return false;
     }
 }
 

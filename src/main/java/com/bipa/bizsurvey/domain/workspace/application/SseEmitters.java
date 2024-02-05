@@ -112,6 +112,7 @@ package com.bipa.bizsurvey.domain.workspace.application;
 import com.bipa.bizsurvey.domain.user.domain.User;
 import com.bipa.bizsurvey.domain.workspace.domain.Workspace;
 import com.bipa.bizsurvey.domain.workspace.dto.EventDto;
+import com.bipa.bizsurvey.domain.workspace.dto.SseEmitterDto;
 import com.bipa.bizsurvey.domain.workspace.dto.WorkspaceAdminDto;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceAdminRepository;
 import com.bipa.bizsurvey.domain.workspace.repository.WorkspaceRepository;
@@ -124,6 +125,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -152,7 +154,9 @@ public class SseEmitters {
             removeEmitter(userId, emitter); // 만료되면 리스트에서 삭제
         });
 
-        // 타임아웃 발생 시 브라우저에서 재 연결 요청을 보냄, 이때 새로운 Emitter 객체를 다시 생성함. 기존에 Emiiter를 제거 하여야함
+        // 타임아웃 발생 시 브라우저에서 재 연결 요청을 보냄,
+        // 이때 새로운 Emitter 객체를 다시 생성함.
+        // 기존에 Emiiter를 제거 하여야함
         emitter.onTimeout(() -> {
             log.info("onTimeout callback");
 //            emitter.complete();
@@ -160,28 +164,55 @@ public class SseEmitters {
 
         return emitter;
     }
+//
+//    // 관리자 초대 이벤트 전송
+//    public void sendEvent(EventDto event) {
+//        List<SseEmitter> list = getEmitterList(event.getWorkspaceId());
+//        String name = event.getName();
+//        String errorMessage = event.getErrorMessage();
+////        Object response = event.getResponse();
+//        list.forEach(emiiter -> {
+//            try {
+//                emiiter.send(SseEmitter.event()
+//                        .name(name)
+//                        .data(event));
+//            } catch (Exception e) {
+//                log.error(e.getMessage());
+//                log.error(errorMessage);
+//                list.remove(emiiter);
+//                removeEmitter
+//            // throw new RuntimeException(errorMessage);
+//            }
+//        });
+//    }
+
 
     // 관리자 초대 이벤트 전송
     public void sendEvent(EventDto event) {
-        log.info(11111);
-        List<SseEmitter> list = getEmitterList(event.getWorkspaceId());
+        Map<Long, SseEmitter> map = getEmitterList(event.getWorkspaceId());
         String name = event.getName();
         String errorMessage = event.getErrorMessage();
-        Object response = event.getResponse();
-        log.info(11111 - 1);
-        list.forEach(emiiter -> {
+//        Object response = event.getResponse();
+
+        emitters.entrySet().stream().forEach(a -> System.out.println(a.getKey()));
+
+        if(event.isDelFlag() && event.getId() != null) {
+            SseEmitter delEmitter = emitters.get(event.getId());
+            if(delEmitter != null) {
+                map.put(event.getId(), delEmitter);
+            }
+        }
+
+        map.entrySet().stream().forEach(entry -> {
+            SseEmitter emitter = entry.getValue();
             try {
-                log.info(11111 - 2);
-                emiiter.send(SseEmitter.event()
+                emitter.send(SseEmitter.event()
                         .name(name)
-                        .data(response));
-                log.info(11111 - 3);
+                        .data(event));
             } catch (Exception e) {
-                log.info("오류남오류남");
-                log.info(e.getMessage());
                 log.error(e.getMessage());
-//                list.remove(emiiter);
-                throw new RuntimeException(errorMessage);
+                log.error(errorMessage);
+                removeEmitter(entry.getKey(), emitter);
             }
         });
     }
@@ -194,27 +225,53 @@ public class SseEmitters {
     }
 
 
-//     특정 워크스페이스에 속한 관리자들의 SseEmiiter 가져옴
-    private List<SseEmitter> getEmitterList(Long workspaceId) {
+    //     특정 워크스페이스에 속한 관리자들의 SseEmiiter 가져옴
+    private Map<Long, SseEmitter> getEmitterList(Long workspaceId) {
         List<Long> userList = workspaceAdminRepository.findUserByWorkspaceId(workspaceId);
-        log.info("userList.size(): " + userList.size());
         userList.stream().forEach(log::info);
         Optional<Workspace> workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(workspaceId);
-        log.info("workspace: " + workspace.get().getWorkspaceName());
         Long owner = workspace.orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스 입니다.")).getUser().getId();
         userList.add(owner);
 
-        List<SseEmitter> sseEmiiterList = this.emitters.entrySet().stream().filter(entry -> userList.contains(entry.getKey()))
-                .map(entry -> entry.getValue())
-                .collect(Collectors.toList());
+//        List<SseEmitter> sseEmiiterList = this.emitters.entrySet().stream().filter(entry -> userList.contains(entry.getKey()))
+//                .map(entry -> entry.getValue())
+//                .collect(Collectors.toList());
+//
+//        if (sseEmiiterList == null) {
+//            sseEmiiterList = new CopyOnWriteArrayList<>();
+//        }
 
-        if (sseEmiiterList == null) {
-            log.info("난 이제 널널널");
-            sseEmiiterList = new CopyOnWriteArrayList<>();
-        }
+        Map<Long, SseEmitter> result = new ConcurrentHashMap();
 
-        log.info(sseEmiiterList.size());
-        log.info("끝남끝남");
-        return sseEmiiterList;
+        result.putAll(this.emitters.entrySet().stream().filter(entry -> userList.contains(entry.getKey()))
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
+
+        log.info(result.size());
+        return result;
     }
+
+////     특정 워크스페이스에 속한 관리자들의 SseEmiiter 가져옴
+//    private List<SseEmitter> getEmitterList(Long workspaceId) {
+//        List<Long> userList = workspaceAdminRepository.findUserByWorkspaceId(workspaceId);
+//        userList.stream().forEach(log::info);
+//        Optional<Workspace> workspace = workspaceRepository.findWorkspaceByIdAndDelFlagFalse(workspaceId);
+//        Long owner = workspace.orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스 입니다.")).getUser().getId();
+//        userList.add(owner);
+//
+////        List<SseEmitter> sseEmiiterList = this.emitters.entrySet().stream().filter(entry -> userList.contains(entry.getKey()))
+////                .map(entry -> entry.getValue())
+////                .collect(Collectors.toList());
+////
+////        if (sseEmiiterList == null) {
+////            sseEmiiterList = new CopyOnWriteArrayList<>();
+////        }
+//
+//        Map<Long, SseEmitter> result = new ConcurrentHashMap();
+//
+//        result.putAll(this.emitters.entrySet().stream().filter(entry -> userList.contains(entry.getKey()))
+//                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
+//
+//        log.info(result.size());
+//        return result;
+//    }
 }

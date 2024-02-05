@@ -8,6 +8,12 @@ import lombok.Data;
 public class EventDto {
     private Long workspaceId;
     private String name;
-    private Object response;
+    private String detailEvent;
     private String errorMessage;
+//    private Long userId;
+    private Long id;
+    @Builder.Default
+    private boolean delFlag = false;
+
+    //    private Object response;
 }

@@ -104,6 +104,7 @@ spring:
     defer-datasource-initialization: true
     hibernate.ddl-auto: update
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         default_batch_fetch_size: 100
@@ -137,6 +138,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
+    open-in-view: false
   datasource:
     url: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}
     username: ${RDS_USERNAME}

@@ -47,9 +47,10 @@ public class ContactService {
 
         EventDto event = EventDto.builder()
                 .workspaceId(request.getWorkspaceId())
-                .name("registerContact")
+                .id(request.getUserId())
+                .name("contactEvent")
                 .errorMessage("연락처 등록에 실패하였습니다.")
-                .response(response)
+//                .response(response)
                 .build();
 
         sseEmitters.sendEvent(event);
@@ -97,15 +98,17 @@ public class ContactService {
         contact.update(request.getName(), request.getEmail());
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) {
         Contact contact = contactRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 연락처입니다."));
         contact.delete();
 
         EventDto event = EventDto.builder()
                 .workspaceId(contact.getWorkspace().getId())
-                .name("removeContact")
+                .name("contactEvent")
                 .errorMessage("연락처 삭제에 실패하였습니다.")
-                .response(contact.getId())
+                .delFlag(true)
+                .id(userId)
+//                .response(contact.getId())
                 .build();
 
         sseEmitters.sendEvent(event);

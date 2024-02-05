@@ -53,7 +53,7 @@ public class SurveyService {
 
     public List<SurveyListResponse> getSurveyList(Long workspaceId, String fieldName){
         return jpaQueryFactory
-                .select(Projections.constructor(SurveyListResponse.class, s.id, s.title, s.surveyType))
+                .select(Projections.constructor(SurveyListResponse.class, s.id, s.title, s.surveyType, s.modDate))
                 .from(s)
                 .where(s.workspace.id.eq(workspaceId)
                         .and(s.delFlag.eq(false)))
@@ -235,20 +235,20 @@ public class SurveyService {
     }
 
 
-    private void checkPermission(LoginUser loginUser, Long workspaceId){
-        User user = userRepository.findById(loginUser.getId()).orElseThrow();
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
-
-        if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
-            if (workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
-                throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
-            }
-        }else {
-            if(workspaceRepository.findByUserIdAndWorkspaceType(user.getId(), WorkspaceType.PERSONAL) == null){
-                throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
-            }
-        }
-    }
+//    private void checkPermission(LoginUser loginUser, Long workspaceId){
+//        User user = userRepository.findById(loginUser.getId()).orElseThrow();
+//        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
+//
+//        if (workspace.getWorkspaceType().equals(WorkspaceType.COMPANY)) {
+//            if (workspaceAdminRepository.findByDelFlagFalseAndWorkspaceIdAndUserId(user.getId(), workspace.getId()) == null) {
+//                throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
+//            }
+//        }else {
+//            if(workspaceRepository.findByUserIdAndWorkspaceType(user.getId(), WorkspaceType.PERSONAL) == null){
+//                throw new SurveyException(SurveyExceptionType.NO_PERMISSION);
+//            }
+//        }
+//    }
 
     private List<QuestionResponse> mergeAnswers(List<QuestionResponse> questions) {
         Map<Long, QuestionResponse> questionMap = new HashMap<>();
