@@ -100,7 +100,8 @@
 <img width="779" alt="image" src="https://github.com/BIPA-8-3/BIZSurvey_FRONT/assets/80444077/f42d4e30-2e1f-442b-98b5-e722494fd4f1">
 
 #### 1-2.커뮤니티 페이지
-<img width="914" alt="image" src="https://github.com/BIPA-8-3/BIZSurvey_FRONT/assets/80444077/907bcb6a-e6f1-4a15-b37a-769350a68aeb">
+<img width="829" alt="image" src="https://github.com/BIPA-8-3/BIZSurvey_BACK/assets/80444077/3e147239-117c-4ee1-bd08-f6a4e4580a9f">
+
 
 #### 1-3.상세 페이지
 <img width="709" alt="image" src="https://github.com/BIPA-8-3/BIZSurvey_FRONT/assets/80444077/4d5994d7-2fd7-4cd5-8b7b-42cfdaf0990a">
