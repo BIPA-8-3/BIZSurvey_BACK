@@ -1,6 +1,15 @@
 # 🍀 BIZ SURVEY
+<br/>
+
 ![Group 369 (1)](https://github.com/BIPA-8-3/BIZSurvey_FRONT/assets/80444077/37507c2b-69b3-453b-9be3-0b817281f44e)
 <br/><br/>
+### 팀원
+* 박소영, 황원식, 임솔, 박시연
+### 개발 기간
+* 2023-10 ~ 2023-12 (약 3개월)
+
+<br/><br/>
+
 ## 🐬 개요
 
 ### 전체 개요
